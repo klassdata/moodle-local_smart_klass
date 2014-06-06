@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<XMLDB PATH="local/klap/db" VERSION="20140514" COMMENT="XMLDB file for Moodle local/klap"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
+>
+  <TABLES>
+    <TABLE NAME="local_klap" NEXT="local_klap_log">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" NEXT="name"/>
+        <FIELD NAME="name" TYPE="char" LENGTH="100" NOTNULL="true" SEQUENCE="false" PREVIOUS="id" NEXT="data"/>
+        <FIELD NAME="data" TYPE="text" NOTNULL="false" SEQUENCE="false" PREVIOUS="name" NEXT="active"/>
+		<FIELD NAME="active" TYPE="int" LENGTH="1" NOTNULL="false" SEQUENCE="false" PREVIOUS="data" NEXT="deleted"/>
+		<FIELD NAME="deleted" TYPE="int" LENGTH="1" NOTNULL="false" SEQUENCE="false" PREVIOUS="active" NEXT="lastregistry"/>
+        <FIELD NAME="lastregistry" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" PREVIOUS="deleted" NEXT="lastexectime"/>
+        <FIELD NAME="lastexectime" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" PREVIOUS="lastregistry"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+    </TABLE>
+    <TABLE NAME="local_klap_log" COMMENT="local_klap_log table retrofitted from MySQL" PREVIOUS="local_klap">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" NEXT="init"/>
+        <FIELD NAME="init" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" PREVIOUS="id" NEXT="finish"/>
+        <FIELD NAME="finish" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" PREVIOUS="init" NEXT="result"/>
+        <FIELD NAME="result" TYPE="int" LENGTH="2" NOTNULL="false" SEQUENCE="false" PREVIOUS="finish" NEXT="collectors"/>
+        <FIELD NAME="collectors" TYPE="text" NOTNULL="false" SEQUENCE="false" PREVIOUS="result"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="id" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="init" UNIQUE="false" FIELDS="init" NEXT="finish"/>
+        <INDEX NAME="finish" UNIQUE="false" FIELDS="finish" PREVIOUS="init"/>
+      </INDEXES>
+    </TABLE>
+  </TABLES>
+</XMLDB>
