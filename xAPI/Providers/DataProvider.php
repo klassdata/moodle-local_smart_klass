@@ -331,11 +331,11 @@ class DataProvider {
           );
         foreach ($reg as &$item) {
             if ($item->cmid == 0) continue;
-            $d = $DB->get_record('course_modules', array('id'=>$item->cmid), 'course, instance as activityid,section as moduleid');
+            $d = $DB->get_record('course_modules', array('id'=>$item->cmid), 'course, instance as activityid,section as sectionid, module as modid');
             $item->activityid = $d->activityid;
-            $item->moduleid = $d->moduleid;
+            $item->section = $d->sectionid;
             $item->course = $d->course;
-            $item->mod = $DB->get_field('modules', 'name', array('id'=>$d->moduleid));
+            $item->mod = $DB->get_field('modules', 'name', array('id'=>$d->modid));
         }
         return $reg;
     }

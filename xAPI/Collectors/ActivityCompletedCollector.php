@@ -45,7 +45,7 @@ class ActivityCompletedCollector extends Collector {
            
            //SetContext
            $xAPI_statement->setContext('contextActivities',  array('parent'=>$this->dataprovider->getCourseId($object->course)) );
-           $xAPI_statement->setContext('contextActivities',  array('grouping'=>$this->dataprovider->getModuleId($object->course, $object->moduleid)) );
+           $xAPI_statement->setContext('contextActivities',  array('grouping'=>$this->dataprovider->getModuleId($object->course, $object->section)) );
         
         
            //SetTimeStamp

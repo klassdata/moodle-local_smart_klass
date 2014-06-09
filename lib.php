@@ -67,9 +67,9 @@ function local_klap_harvest( $collector=array() ) {
     $objlog->init = 0;
     $objlog->finish = 0;
     $objlog->result = 0;
-    $obj->collectors = '';
-    $obj->logfile = '';
-    $obj->error = '';
+    $objlog->collectors = '';
+    $objlog->logfile = '';
+    $objlog->error = '';
     
     try {
         $objlog->init = time();
@@ -201,7 +201,8 @@ function local_klap_get_harvesters () {
                 $o = new stdClass();
                 $o->name = $item;
                 $o->data = null;
-                $o->active = 0;
+                $o->active = 1;
+                $o->deleted = 0;
                 $o->lastregistry = 0;
                 $o->lastexectime = 0;
                 $id = $DB->insert_record ('local_klap', $o);
