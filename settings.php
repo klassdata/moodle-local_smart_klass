@@ -34,6 +34,7 @@ if ($hassiteconfig) {
     $ADMIN->add('klap', new admin_externalpage('klapcontrolpanel', get_string('controlpanel', 'local_klap'),
             $CFG->wwwroot.'/local/klap/view.php', 'local/klap:manage'));
     
+   
     //Agrego página de configuración para acceder desde plugins locales
     $settings = new admin_settingpage('local_klap', get_string('pluginname', 'local_klap'));
     $ADMIN->add('localplugins', $settings);

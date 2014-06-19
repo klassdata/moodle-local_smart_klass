@@ -30,6 +30,148 @@ define('KLAP_ACTION_HARVERTS',       'h');
 define('KLAP_ACTION_EDIT',           'e');
 define('KLAP_ACTION_ACTIVATE',       'a');
 
+
+define('KLAP_DASHBOARD_STUDENT',          1);
+define('KLAP_DASHBOARD_TEACHER',          2);
+define('KLAP_DASHBOARD_INSTITUTION',      3);
+
+
+
+/**
+ * Get a valid access token from oAuth server
+ *
+ * @param  integer $userid    The moodle user id
+ * @param  integer $role the dashboard role. Values: 1/Student; 2/Teacher; 3/Institution
+ * 
+ * @return stdClass Object with a valid oauth credentials. null if invalid oauth credentials
+ */
+function local_klap_get_oauth_accesstoken ($userid, $role){
+    global $DB;
+    
+    $oauth_obj = $DB->get_record( 'local_klap_dashboard_oauth', array('userid'=>$userid, 'dashboard_role'=>$role) );
+    
+    if (local_klap_oauth_validate($oauth_obj->access_token)){
+        $oauth_obj->modified = time();
+        
+    } else {
+        //Try refresh token
+        $accesstoken = local_klap_oauth_refreshtoken ($oauth_obj->refresh_token);
+        if ( empty($accesstoken) ) return null;
+        $time = time();
+        $oauth_obj->access_token = $accesstoken;
+        $oauth_obj->modified = $time;
+        $oauth_obj->created = $time;
+    }
+    $DB->update_record('local_klap_dashboard_oauth', $oauth_obj);
+    return $oauth_obj;
+}
+
+/**
+ * Validate access token in oauth servr
+ * @param  string $accesstoken    accesstoken to validate with oauth server
+ * @return bool true if oauth accesstoken is ok, false is oauth accesstoken is KO
+ */
+function local_klap_oauth_validate ($acces_token=null){
+    //TODO 1 Posiziona: Validate access_token in oauth server
+}
+
+/**
+ * Get a valid token throw refresh token in oauth servr
+ * @param  string $refreshtoken    Valid oauth refresh token
+ * @return string new access token if OK, null if KO
+ */
+function local_klap_oauth_refreshtoken ($refresh_token=null){
+    //TODO 2 Posiziona: Try to get the access_token throw refresh_token in oauth server
+
+}
+
+
+
+
+/**
+ * Validate access token in oauth servr
+ * @param  string $accesstoken    accesstoken to validate with Klap Dashboard
+ * @return DEFINE BY POSIZIONA
+ */
+function local_klap_get_dashboard ($access_token=null){
+    //TODO 3 Posiziona: Get the correct dashboard from Klap Dashboard
+}
+
+
+/**
+ * Determines whether the current user can access to manage Klap Configuration
+ *
+ * @return bool true if user can access logs
+ */
+function local_klap_can_manage() {
+    $context = context_system::instance();
+
+    if (has_capability('local/klap:manage', $context)) {
+        return true;
+    }
+
+    return false;
+}
+
+
+
+function local_klap_dashboard_roles ($userid) {
+    global $PAGE;
+    $roles = get_user_roles($PAGE->context, $userid, true);
+    $dashboard = new stdClass ();
+    
+    $dashboard->student = false;
+    $dashboard->teacher = false;
+    $dashboard->institution = false;
+    
+    $student_default_role = array(5);
+    $teacher_default_role = array(3,4);
+    $intitution_default_role = array(1);
+    
+    foreach ($roles as $role) {
+        if (in_array ($role->roleid, $student_default_role) )
+            $dashboard->student = true; 
+        if (in_array ($role->roleid, $teacher_default_role) )
+            $dashboard->teacher = true;
+        if (in_array ($role->roleid, $intitution_default_role) )
+            $dashboard->institution = true; 
+    }
+
+    return $dashboard;
+}
+
+
+
+function local_klap_extends_navigation(global_navigation $navigation) {
+    global $CFG, $PAGE, $USER;
+    
+    //Creo menú en el Bloque de administración para el plugin
+    $nodeKlap = $navigation->add(get_string('pluginname', 'local_klap') );
+    
+    
+    if (empty(get_config('local_klap', 'username')) || empty(get_config('local_klap', 'password'))){
+        if (local_klap_can_manage())
+            $nodeKlap->add( get_string('configure_access', 'local_klap'), new moodle_url($CFG->wwwroot.'/local/klap/register.php' ));
+    } else {
+        $dashboard_roles = local_klap_dashboard_roles($USER->id);
+        if ( $dashboard_roles->student ) {
+            $nodeKlap->add( get_string('studentdashboard', 'local_klap'), new moodle_url($CFG->wwwroot.'/local/klap/dashboard.php', array('cid' => $PAGE->context->id, 'dt'=>KLAP_DASHBOARD_STUDENT)));
+        }
+        if ( $dashboard_roles->teacher ) {
+            $nodeKlap->add( get_string('teacherdashboard', 'local_klap'), new moodle_url($CFG->wwwroot.'/local/klap/dashboard.php', array('cid' => $PAGE->context->id, 'dt'=>KLAP_DASHBOARD_TEACHER)));
+        }
+
+        if ( $dashboard_roles->institution || local_klap_can_manage() ) {
+            $nodeKlap->add( get_string('institutiondashboard', 'local_klap'), new moodle_url($CFG->wwwroot.'/local/klap/dashboard.php', array('cid' => $PAGE->context->id, 'dt'=>KLAP_DASHBOARD_INSTITUTION)));
+        }  
+    }
+    
+    //Remove Klap root node it empty
+    if ( !$nodeKlap->has_children()) 
+        $nodeKlap->remove();
+       
+ }
+
 /**
  * Function to be run periodically according to the moodle cron
  * Prepare all statemenst and send it to an LRS
