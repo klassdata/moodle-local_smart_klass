@@ -23,26 +23,26 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-
 require_once (dirname(dirname(dirname(__FILE__))).'/config.php');
 require_once(dirname(__FILE__).'/lib.php');
 require_once(dirname(__FILE__).'/locallib.php');
 
 
-$contextid = required_param('cid', PARAM_INT);
+
+$contextid      = required_param('cid', PARAM_INT);
+$contextid		= $COURSE->id;
 $dashboard_role = required_param('dt', PARAM_INT);
 
 list($context, $course, $cm) = get_context_info_array($contextid);
 
-
-
 $dashboard_roles = local_klap_dashboard_roles ($USER->id);
 
-if ( $dashboard_roles->institution ) {
-   require_login(); 
-} else {
+if($dashboard_roles->institution){
+	require_login();
+}else{
     require_login($course, true);
 }
+
 
 switch ($dashboard_role) {
     case KLAP_DASHBOARD_STUDENT:
@@ -75,21 +75,34 @@ echo 'USER_EMAIL: ' . $USER->email . '<br>';
 echo 'ROLE_SOLICITADO: ' . $dashboard_role . '<br>';
 echo 'DASHBOARD A PRESENTAR: ' . $strheading . '<br>';
 echo 'ROLES SOPORTADOS POR EL USUARIO EN EL CURSO: ';
-if ($dashboard_roles->student)  echo 'id: ' . KLAP_DASHBOARD_STUDENT . 'STUDENT, ';
-if ($dashboard_roles->teacher)  echo 'id: ' . KLAP_DASHBOARD_TEACHER . 'TEACHER, ';
-if ($dashboard_roles->institution)  echo 'id: ' . KLAP_DASHBOARD_INSTITUTION . 'INSTITUTION';
+if($dashboard_roles->student)  echo 'id: ' . KLAP_DASHBOARD_STUDENT . 'STUDENT, ';
+if($dashboard_roles->teacher)  echo 'id: ' . KLAP_DASHBOARD_TEACHER . 'TEACHER, ';
+if($dashboard_roles->institution)  echo 'id: ' . KLAP_DASHBOARD_INSTITUTION . 'INSTITUTION';
 
 $oauth_obj = local_klap_get_oauth_accesstoken ($USER->id, $dashboard_role);
+
+
 if ( !empty($oauth_obj) ){
-    //ACCESS_TOKEN OK, SEND  ACCESS TOKEN TO DASHBOARD
+	
+	
+	
+	
+	echo "<iframe src='http://192.168.2.9/dashboard/index.php/conexion_oauth/check_user/".urlencode($USER->email)."/".$oauth_obj->access_token."'   width='100%' height='608px' style='border:none'></iframe>";
+
+
+/*    //ACCESS_TOKEN OK, SEND  ACCESS TOKEN TO DASHBOARD
     if ( $dashboard = local_klap_get_dashboard($oauth_obj->access_token) ){
-           //TODO 4 Posiziona: CREATE $dashboard
+		echo 'sdff';
+		print_r($USER);
+		   //
     } else {
         //TODO 5 Posiziona: Throw Klap Dashboard Creation Error Exception
     }
+	*/
 } else {
+
     //ACCESS_TOKEN KO,MANAGE OAUTH LOGIN/REGISTER
-    
+
     //TODO 6 Posiziona: Manage oauth_login with user/password with oauth server
     //1. Show login form / register url
     //2. Validate login form with oauth server
@@ -97,8 +110,27 @@ if ( !empty($oauth_obj) ){
     //2.2 If KO show oauth server error message, redirect (1)
     //3. call $dashboard = local_klap_get_dashboard($accesstoken)
     //4. create $dashboard
-    
-    die;
+
+if (empty($_GET['error']) && empty($_GET['ok'])) {    
+	echo '<br> <script type="text/javascript" src="jquery-1.10.2.min.js"></script> <script type="text/javascript"> var code="";
+	function save_access_token(code,refresh,user,rol,user_id){
+			$.ajax({
+			  type: "POST",
+			  url: "save_access_token.php",
+			  data: { code:code,refresh:refresh,rol:rol,user_id:user_id }
+			}).done(function( msg ) {
+				
+			});			
+	}
+	</script>';
+	echo "<iframe src='http://192.168.2.9/dashboard/index.php/register/reg/user/rol/user_id'   width='100%' height='608px' style='border:none'></iframe>";
+}else if(($_GET['error']) ){
+	 echo '<br><br>Acceso denegado por el usuario';
+}
+  
+   
+   
+   
 }
 
 //TODO by POSIZIONA: Draw dashboard

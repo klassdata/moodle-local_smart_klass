@@ -49,6 +49,8 @@ function local_klap_get_oauth_accesstoken ($userid, $role){
     global $DB;
     
     $oauth_obj = $DB->get_record( 'local_klap_dashboard_oauth', array('userid'=>$userid, 'dashboard_role'=>$role) );
+	
+
     
     if (local_klap_oauth_validate($oauth_obj->access_token)){
         $oauth_obj->modified = time();
@@ -62,7 +64,9 @@ function local_klap_get_oauth_accesstoken ($userid, $role){
         $oauth_obj->modified = $time;
         $oauth_obj->created = $time;
     }
+
     $DB->update_record('local_klap_dashboard_oauth', $oauth_obj);
+
     return $oauth_obj;
 }
 
@@ -71,9 +75,36 @@ function local_klap_get_oauth_accesstoken ($userid, $role){
  * @param  string $accesstoken    accesstoken to validate with oauth server
  * @return bool true if oauth accesstoken is ok, false is oauth accesstoken is KO
  */
-function local_klap_oauth_validate ($acces_token=null){
+function local_klap_oauth_validate ($access_token=null){
     //TODO 1 Posiziona: Validate access_token in oauth server
+			//CAMBIAR URL por la URL DEL SERVIDOR
+		$url  = "http://localhost/oauth/prueba/resource.php";
+
+
+		$fields = array('access_token' => $access_token);
+		$ch = curl_init($url);
+		
+		
+		$qry_str = "?access_token=".$access_token;
+
+		// Set query data here with the URL
+		curl_setopt($ch, CURLOPT_URL,$url.$qry_str); 
+		
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+		curl_setopt($ch, CURLOPT_TIMEOUT, '3');		
+		
+		
+		$curl_response = curl_exec($ch);	// execute curl request
+	    $curl_response  = json_decode($curl_response);
+		curl_close($ch);
+
+
+		if(empty($curl_response) || $curl_response->error=='invalid_token')
+			return false;
+		else
+			return true;
 }
+
 
 /**
  * Get a valid token throw refresh token in oauth servr
@@ -117,26 +148,26 @@ function local_klap_can_manage() {
 
 function local_klap_dashboard_roles ($userid) {
     global $PAGE;
-    $roles = get_user_roles($PAGE->context, $userid, true);
-    $dashboard = new stdClass ();
-    
-    $dashboard->student = false;
-    $dashboard->teacher = false;
-    $dashboard->institution = false;
-    
-    $student_default_role = array(5);
-    $teacher_default_role = array(3,4);
-    $intitution_default_role = array(1);
-    
-    foreach ($roles as $role) {
-        if (in_array ($role->roleid, $student_default_role) )
-            $dashboard->student = true; 
-        if (in_array ($role->roleid, $teacher_default_role) )
-            $dashboard->teacher = true;
-        if (in_array ($role->roleid, $intitution_default_role) )
-            $dashboard->institution = true; 
-    }
+    $roles	= get_user_roles($PAGE->context, $userid, true);
 
+    $dashboard	= new stdClass ();
+    
+    $dashboard->student		= false;
+    $dashboard->teacher		= false;
+    $dashboard->institution	= false;
+    
+    $student_default_role		= array(5);
+    $teacher_default_role		= array(3,4);
+    $intitution_default_role	= array(1);
+    
+    foreach($roles as $role){
+        if(in_array($role->roleid, $student_default_role))
+            $dashboard->student = true;
+        if(in_array($role->roleid, $teacher_default_role))
+            $dashboard->teacher = true;
+        if(in_array($role->roleid, $intitution_default_role))
+            $dashboard->institution = true;
+    }
     return $dashboard;
 }
 
