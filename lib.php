@@ -36,6 +36,9 @@ define('KLAP_DASHBOARD_TEACHER',          2);
 define('KLAP_DASHBOARD_INSTITUTION',      3);
 
 
+define('KLAP_OAUTHSERVER_URL', 'http://localhost/oauth/prueba/resource.php');
+define('KLAP_DASHBOARD_URL',   'http://192.168.2.9/dashboard/index.php/');
+
 
 /**
  * Get a valid access token from oAuth server
@@ -71,18 +74,41 @@ function local_klap_get_oauth_accesstoken ($userid, $role){
 }
 
 /**
+ * Insert a new access_token registry
+ * @param  string $code    accesstoken to validate with oauth server
+ * @param  string $refresh    refreshtoken to validate with oauth server
+ * @param  string $email    user email use with access_token (oautn uid)
+ * @param  string $rol    rol allow by access token
+ * @param  string $user_id    moodle user_id associate with accesstoken
+ * @return mixed record id if OK or false if KO
+ */
+function local_klap_save_access_token ($code, $refresh, $email, $rol, $user_id) {
+    global $DB;
+    
+    $t = time();
+    $obj = new stdClass();
+    $obj->access_token = $code;
+    $obj->refresh_token = $refresh;
+    $obj->userid = $user_id;
+    $obj->email = $email;
+    $obj->dashboard_role = $rol;
+    $obj->modified = $t;
+    $obj->created = $t;
+
+    return $DB->insert_record('local_klap_dashboard_oauth', $obj);
+}
+
+
+/**
  * Validate access token in oauth servr
  * @param  string $accesstoken    accesstoken to validate with oauth server
  * @return bool true if oauth accesstoken is ok, false is oauth accesstoken is KO
  */
 function local_klap_oauth_validate ($access_token=null){
     //TODO 1 Posiziona: Validate access_token in oauth server
-			//CAMBIAR URL por la URL DEL SERVIDOR
-		$url  = "http://localhost/oauth/prueba/resource.php";
-
 
 		$fields = array('access_token' => $access_token);
-		$ch = curl_init($url);
+		$ch = curl_init(KLAP_OAUTHSERVER_URL);
 		
 		
 		$qry_str = "?access_token=".$access_token;

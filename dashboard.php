@@ -84,10 +84,15 @@ $oauth_obj = local_klap_get_oauth_accesstoken ($USER->id, $dashboard_role);
 
 if ( !empty($oauth_obj) ){
 	
-	
-	
-	
-	echo "<iframe src='http://192.168.2.9/dashboard/index.php/conexion_oauth/check_user/".urlencode($USER->email)."/".$oauth_obj->access_token."'   width='100%' height='608px' style='border:none'></iframe>";
+    $options = array(); 
+    $options['src'] = KLAP_OAUTHSERVER_URL . '/conexion_oauth/check_user/'.urlencode($USER->email).'/'.$oauth_obj->access_token;
+    $options['width'] = '100%';
+    $options['height'] = '608px';
+    $options['style'] = 'border:none';
+    
+    
+	echo html_writer::empty_tag('iframe', $options);
+
 
 
 /*    //ACCESS_TOKEN OK, SEND  ACCESS TOKEN TO DASHBOARD
@@ -111,22 +116,23 @@ if ( !empty($oauth_obj) ){
     //3. call $dashboard = local_klap_get_dashboard($accesstoken)
     //4. create $dashboard
 
-if (empty($_GET['error']) && empty($_GET['ok'])) {    
-	echo '<br> <script type="text/javascript" src="jquery-1.10.2.min.js"></script> <script type="text/javascript"> var code="";
-	function save_access_token(code,refresh,user,rol,user_id){
-			$.ajax({
-			  type: "POST",
-			  url: "save_access_token.php",
-			  data: { code:code,refresh:refresh,rol:rol,user_id:user_id }
-			}).done(function( msg ) {
-				
-			});			
-	}
-	</script>';
-	echo "<iframe src='http://192.168.2.9/dashboard/index.php/register/reg/user/rol/user_id'   width='100%' height='608px' style='border:none'></iframe>";
-}else if(($_GET['error']) ){
-	 echo '<br><br>Acceso denegado por el usuario';
-}
+    if (empty($_GET['error']) && empty($_GET['ok'])) {    
+  
+
+        $PAGE->requires->js_init_call('M.local_klap.save_access_token', array( $code, $refresh, $email, $rol, $user_id), true );
+        
+        $options = array(); 
+        $options['src'] = KLAP_DASHBOARD_URL . 'register/reg/user/rol/user_id';
+        $options['width'] = '100%';
+        $options['height'] = '608px';
+        $options['style'] = 'border:none';
+        echo html_writer::empty_tag('iframe', $options);
+    }else if(($_GET['error']) ){
+         echo html_writer::empty_tag('br');
+         echo html_writer::empty_tag('br');
+         echo html_writer::tag('label', get_string('noaccess','local_klap'));
+    
+    }
   
    
    
