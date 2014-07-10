@@ -36,7 +36,7 @@ define('KLAP_DASHBOARD_TEACHER',          2);
 define('KLAP_DASHBOARD_INSTITUTION',      3);
 
 
-define('KLAP_OAUTHSERVER_URL', 'http://localhost/oauth/prueba/resource.php');
+define('KLAP_OAUTHSERVER_URL', 'http://192.168.2.9/oauth/resource.php');
 define('KLAP_DASHBOARD_URL',   'http://192.168.2.9/dashboard/index.php/');
 
 
@@ -110,7 +110,7 @@ function local_klap_oauth_validate ($access_token=null){
 		$fields = array('access_token' => $access_token);
 		$ch = curl_init(KLAP_OAUTHSERVER_URL);
 		
-		
+		$url = KLAP_OAUTHSERVER_URL;
 		$qry_str = "?access_token=".$access_token;
 
 		// Set query data here with the URL
@@ -123,6 +123,8 @@ function local_klap_oauth_validate ($access_token=null){
 		$curl_response = curl_exec($ch);	// execute curl request
 	    $curl_response  = json_decode($curl_response);
 		curl_close($ch);
+		
+
 
 
 		if(empty($curl_response) || $curl_response->error=='invalid_token')
@@ -139,6 +141,9 @@ function local_klap_oauth_validate ($access_token=null){
  */
 function local_klap_oauth_refreshtoken ($refresh_token=null){
     //TODO 2 Posiziona: Try to get the access_token throw refresh_token in oauth server
+
+
+
 
 }
 
@@ -204,9 +209,9 @@ function local_klap_extends_navigation(global_navigation $navigation) {
     
     //Creo menú en el Bloque de administración para el plugin
     $nodeKlap = $navigation->add(get_string('pluginname', 'local_klap') );
+	
     
-    
-    if (empty(get_config('local_klap', 'username')) || empty(get_config('local_klap', 'password'))){
+	if (get_config('local_klap', 'username') == '' || get_config('local_klap', 'password') == ''){
         if (local_klap_can_manage())
             $nodeKlap->add( get_string('configure_access', 'local_klap'), new moodle_url($CFG->wwwroot.'/local/klap/register.php' ));
     } else {
