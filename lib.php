@@ -36,8 +36,11 @@ define('KLAP_DASHBOARD_TEACHER',          2);
 define('KLAP_DASHBOARD_INSTITUTION',      3);
 
 
+define('KLAP_OAUTHSERVER_URL', 'http://develop.klaptek.com/oauth/resource.php');
+define('KLAP_DASHBOARD_URL',   'http://develop.klaptek.com/dashboard/');
+/*
 define('KLAP_OAUTHSERVER_URL', 'http://192.168.2.9/oauth/resource.php');
-define('KLAP_DASHBOARD_URL',   'http://192.168.2.9/dashboard/index.php/');
+define('KLAP_DASHBOARD_URL',   'http://192.168.2.9/dashboard/');*/
 
 
 /**
@@ -52,7 +55,7 @@ function local_klap_get_oauth_accesstoken ($userid, $role){
     global $DB;
     
     $oauth_obj = $DB->get_record( 'local_klap_dashboard_oauth', array('userid'=>$userid, 'dashboard_role'=>$role) );
-	
+
 
     
     if (local_klap_oauth_validate($oauth_obj->access_token)){
@@ -112,6 +115,7 @@ function local_klap_oauth_validate ($access_token=null){
 		
 		$url = KLAP_OAUTHSERVER_URL;
 		$qry_str = "?access_token=".$access_token;
+
 
 		// Set query data here with the URL
 		curl_setopt($ch, CURLOPT_URL,$url.$qry_str); 

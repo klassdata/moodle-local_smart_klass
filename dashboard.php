@@ -33,7 +33,9 @@ $contextid      = required_param('cid', PARAM_INT);
 $contextid		= $COURSE->id;
 $dashboard_role = required_param('dt', PARAM_INT);
 
+
 list($context, $course, $cm) = get_context_info_array($contextid);
+
 
 $dashboard_roles = local_klap_dashboard_roles ($USER->id);
 
@@ -69,6 +71,7 @@ $PAGE->navbar->add($strheading);
 echo $OUTPUT->header();
 echo $OUTPUT->box_start();
 
+/*
 //VARIABLES DE GESTIÓN DEL DASHBOARD
 echo 'USER_ID: ' . $USER->id . '<br>';
 echo 'USER_EMAIL: ' . $USER->email . '<br>';
@@ -78,9 +81,11 @@ echo 'ROLES SOPORTADOS POR EL USUARIO EN EL CURSO: ';
 if($dashboard_roles->student)  echo 'id: ' . KLAP_DASHBOARD_STUDENT . 'STUDENT, ';
 if($dashboard_roles->teacher)  echo 'id: ' . KLAP_DASHBOARD_TEACHER . 'TEACHER, ';
 if($dashboard_roles->institution)  echo 'id: ' . KLAP_DASHBOARD_INSTITUTION . 'INSTITUTION';
-
+*/
 $oauth_obj = local_klap_get_oauth_accesstoken ($USER->id, $dashboard_role);
 
+$u_course = $COURSE->id;
+$ident_course =  $CFG->wwwroot . '/course/' . $u_course;
 
 if ( !empty($oauth_obj) ){
 	
@@ -90,8 +95,10 @@ if ( !empty($oauth_obj) ){
     $options['height'] = '608px';
     $options['style'] = 'border:none';
     
-    
-	echo html_writer::empty_tag('iframe', $options);
+	
+
+//	echo html_writer::empty_tag('iframe', $options);
+	echo "<iframe src='".KLAP_DASHBOARD_URL."conexion_oauth/check_user/".urlencode($USER->email)."/".$oauth_obj->access_token."'   width='100%' height='608px' style='border:none' /></iframe>";	
 
 
 
@@ -106,6 +113,7 @@ if ( !empty($oauth_obj) ){
 	*/
 } else {
 
+
     //ACCESS_TOKEN KO,MANAGE OAUTH LOGIN/REGISTER
 
     //TODO 6 Posiziona: Manage oauth_login with user/password with oauth server
@@ -117,16 +125,26 @@ if ( !empty($oauth_obj) ){
     //4. create $dashboard
 
     if (empty($_GET['error']) && empty($_GET['ok'])) {    
-  
 
-        $PAGE->requires->js_init_call('M.local_klap.save_access_token', array( $code, $refresh, $email, $rol, $user_id), true );
-        
+	  
+
+
+       // $PAGE->requires->js_init_call('M.local_klap.save_access_token', array( $code, $refresh, $email, $rol, $user_id), true );
+		
         $options = array(); 
-        $options['src'] = KLAP_DASHBOARD_URL . 'register/reg/user/rol/user_id';
+        $options['src'] = KLAP_DASHBOARD_URL . 'register/reg/'.urlencode($USER->email).'/'.$dashboard_role.'/'.$USER->id.'/'.$USER->sesskey.'/'.($ident_course);
         $options['width'] = '100%';
         $options['height'] = '608px';
         $options['style'] = 'border:none';
-        echo html_writer::empty_tag('iframe', $options);
+      //  echo html_writer::tag('iframe', $options);
+		
+		//codificamos la url para poder pasarla por el iframe
+		$ident_course  = (str_replace('http://','55hp5',$ident_course));
+		$ident_course  = (str_replace('/','8br8',$ident_course));		
+
+
+	    echo "<iframe src='".KLAP_DASHBOARD_URL."register/reg/".urlencode($USER->email)."/".$dashboard_role."/".$USER->id."/".$USER->sesskey."/".$ident_course."'   width='100%' height='608px' style='border:none' /></iframe>";
+		
     }else if(($_GET['error']) ){
          echo html_writer::empty_tag('br');
          echo html_writer::empty_tag('br');
