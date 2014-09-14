@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="local/klap/db" VERSION="20140514" COMMENT="XMLDB file for Moodle local/klap"
+<XMLDB PATH="local/klap/db" VERSION="20140619" COMMENT="XMLDB file for Moodle local/klap"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
 >
@@ -9,8 +9,8 @@
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" NEXT="name"/>
         <FIELD NAME="name" TYPE="char" LENGTH="100" NOTNULL="true" SEQUENCE="false" PREVIOUS="id" NEXT="data"/>
         <FIELD NAME="data" TYPE="text" NOTNULL="false" SEQUENCE="false" PREVIOUS="name" NEXT="active"/>
-		<FIELD NAME="active" TYPE="int" LENGTH="1" NOTNULL="false" SEQUENCE="false" PREVIOUS="data" NEXT="deleted"/>
-		<FIELD NAME="deleted" TYPE="int" LENGTH="1" NOTNULL="false" SEQUENCE="false" PREVIOUS="active" NEXT="lastregistry"/>
+        <FIELD NAME="active" TYPE="int" LENGTH="1" NOTNULL="false" SEQUENCE="false" PREVIOUS="data" NEXT="deleted"/>
+        <FIELD NAME="deleted" TYPE="int" LENGTH="1" NOTNULL="false" SEQUENCE="false" PREVIOUS="active" NEXT="lastregistry"/>
         <FIELD NAME="lastregistry" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" PREVIOUS="deleted" NEXT="lastexectime"/>
         <FIELD NAME="lastexectime" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" PREVIOUS="lastregistry"/>
       </FIELDS>
@@ -18,7 +18,7 @@
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
       </KEYS>
     </TABLE>
-    <TABLE NAME="local_klap_log" COMMENT="local_klap_log table retrofitted from MySQL" PREVIOUS="local_klap">
+    <TABLE NAME="local_klap_log" COMMENT="local_klap_log table retrofitted from MySQL" PREVIOUS="local_klap" NEXT="local_klap_dashboard_oauth">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" NEXT="init"/>
         <FIELD NAME="init" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" PREVIOUS="id" NEXT="finish"/>
@@ -32,6 +32,25 @@
       <INDEXES>
         <INDEX NAME="init" UNIQUE="false" FIELDS="init" NEXT="finish"/>
         <INDEX NAME="finish" UNIQUE="false" FIELDS="finish" PREVIOUS="init"/>
+      </INDEXES>
+    </TABLE>
+    <TABLE NAME="local_klap_dashboard_oauth" COMMENT="Dashboard oauth moodle oauth register" PREVIOUS="local_klap_log">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" NEXT="access_token"/>
+        <FIELD NAME="access_token" TYPE="char" LENGTH="100" NOTNULL="false" SEQUENCE="false" COMMENT="oAuth 2.0 access token" PREVIOUS="id" NEXT="refresh_token"/>
+        <FIELD NAME="refresh_token" TYPE="char" LENGTH="100" NOTNULL="false" SEQUENCE="false" COMMENT="oAuth 2.0 Refresh Token" PREVIOUS="access_token" NEXT="userid"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Moodle user id" PREVIOUS="refresh_token" NEXT="email"/>
+        <FIELD NAME="email" TYPE="char" LENGTH="150" NOTNULL="false" SEQUENCE="false" COMMENT="User email associate to token (moodle user email)" PREVIOUS="userid" NEXT="dashboard_role"/>
+        <FIELD NAME="dashboard_role" TYPE="int" LENGTH="1" NOTNULL="false" SEQUENCE="false" COMMENT="Dashboard role for token of userid" PREVIOUS="email" NEXT="modified"/>
+        <FIELD NAME="modified" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="last used access_token timespam" PREVIOUS="dashboard_role" NEXT="created"/>
+        <FIELD NAME="created" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="last used access_token timespam" PREVIOUS="modified"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="userid" UNIQUE="false" FIELDS="userid" NEXT="email"/>
+        <INDEX NAME="email" UNIQUE="false" FIELDS="email" PREVIOUS="userid"/>
       </INDEXES>
     </TABLE>
   </TABLES>

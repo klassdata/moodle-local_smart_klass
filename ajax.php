@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Plugin version info
+ * Ajax hub
  *
  * @package    local_klap
  * @copyright  Klap <kttp://www.klaptek.com>
@@ -23,11 +23,33 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
+
+if (!defined('AJAX_SCRIPT')) {
+    define('AJAX_SCRIPT', true);
+}
+
+require_once (dirname(dirname(dirname(__FILE__))).'/config.php');
+require_once(dirname(__FILE__).'/lib.php');
+require_once(dirname(__FILE__).'/locallib.php');
+
+$result = new stdClass();
+
+$criteriaid = required_param('action', PARAM_RAW);
+$data = required_param('data', PARAM_RAW);
+
+$data = json_decode($data);
 
 
 
+switch ($action) {
+    case 'save_access_token':
+        $result->success = local_klap_save_access_token($data->code, $data->refresh, $data->email, $data->rol, $data->user_id);
+        $result->data = null;
+        break;
+        
+}
 
 
+echo json_encode ($result);
 
-
+?>

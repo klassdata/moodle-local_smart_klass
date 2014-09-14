@@ -34,9 +34,13 @@ if ($hassiteconfig) {
     $ADMIN->add('klap', new admin_externalpage('klapcontrolpanel', get_string('controlpanel', 'local_klap'),
             $CFG->wwwroot.'/local/klap/view.php', 'local/klap:manage'));
     
+   
     //Agrego página de configuración para acceder desde plugins locales
     $settings = new admin_settingpage('local_klap', get_string('pluginname', 'local_klap'));
     $ADMIN->add('localplugins', $settings);
+	
+	
+	
     
     //Agrego campos de configuración del Plugin
     $settings->add(new admin_setting_configcheckbox('local_klap/activate', get_string('activate', 'local_klap'), get_string('activatedescription', 'local_klap'), 0));
@@ -46,7 +50,7 @@ if ($hassiteconfig) {
     $settings->add(new admin_setting_configcheckbox('local_klap/savelog_ok_statement', get_string('savelog_ok_statement', 'local_klap'), get_string('savelog_ok_statement_description', 'local_klap'), 0));
     
     $options = array('http://l-miner.klaptek.com/data/xAPI/' => get_string('defaultserver', 'local_klap'),
-        'https://l-miner.klaptek.com/data/xAPI/' => get_string('secureserver', 'local_klap'), 'http://l-miner.klaptek.local/data/xAPI/'=>get_string('localserver', 'local_klap'));
+        'https://l-miner.klaptek.com/data/xAPI/' => get_string('secureserver', 'local_klap'), 'http://localhost/learninglocker/public/data/xAPI/'=>get_string('localserver', 'local_klap'));
     $settings->add(new admin_setting_configselect('local_klap/endpoint', get_string('endpoint',
         'local_klap'), get_string('endpointdescription', 'local_klap'), 'http://l-miner.klaptek.com/data/xAPI/', $options));
     
