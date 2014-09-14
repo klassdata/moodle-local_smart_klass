@@ -15,6 +15,6 @@ abstract class xApiObject
     abstract public function expose();
 
     public function __toString() {
-        return  json_encode ($this->expose(), JSON_PRETTY_PRINT);
+        return  json_encode ($this->expose(), 128); // JSON_PRETTY_PRINT = 128 in PHP<5.4
     }
 }
