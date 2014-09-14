@@ -132,7 +132,7 @@ class ActivityDefinition extends xApiObject {
     
     public function setId ($activityid) {
         $activityid = ucfirst($activityid);
-        $verb_definition = dirname(__FILE__) . "/activities/$activityid.php";
+        $verb_definition = dirname(__FILE__) . "/Activities/$activityid.php";
 		if(file_exists($verb_definition)){
 			$activityid = 'Klap\\xAPI\\' . $activityid;
             $this->activity = new $activityid();     
