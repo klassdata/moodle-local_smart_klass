@@ -65,3 +65,4 @@ $string['noteacherrole'] = 'No tienes los permisos adecuados para visualizar el 
 $string['noinstitutionrole'] = 'No tienes los permisos adecuados para visualizar el Panel de Institución';
 $string['configure_access'] = 'Configurar acceso a Panel Klap';
 $string['register'] = 'Registrar nuevo usuario en Klap';
+$string['noaccess'] = 'Acceso denegado por el usuario';

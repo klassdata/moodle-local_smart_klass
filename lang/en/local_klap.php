@@ -65,3 +65,4 @@ $string['noteacherrole'] = 'You don´t have de correct rights to view the Teache
 $string['noinstitutionrole'] = 'You don´t have de correct rights to view the Institution Dashboard';
 $string['configure_access'] = 'Configure access to Klap Dashboard';
 $string['register'] = 'Register new user in Klap';
+$string['noaccess'] = 'Access denied for user';
