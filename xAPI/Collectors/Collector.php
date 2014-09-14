@@ -72,6 +72,8 @@ abstract class Collector  {
     }
     
     protected function execute( $collection=null ) {
+        ini_set('max_execution_time', 0);
+        
         Logger::add_to_log($this->name . ' ----------------------------------- INICIO');
         if (empty($collection)) {
             Logger::add_to_log('No hay nuevos registros a actualizar (' . get_class($this) . ')');
