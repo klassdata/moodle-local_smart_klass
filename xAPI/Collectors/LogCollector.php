@@ -48,7 +48,13 @@ class LogCollector extends Collector {
         $xAPI_statement->setContext('contextActivities',  array('parent'=>$this->dataprovider->getCourseId($object->course)) );
         if ($object->modname != 'course')
             $xAPI_statement->setContext('contextActivities',  array('grouping'=>$this->dataprovider->getModuleId($object->course, $object->moduleid)) );
-        
+       
+        $role_extension = new Extension(
+                                            'http://l-miner.klaptek.com/xapi/extensions/role',
+                                            $this->dataprovider->getRole($object->userid, $object->course)
+                                            );
+        $xAPI_statement->setContext('extension',  $role_extension );
+           
         //SetTimeStamp
         $xAPI_statement->setTimestamp($object->time);
         

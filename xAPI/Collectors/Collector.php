@@ -75,10 +75,13 @@ abstract class Collector  {
         ini_set('max_execution_time', 0);
         
         Logger::add_to_log($this->name . ' ----------------------------------- INICIO');
+        
         if (empty($collection)) {
             Logger::add_to_log('No hay nuevos registros a actualizar (' . get_class($this) . ')');
             Logger::add_to_log($this->name . ' ----------------------------------- FIN');
             return;
+        } else {
+            Logger::add_to_log('Total Registros (' . count($collection) . ')');
         }
         
         
@@ -93,6 +96,11 @@ abstract class Collector  {
                 continue;
             }
             $xApi->setContext('platform',  $this->dataprovider->get_platform_version() );
+            $regid_extension = new Extension(
+                                            'http://l-miner.klaptek.com/xapi/extensions/regid',
+                                            $this->dataprovider->get_reg_id($element->id, get_class($this))
+                                            );
+           $xApi->setContext('extension',  $regid_extension );
             $result = $xApi->sendStatement();
              
             Logger::add_to_log('-- ERRORCODE: ' . $result->errorcode);

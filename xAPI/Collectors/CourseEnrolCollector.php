@@ -43,6 +43,11 @@ class CourseEnrolCollector extends Collector {
             //SetResult
 
             //SetContext
+          $role_extension = new Extension(
+                                            'http://l-miner.klaptek.com/xapi/extensions/role',
+                                            $this->dataprovider->getRole($object->userid, $object->course)
+                                            );
+           $xAPI_statement->setContext('extension',  $role_extension );
 
             //SetTimeStamp
             $xAPI_statement->setTimestamp($object->time);

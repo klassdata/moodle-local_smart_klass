@@ -19,7 +19,6 @@ class GradeCollector extends Collector {
         
         if ($data === null || $data )
             $data = $this->dataprovider->getGrades($this); 
-        
         return (empty($data)) ? null : $data;
         
     }
@@ -42,6 +41,12 @@ class GradeCollector extends Collector {
         //SetContext
         $xAPI_statement->setContext('contextActivities',  array('parent'=>$this->dataprovider->getCourseId($object->courseid)) );
         $xAPI_statement->setContext('contextActivities',  array('grouping'=>$this->dataprovider->getModuleId($object->courseid, $object->moduleid)) );
+        
+        $role_extension = new Extension(
+                                            'http://l-miner.klaptek.com/xapi/extensions/role',
+                                            $this->dataprovider->getRole($object->userid, $object->courseid)
+                                            );
+        $xAPI_statement->setContext('extension',  $role_extension );
         
         //SetTimeStamp
         $xAPI_statement->setTimestamp($object->time);

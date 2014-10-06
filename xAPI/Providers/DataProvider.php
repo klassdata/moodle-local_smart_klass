@@ -12,7 +12,14 @@ namespace Klap\xAPI;
 
 class DataProvider {
     
-    public function __construct() {               
+    private $roles;
+    
+    public function __construct() {   
+        global $DB;
+        $R = $DB->get_records('role');
+        foreach ($R as $r){
+            $this->roles[$r->id] = $r->shortname;
+        }
     }
     
     
@@ -469,4 +476,28 @@ class DataProvider {
         return $DB->get_field($table, 'MAX(id)', array());
     }
    
+    public function get_reg_id ($id, $collectorname){
+        global $CFG;
+        $arr_collectors =  explode("\\", $collectorname);
+        $collectorname = array_pop($arr_collectors);
+        switch ($collectorname){
+            case 'ActivityCompletedCollector': $table_base = 'course_modules_completion'; break;
+            case 'CourseCompletedCollector': $table_base = 'course_completions'; break;
+            case 'CourseCreateCollector': $table_base = 'course'; break;
+            case 'CourseEnrolCollector': $table_base = 'course_completions'; break;
+            case 'CourseInitializedCollector': $table_base = 'course_completions'; break;
+            case 'GradeCollector': $table_base = 'grade_grades_history'; break;
+            case 'LogCollector': $table_base = 'log'; break;
+            case 'ModuleCreateCollector': $table_base = 'course_sections'; break;
+            
+        }
+        
+        return $CFG->wwwroot . '/' . $table_base . '/' . $id;
+    }
+    
+    public function getRole ($userid, $courseid){  
+        $context = \context_course::instance($courseid);
+        $roles = get_user_roles($context, $userid, true);
+        return current($roles)->shortname;
+    }
 }

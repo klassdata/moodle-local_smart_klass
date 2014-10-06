@@ -44,7 +44,11 @@ class CourseCompletedCollector extends Collector {
            $xAPI_statement->setResult('duration', $this->dataprovider->getCourseUserTime($object->course, $object->userid), 'seconds');
            $xAPI_statement->setResult('completion', true);   
             //SetContext
-
+            $role_extension = new Extension(
+                                            'http://l-miner.klaptek.com/xapi/extensions/role',
+                                            $this->dataprovider->getRole($object->userid, $object->course)
+                                            );
+           $xAPI_statement->setContext('extension',  $role_extension );
             //SetTimeStamp
             $xAPI_statement->setTimestamp($object->time);
 
