@@ -95,7 +95,10 @@ abstract class Collector  {
                 Logger::add_to_log($log_element); 
                 continue;
             }
+            //Set plattform
             $xApi->setContext('platform',  $this->dataprovider->get_platform_version() );
+            
+            //Set regId
             $regid_extension = new Extension(
                                             'http://l-miner.klaptek.com/xapi/extensions/regid',
                                             $this->dataprovider->get_reg_id($element->id, get_class($this))
@@ -213,6 +216,24 @@ abstract class Collector  {
     
     public function getFileLog (){
         return $this->filelog;
+    }
+    
+    
+    public function getInstructors ($courseid) {
+        $instructors = null;
+        $instructorsids = $this->dataprovider->getInstructors($courseid);
+        if (count($instructorsids) > 0){
+            if ( count($instructorsids) > 1 ){          
+                $instructors = new Group( array_shift($instructorsids) ); 
+                foreach ($instructorsids as $id) {
+                    $instructors->addMember($id);
+                }
+            } else {
+                $instructors = new Agent($instructorsids);
+            }
+            
+        }
+        return $instructors;
     }
     
     abstract public function getMaxId ();

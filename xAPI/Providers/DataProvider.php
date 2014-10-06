@@ -62,6 +62,22 @@ class DataProvider {
         return ( empty($manager_email) ) ? get_admin() : $manager;
     }
     
+    public function getInstructors ($courseid) {
+        global $DB;
+        $context = \context_course::instance($courseid);
+        
+        //teacher rolesids
+        $teacher_role_id = array(3,4);
+      
+        $teachers = get_role_users($teacher_role_id, $context);
+        $teachers_ids = array();
+        foreach ($teachers as $teacher){
+            $teachers_ids[] = $teacher->id;
+        }
+        
+        return $teachers_ids;
+    }
+    
     public function get_platform_version () {
         global $CFG;
         return "Moodle {$CFG->release} v. {$CFG->version}";
@@ -500,4 +516,6 @@ class DataProvider {
         $roles = get_user_roles($context, $userid, true);
         return current($roles)->shortname;
     }
+    
+    
 }

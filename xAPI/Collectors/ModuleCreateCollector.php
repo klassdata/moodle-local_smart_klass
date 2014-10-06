@@ -68,6 +68,9 @@ class ModuleCreateCollector extends Collector {
         //SetContext
         $xAPI_statement->setContext('contextActivities',  array('parent'=>$this->dataprovider->getCourseId($object->course)) );
         
+        $instructors = $this->getInstructors($object->course);
+        if ( !empty($instructors) ) $xAPI_statement->setContext('instructor',  $instructors );
+        
         //SetTimeStamp
         $xAPI_statement->setTimestamp($object->timecreated);
         

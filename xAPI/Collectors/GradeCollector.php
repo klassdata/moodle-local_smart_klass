@@ -48,6 +48,9 @@ class GradeCollector extends Collector {
                                             );
         $xAPI_statement->setContext('extension',  $role_extension );
         
+        $instructors = $this->getInstructors($object->courseid);
+        if ( !empty($instructors) ) $xAPI_statement->setContext('instructor',  $instructors );
+        
         //SetTimeStamp
         $xAPI_statement->setTimestamp($object->time);
         

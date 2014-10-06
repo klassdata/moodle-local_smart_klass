@@ -92,6 +92,8 @@ class CourseCreateCollector extends Collector {
         //SetResult
         
         //SetContext
+        $instructors = $this->getInstructors($object->id);
+        if ( !empty($instructors) ) $xAPI_statement->setContext('instructor',  $instructors );
         
         //SetTimeStamp
         $xAPI_statement->setTimestamp($object->timecreated);

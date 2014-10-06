@@ -49,6 +49,9 @@ class CourseCompletedCollector extends Collector {
                                             $this->dataprovider->getRole($object->userid, $object->course)
                                             );
            $xAPI_statement->setContext('extension',  $role_extension );
+           $instructors = $this->getInstructors($object->course);
+           if ( !empty($instructors) ) $xAPI_statement->setContext('instructor',  $instructors );
+           
             //SetTimeStamp
             $xAPI_statement->setTimestamp($object->time);
 
