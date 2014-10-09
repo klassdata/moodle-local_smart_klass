@@ -176,7 +176,7 @@ class DataProvider {
             $obj = new \stdClass();
             $obj->id = $section->id;
             $obj->course = $section->course;
-            $obj->name = (empty($section->name)) ? 'MÃ³dulo ' . $section->section : $section->name;
+            $obj->name = (empty($section->name)) ? 'Módulo ' . $section->section : $section->name;
             if ( !empty($section->summary) ){
                 $obj->summary = strip_tags($section->summary);
             }

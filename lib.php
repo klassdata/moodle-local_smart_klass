@@ -216,18 +216,18 @@ function local_klap_extends_navigation(global_navigation $navigation) {
 	
     
 	if (get_config('local_klap', 'username') == '' || get_config('local_klap', 'password') == ''){
-        if (local_klap_can_manage())
+        if (get_config('local_klap', 'activate_student_dashboard') == '1' && local_klap_can_manage())
             $nodeKlap->add( get_string('configure_access', 'local_klap'), new moodle_url($CFG->wwwroot.'/local/klap/register.php' ));
     } else {
         $dashboard_roles = local_klap_dashboard_roles($USER->id);
-        if ( $dashboard_roles->student ) {
+        if ( get_config('local_klap', 'activate_student_dashboard') == '1' && $dashboard_roles->student ) {
             $nodeKlap->add( get_string('studentdashboard', 'local_klap'), new moodle_url($CFG->wwwroot.'/local/klap/dashboard.php', array('cid' => $PAGE->context->id, 'dt'=>KLAP_DASHBOARD_STUDENT)));
         }
-        if ( $dashboard_roles->teacher ) {
+        if ( get_config('local_klap', 'activate_teacher_dashboard') == '1' && $dashboard_roles->teacher ) {
             $nodeKlap->add( get_string('teacherdashboard', 'local_klap'), new moodle_url($CFG->wwwroot.'/local/klap/dashboard.php', array('cid' => $PAGE->context->id, 'dt'=>KLAP_DASHBOARD_TEACHER)));
         }
 
-        if ( $dashboard_roles->institution || local_klap_can_manage() ) {
+        if ( get_config('local_klap', 'activate_institution_dashboard') == '1' &&  ($dashboard_roles->institution || local_klap_can_manage()) ) {
             $nodeKlap->add( get_string('institutiondashboard', 'local_klap'), new moodle_url($CFG->wwwroot.'/local/klap/dashboard.php', array('cid' => $PAGE->context->id, 'dt'=>KLAP_DASHBOARD_INSTITUTION)));
         }  
     }

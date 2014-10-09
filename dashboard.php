@@ -50,16 +50,19 @@ switch ($dashboard_role) {
     case KLAP_DASHBOARD_STUDENT:
         $strheading = get_string('studentdashboard', 'local_klap');
         if ($dashboard_roles->student) print_error('nostudentrole', 'local_klap');
+        if (get_config('local_klap', 'activate_student_dashboard') != '1') print_error('student_dashboard_noactive', 'local_klap');
         break;
     
     case KLAP_DASHBOARD_TEACHER:
         $strheading = get_string('teacherdashboard', 'local_klap');
         if ($dashboard_roles->teacher) print_error('noteacherrole', 'local_klap');
+        if (get_config('local_klap', 'activate_teacher_dashboard') != '1') print_error('teacher_dashboard_noactive', 'local_klap');
         break;
     
     case KLAP_DASHBOARD_INSTITUTION:
         $strheading = get_string('institutiondashboard', 'local_klap');
         if ($dashboard_roles->institution) print_error('noinstitutionrole', 'local_klap');
+        if (get_config('local_klap', 'activate_institution_dashboard') != '1') print_error('institution_dashboard_noactive', 'local_klap');
         break;
 }
 

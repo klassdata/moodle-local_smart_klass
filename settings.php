@@ -66,5 +66,8 @@ if ($hassiteconfig) {
     
     
     $settings->add(new admin_setting_configcheckbox('local_klap/check_statement', get_string('check_statement', 'local_klap'), get_string('checkstatementdescription', 'local_klap'), 0));
-
+    
+    $settings->add(new admin_setting_configcheckbox('local_klap/activate_student_dashboard', get_string('activate_student_dashboard', 'local_klap'), get_string('activate_student_dashboard_description', 'local_klap'), 0));
+    $settings->add(new admin_setting_configcheckbox('local_klap/activate_teacher_dashboard', get_string('activate_teacher_dashboard', 'local_klap'), get_string('activate_teacher_dashboard_description', 'local_klap'), 0));
+    $settings->add(new admin_setting_configcheckbox('local_klap/activate_institution_dashboard', get_string('activate_institution_dashboard', 'local_klap'), get_string('activate_institution_dashboard_description', 'local_klap'), 0));
 }
