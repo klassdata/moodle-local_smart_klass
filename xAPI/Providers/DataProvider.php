@@ -188,7 +188,7 @@ class DataProvider {
                   JOIN {modules} m ON m.id = cm.module
                  WHERE cm.course = ?
                    AND cm.section = ?
-                   AND cm.visible = '1'", array($section->course, $section->id));
+                   AND cm.visible = '1' ORDER BY cm.id ASC", array($section->course, $section->id));
 
 
             $module_date_creation = null;
@@ -443,7 +443,7 @@ class DataProvider {
                         JOIN {grade_items} gi ON gi.id = ggh.itemid
                   WHERE     (ggh.id > ?{$reprocess})
                         AND ggh.source LIKE 'mod/%'
-                        AND ggh.finalgrade IS NOT NULL", 
+                        AND ggh.finalgrade IS NOT NULL ORDER BY ggh.id ASC", 
                     array($collector->getLastRegistry()), 0, $limit);
         return $reg;
     }
