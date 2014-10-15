@@ -75,3 +75,6 @@ $string['activate_institution_dashboard_description'] = 'Activar el acceso al pa
 $string['student_dashboard_noactive'] = 'El panel de alumno está inactivo. Consulta con el administrador de la plataforma';
 $string['teacher_dashboard_noactive'] = 'El panel de estudiante está inactivo. Consulte con el administrador de la plataforma';
 $string['institution_dashboard_noactive'] = 'El panel de institución está inactivo. Consulte con el administrador de la plataforma';
+$string['invalid_dataprovider'] = 'El tipo DataProvider proporcionado es incorrecto.';
+$string['harvester_service_unavailable'] = 'Servicio de recolección de datos inactivo';
+$string['harvester_service_instance_running'] = 'Instancia del servicio de recolección de datos en curso. Solamente puede existir una instancia activa';

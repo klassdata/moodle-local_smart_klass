@@ -52,7 +52,7 @@ class Group extends xApiObject {
 
     public function __construct($id=null) {
         //Creo el Proveedor de Datos de Moodle
-        $this->data_provider = new DataProvider(); 
+        $this->data_provider = DataProviderFactory::build();
        
         //Si existe userid trata de obtener la información de usuario de la base de datos de moodle
         $this->setGroupid($id);

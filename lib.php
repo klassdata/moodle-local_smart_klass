@@ -38,9 +38,8 @@ define('KLAP_DASHBOARD_INSTITUTION',      3);
 
 define('KLAP_OAUTHSERVER_URL', 'http://develop.klaptek.com/oauth/resource.php');
 define('KLAP_DASHBOARD_URL',   'http://develop.klaptek.com/dashboard/');
-/*
-define('KLAP_OAUTHSERVER_URL', 'http://192.168.2.9/oauth/resource.php');
-define('KLAP_DASHBOARD_URL',   'http://192.168.2.9/dashboard/');*/
+
+define('KLAP_MOODLE_27',   2014051200);
 
 
 /**
@@ -246,20 +245,21 @@ function local_klap_extends_navigation(global_navigation $navigation) {
  */
 
 function local_klap_cron() {  
-    local_klap_harvest();
+    global $CFG;
+    if ($CFG->version < KLAP_MOODLE_27) local_klap_harvest();
 }
 
 
 function local_klap_harvest( $collector=array() ) {
     if ( get_config('local_klap', 'activate') != 1){
-        echo 'Servicio de recolección de datos inactivo';
+        echo get_string('harvester_service_unavailable', 'local_klap');
         return; 
     }
     
-    if (get_config('local_klap', 'croninprogress') == true){
-        echo 'Instancia del servicio de recolección de datos en curso. Solamente puede existir una instancia activa';
+    /*if (get_config('local_klap', 'croninprogress') == true){
+        echo get_string('harvester_service_instance_running', 'local_klap');
         return;
-    }
+    }*/
     
     global $CFG, $USER, $DB;
     

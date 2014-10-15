@@ -25,7 +25,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$string['pluginname'] = 'Klap xAPI';
+$string['pluginname'] = 'Klap';
 
 $string['controlpanel'] = 'Control Panel';
 $string['fullharvester'] = 'Execute data harvest';
@@ -75,3 +75,6 @@ $string['activate_institution_dashboard_description'] = 'Activate access to the 
 $string['student_dashboard_noactive'] = 'Student dashboard is inactive. Check with the administrator of the platform';
 $string['teacher_dashboard_noactive'] = 'Teacher dashboard is inactive. Check with the administrator of the platform';
 $string['institution_dashboard_noactive'] = 'Institution dashboard is inactive. Check with the administrator of the platform';
+$string['invalid_dataprovider'] = 'Invalid DataProvider type given.';
+$string['harvester_service_unavailable'] = 'Harvester service not available';
+$string['harvester_service_instance_running'] = 'Harvester service instance is currently running. There can be only one active instance';

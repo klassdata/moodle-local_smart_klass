@@ -27,7 +27,7 @@ abstract class Collector  {
     private $aditional_collectors;
 
     public function __construct ($data=null) {
-        $this->dataprovider = new DataProvider;
+        $this->dataprovider = DataProviderFactory::build();
         
         $class = new \ReflectionClass(get_class($this));
         $this->name = str_replace('Collector','',$class->getShortName());
@@ -99,12 +99,13 @@ abstract class Collector  {
             $xApi->setContext('platform',  $this->dataprovider->get_platform_version() );
             
             //Set regId
+            $regid = $this->dataprovider->get_reg_id($element->id, get_class($this));
             $regid_extension = new Extension(
                                             'http://l-miner.klaptek.com/xapi/extensions/regid',
-                                            $this->dataprovider->get_reg_id($element->id, get_class($this))
+                                            $regid
                                             );
            $xApi->setContext('extension',  $regid_extension );
-            $result = $xApi->sendStatement();
+           $result = $xApi->sendStatement();
              
             Logger::add_to_log('-- ERRORCODE: ' . $result->errorcode);
              if ($result->errorcode == '200') {
@@ -112,7 +113,9 @@ abstract class Collector  {
                         $log_element .= 'OK (ERRORCODE: ' . $result->errorcode . ' MSG: Sentencia enviada correctamente)';
 
                         if ( get_config('local_klap', 'savelog_ok_statement') ) {
-                            $log_element .= ' - STATEMENT: ' . (string) $xApi->getStatement();
+                            $log_element .= ' - STATEMENT - ' . $regid . ': ' . (string) $xApi->getStatement();
+                        } else {
+                            $log_element .= ' - STATEMENT - ' . $regid;
                         }
                     }
                     $tt = strtotime ($xApi->getStatement()->getTimestamp());

@@ -60,7 +60,7 @@ class Agent extends xApiObject {
         $this->id = $id;
         
        //Creo el Proveedor de Datos de Moodle
-       $this->data_provider = new DataProvider();            
+       $this->data_provider = DataProviderFactory::build();         
     }
     
     public function setAgentId ($id, $type='mbox') {      
