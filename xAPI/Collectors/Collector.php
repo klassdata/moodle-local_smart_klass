@@ -113,9 +113,9 @@ abstract class Collector  {
                         $log_element .= 'OK (ERRORCODE: ' . $result->errorcode . ' MSG: Sentencia enviada correctamente)';
 
                         if ( get_config('local_klap', 'savelog_ok_statement') ) {
-                            $log_element .= ' - STATEMENT - ' . $regid . ': ' . (string) $xApi->getStatement();
+                            $log_element .= ' - STATEMENT ' . $result->msg . ' - ' . $regid . ': ' . (string) $xApi->getStatement();
                         } else {
-                            $log_element .= ' - STATEMENT - ' . $regid;
+                            $log_element .= ' - STATEMENT ' . $result->msg . ' - ' . $regid;
                         }
                     }
                     $tt = strtotime ($xApi->getStatement()->getTimestamp());

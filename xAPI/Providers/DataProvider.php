@@ -34,7 +34,7 @@ class DataProvider {
                break;
            
            case 'oauth':
-                //TODO: Incluir autenticaciÃ³n oAUTH
+                //TODO: Incluir autenticación oAUTH
                break;   
        }
         return $auth;
@@ -120,9 +120,20 @@ class DataProvider {
                                         'id>?' . $reprocess, 
                                         array($collector->getLastRegistry()),
                                         '', 
-                                        'id, category, fullname, shortname, sectioncache, modinfo, startdate, timecreated, timemodified, enablecompletion',
+                                        'id, category, fullname, shortname,  startdate, timecreated, timemodified, enablecompletion',
                                         0, $limit
           );
+        
+        foreach($reg as &$course) {
+            global $DB;
+            $sections = $DB->get_records('course_sections', array('course'=>$course->id));
+            $course->modules = array();
+            foreach ($sections as $section) {
+                $moduleinfo = $this->getModule($section);
+                if ( !empty($moduleinfo) ) $course->modules[] = $moduleinfo;
+            } 
+            ksort($course->modules[], SORT_NUMERIC);
+        }
         return $reg;
     }
     
@@ -181,6 +192,7 @@ class DataProvider {
     
     
     public function getModule ($section) {
+        global $DB;
         if ( is_int($section) ) {
             $section = $DB->get_record (    'course_sections', 
                                             array('id'=>$section, 'visible'>1),

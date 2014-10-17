@@ -42,42 +42,7 @@ class CourseCreateCollector extends Collector {
             $courseinfo->startdate = date("c", $object->startdate);
         
         
-       $modules = unserialize($object->sectioncache);
-       $activities = unserialize($object->modinfo);
-       
-       
-       $courseinfo->modules = array();
-       
-       foreach ( $modules as $module){
-           $obj = new \stdClass();
-           $obj->id = $this->dataprovider->getModuleId($object->id, $module->id);
-           if ( isset($module->name) )
-                $obj->name = $module->name;
-           if ( isset($module->summary) )
-                $obj->summary = strip_tags($module->summary);
-           
-           $obj->activities = array();
-           if ( count($activities) > 0 ){
-                foreach ($activities as $activity){
-                    if ($activity->sectionid == $module->id){
-                        $act = new \stdClass();
-                        $act->id = $this->dataprovider->getActivityId($activity->mod, $activity->id);
-                        if ( isset($activity->name) )
-                             $act->name = $activity->name;
-                        if ( isset($activity->added) )
-                             $act->creationdate = $activity->added;
-
-                        $obj->activities[$activity->id] = $act;
-                    }
-                }
-           }
-           
-           $courseinfo->modules[$module->id] = $obj;
-           
-       }
-       
-       
-       
+       $courseinfo->modules = $object->modules;
 
        $activity = new Activity($this->dataprovider->getCourseId($object->id));
        

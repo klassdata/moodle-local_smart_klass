@@ -15,20 +15,143 @@ class DataProvider_Moodle27 extends DataProvider {
     public function __construct() {   
     }
     
-    public function getCourses (Collector $collector) {
+    
+    
+    
+    public function getModules (Collector $collector) {
         global $DB;
         
         $reprocess = (count($collector->getReproccessIds())>0) ? ' OR id IN (' . implode(',', $collector->getReproccessIds()) . ') ' : '';
         $limit = $collector->getMaxRegistrys();
         $limit = ($limit == null) ? 0 : $limit;
-        $reg = $DB->get_records_select ('course', 
-                                        'id>?' . $reprocess, 
-                                        array($collector->getLastRegistry()),
+        $reg = $DB->get_records_select ('course_sections', 
+                                        "(id>?{$reprocess}) AND visible=?", 
+                                        array($collector->getLastRegistry(), 1),
                                         '', 
-                                        'id, category, fullname, shortname, sectioncache, modinfo, startdate, timecreated, timemodified, enablecompletion',
+                                        'id, course, name, summary, section, sequence, visible',
                                         0, $limit
           );
-        return $reg;
+        
+        $sections = array();
+        foreach ($reg as $section){
+            $sections[] = $this->getModule($section);
+        }
+        ksort($sections, SORT_NUMERIC);
+        return $sections;
     }
     
+    
+    public function getModule ($section) {
+        global $DB;
+        if ( is_int($section) ) {
+            $section = $DB->get_record (    'course_sections', 
+                                            array('id'=>$section, 'visible'>1),
+                                            'id, course, name, summary, section, sequence, visible'
+                                        );
+        }
+        $obj = new \stdClass();
+        $obj->id = $section->id;
+        $obj->course = $section->course;
+        $obj->name = (empty($section->name)) ? 'Módulo ' . $section->section : $section->name;
+        if ( !empty($section->summary) ){
+            $obj->summary = strip_tags($section->summary);
+        }
+
+        $modulesarr = array();
+        $modules = $DB->get_records_sql("
+            SELECT cm.id, m.name AS modname, added, availablefrom, availableuntil
+              FROM {course_modules} cm
+              JOIN {modules} m ON m.id = cm.module
+             WHERE cm.course = ?
+               AND cm.section = ?
+               AND cm.visible = '1' ORDER BY cm.id ASC", array($section->course, $section->id));
+
+
+        $module_date_creation = null;
+
+        foreach (explode(',', $section->sequence) as $moduleid) {
+            if (isset($modules[$moduleid])) {
+                $name =  $DB->get_field_sql(
+                                            "
+                                                SELECT
+                                                    m.name
+                                                FROM
+                                                    {{$modules[$moduleid]->modname}} m
+                                                INNER JOIN
+                                                    {course_modules} cm
+                                                 ON cm.id = {$modules[$moduleid]->id}
+                                                AND m.id = cm.instance
+                                            "
+                                        );
+                $module = array(
+                                    'id' => $modules[$moduleid]->id, 
+                                    'mod' => $modules[$moduleid]->modname,
+                                    'name' => $name,
+                                    'sectionid' => $section->section,
+                                    'added' => $modules[$moduleid]->added
+                                );
+                if ($modules[$moduleid]->availablefrom > 0)
+                    $module['availablefrom'] = $modules[$moduleid]->availablefrom;
+                if ($modules[$moduleid]->availableuntil >0)
+                    $module['availableuntil'] = $modules[$moduleid]->availableuntil;
+                $modulesarr[$moduleid] = (object)$module;
+
+                $modulesarr[$moduleid] = (object)$module;
+
+                $module_date_creation = ($module_date_creation == null || $module_date_creation > $modules[$moduleid]->added) ? 
+                                            $modules[$moduleid]->added : 
+                                            $module_date_creation;
+                unset($modules[$moduleid]);
+            }
+        }
+
+        if (!empty($modules)) { 
+            foreach ($modules as $m) {
+                $name =  $DB->get_field_sql(
+                                            "
+                                                SELECT
+                                                    m.name
+                                                FROM
+                                                    {{$m->modname}} m
+                                                INNER JOIN
+                                                    {course_modules} cm
+                                                 ON cm.id = {$m->id}
+                                                AND m.id = cm.instance
+                                            "
+                                        );
+
+                $module = array(
+                                    'id' => $m->id,
+                                    'mod' => $m->modname,
+                                    'name' => $name,
+                                    'sectionid' => $section->section,
+                                    'added' => $m->added
+                                );
+                if ($m->availablefrom > 0)
+                    $module['availablefrom'] = $m->availablefrom;
+                if ($m->availableuntil >0)
+                    $module['availableuntil'] = $m->availableuntil;
+                $modulesarr[$m->id] = (object)$module;
+
+                $module_date_creation = ($module_date_creation == null || $module_date_creation > $m->added) ? 
+                                            $m->added : 
+                                            $module_date_creation;
+            }
+        }
+
+        if ( count($modulesarr)>0 )
+            $obj->activities = $modulesarr;
+
+        if ($section->availablefrom > 0)
+            $obj->availablefrom = $section->availablefrom;
+
+        if ($section->availableuntil > 0)
+            $obj->availableuntil = $section->availableuntil;
+
+        if ( empty($module_date_creation) )
+           $module_date_creation = $DB->get_field('course', 'timecreated', array('id'=>$section->course) ); 
+
+        $obj->timecreated = $module_date_creation;
+        return $obj;
+    }
 }
