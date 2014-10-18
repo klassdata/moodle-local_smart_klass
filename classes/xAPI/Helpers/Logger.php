@@ -1,12 +1,12 @@
 <?php
-namespace Klap\xAPI;
+namespace SmartKlass\xAPI;
 
 /**
  * Logger Class. Store Log File in Moodle Filesystem
  *
- * @package    local_klap
- * @copyright  Klap <kttp://www.klaptek.com>
- * @author     Oscar <oscar@klaptek.com>
+ * @package    local_smart_klass
+ * @copyright  KlassData <kttp://www.klassdata.com>
+ * @author     Oscar <oscar@klassdata.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -17,7 +17,7 @@ class Logger {
   
     public static function add_to_log ($key = '', $value = '') {
         
-        if ( get_config('local_klap', 'save_log') != 1 || empty ($key)) return;     
+        if ( get_config('local_smart_klass', 'save_log') != 1 || empty ($key)) return;     
         $logobj = new \stdClass();
         $logobj->key = $key;
         $logobj->value = $value;
@@ -27,7 +27,7 @@ class Logger {
 
     public static function save_log ($name='') {
 
-        if ( get_config('local_klap', 'save_log') != 1) return;
+        if ( get_config('local_smart_klass', 'save_log') != 1) return;
 
         $syscontext = \context_system::instance();
         $fs = get_file_storage();
@@ -37,8 +37,8 @@ class Logger {
         // Prepare file record object
         $fileinfo = array(
             'contextid' => $syscontext->id, // ID of context
-            'component' => 'local_klap',     // usually = table name
-            'filearea' => 'local_klap',     // usually = table name
+            'component' => 'local_smart_klass',     // usually = table name
+            'filearea' => 'local_smart_klass',     // usually = table name
             'itemid' => 0,               // usually = ID of row in table
             'filepath' => '/',           // any path beginning and ending in /
             'filename' => $filename); // any filename
@@ -58,8 +58,8 @@ class Logger {
 
         // Prepare file record object
         $fileinfo = array(
-            'component' => 'local_klap',     // usually = table name
-            'filearea' => 'local_klap',     // usually = table name
+            'component' => 'local_smart_klass',     // usually = table name
+            'filearea' => 'local_smart_klass',     // usually = table name
             'itemid' => 0,               // usually = ID of row in table
             'contextid' => $syscontext->id, // ID of context
             'filepath' => '/',           // any path beginning and ending in /
@@ -86,8 +86,8 @@ class Logger {
         $syscontext = \context_system::instance();
         return \moodle_url::make_pluginfile_url(
                                                 $syscontext->id,
-                                                'local_klap',
-                                                'local_klap',
+                                                'local_smart_klass',
+                                                'local_smart_klass',
                                                 0,
                                                 '/',
                                                 $filename
@@ -99,14 +99,14 @@ class Logger {
         $out = array();
         $syscontext = \context_system::instance();
         $fs = get_file_storage();
-        $files = $fs->get_area_files($syscontext->id, 'local_klap', 'local_klap', 0, 'timemodified DESC', false);
+        $files = $fs->get_area_files($syscontext->id, 'local_smart_klass', 'local_smart_klass', 0, 'timemodified DESC', false);
         
         $count = 1;
         foreach ($files as $file) {
             $filename = $file->get_filename();
             $url = \moodle_url::make_pluginfile_url( $file->get_contextid(), 
-                                                    'local_klap',
-                                                    'local_klap', 
+                                                    'local_smart_klass',
+                                                    'local_smart_klass', 
                                                     0, 
                                                     '/',
                                                     $filename);
@@ -119,8 +119,9 @@ class Logger {
     
     
     public static function delete_all_logs (){
+        $fs = get_file_storage();
         $syscontext = \context_system::instance();
-        $files = $fs->delete_area_files($syscontext, 'local_klap', 'local_klap', 0);
+        $files = $fs->delete_area_files($syscontext->id, 'local_smart_klass', 'local_smart_klass', 0);
     }
   
 }

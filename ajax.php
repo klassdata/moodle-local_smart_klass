@@ -17,9 +17,9 @@
 /**
  * Ajax hub
  *
- * @package    local_klap
- * @copyright  Klap <kttp://www.klaptek.com>
- * @author     Oscar <oscar@klaptek.com>
+ * @package    local_smart_klass
+ * @copyright  Klassdata <kttp://www.klassdata.com>
+ * @author     Oscar <oscar@klassdata.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -43,7 +43,7 @@ $data = json_decode($data);
 
 switch ($action) {
     case 'save_access_token':
-        $result->success = local_klap_save_access_token($data->code, $data->refresh, $data->email, $data->rol, $data->user_id);
+        $result->success = local_smart_klass_save_access_token($data->code, $data->refresh, $data->email, $data->rol, $data->user_id);
         $result->data = null;
         break;
         

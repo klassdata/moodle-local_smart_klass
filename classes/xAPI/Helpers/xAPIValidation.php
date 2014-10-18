@@ -15,7 +15,7 @@
 |-----------------------------------------------------------------------------------
 */
 
-namespace Klap\xAPI;
+namespace SmartKlass\xAPI;
 
 class xAPIValidation {
 

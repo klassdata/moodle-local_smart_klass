@@ -1,12 +1,12 @@
 <?php
-namespace Klap\xAPI;
+namespace SmartKlass\xAPI;
 
 /**
  * xAPI DataProvider Class
  *
- * @package    local_klap
- * @copyright  Klap <kttp://www.klaptek.com>
- * @author     Oscar <oscar@klaptek.com>
+ * @package    local_smart_klass
+ * @copyright  KlassData <kttp://www.klassdata.com>
+ * @author     Oscar <oscar@klassdata.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -54,9 +54,13 @@ class DataProvider_Moodle27 extends DataProvider {
         $obj->course = $section->course;
         $obj->name = (empty($section->name)) ? 'Módulo ' . $section->section : $section->name;
         
-        $modinfo = get_fast_modinfo($section->course);
-        $cm = $modinfo->get_cm($cmid);
-        $availableinfo = $cm->availableinfo;
+
+        //$modinfo = get_fast_modinfo($section->course);
+        //$cms = $modinfo->get_cms();
+        //$availableinfo = $cms->get_available_info();
+            
+            
+        
         
         if ( !empty($section->summary) ){
             $obj->summary = strip_tags($section->summary);
@@ -95,10 +99,7 @@ class DataProvider_Moodle27 extends DataProvider {
                                     'sectionid' => $section->section,
                                     'added' => $modules[$moduleid]->added
                                 );
-                if ($modules[$moduleid]->availablefrom > 0)
-                    $module['availablefrom'] = $modules[$moduleid]->availablefrom;
-                if ($modules[$moduleid]->availableuntil >0)
-                    $module['availableuntil'] = $modules[$moduleid]->availableuntil;
+
                 $modulesarr[$moduleid] = (object)$module;
 
                 $modulesarr[$moduleid] = (object)$module;
@@ -132,10 +133,6 @@ class DataProvider_Moodle27 extends DataProvider {
                                     'sectionid' => $section->section,
                                     'added' => $m->added
                                 );
-                if ($m->availablefrom > 0)
-                    $module['availablefrom'] = $m->availablefrom;
-                if ($m->availableuntil >0)
-                    $module['availableuntil'] = $m->availableuntil;
                 $modulesarr[$m->id] = (object)$module;
 
                 $module_date_creation = ($module_date_creation == null || $module_date_creation > $m->added) ? 
@@ -146,12 +143,6 @@ class DataProvider_Moodle27 extends DataProvider {
 
         if ( count($modulesarr)>0 )
             $obj->activities = $modulesarr;
-
-        if ($section->availablefrom > 0)
-            $obj->availablefrom = $section->availablefrom;
-
-        if ($section->availableuntil > 0)
-            $obj->availableuntil = $section->availableuntil;
 
         if ( empty($module_date_creation) )
            $module_date_creation = $DB->get_field('course', 'timecreated', array('id'=>$section->course) ); 

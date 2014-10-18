@@ -1,12 +1,12 @@
 <?php
-namespace Klap\xAPI;
+namespace SmartKlass\xAPI;
 
 /**
  * ModuleCreateCollector Class
  *
- * @package    local_klap
- * @copyright  Klap <kttp://www.klaptek.com>
- * @author     Oscar <oscar@klaptek.com>
+ * @package    local_smart_klass
+ * @copyright  KlassData <kttp://www.klassdata.com>
+ * @author     Oscar <oscar@klassdata.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -57,7 +57,7 @@ class ModuleCreateCollector extends Collector {
        
        $activity_definition = new ActivityDefinition('module');
        $activity_definition->addExtension( new Extension(
-                                                            'http://l-miner.klaptek.com/xapi/extensions/module-info',
+                                                            'http://xapi.klassdata.com/extensions/module-info',
                                                             $moduleinfo  
                                                           ));
        $activity->setDefinition($activity_definition);

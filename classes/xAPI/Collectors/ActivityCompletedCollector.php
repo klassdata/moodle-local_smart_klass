@@ -1,12 +1,12 @@
 <?php
-namespace Klap\xAPI;
+namespace SmartKlass\xAPI;
 
 /**
  * ActivityCompletedCollector Class
  *
- * @package    local_klap
- * @copyright  Klap <kttp://www.klaptek.com>
- * @author     Oscar <oscar@klaptek.com>
+ * @package    local_smart_klass
+ * @copyright  KlassData <kttp://www.klassdata.com>
+ * @author     Oscar <oscar@klassdata.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -48,7 +48,7 @@ class ActivityCompletedCollector extends Collector {
            $xAPI_statement->setContext('contextActivities',  array('grouping'=>$this->dataprovider->getModuleId($object->course, $object->section)) );
         
            $role_extension = new Extension(
-                                            'http://l-miner.klaptek.com/xapi/extensions/role',
+                                            'http://xapi.klassdata.com/extensions/role',
                                             $this->dataprovider->getRole($object->userid, $object->course)
                                             );
            $xAPI_statement->setContext('extension',  $role_extension );
@@ -68,7 +68,7 @@ class ActivityCompletedCollector extends Collector {
             $a = new \stdClass();
             $a->user = $actor->mbox;
             $a->activity = $this->dataprovider->getActivityId($object->mod, $object->activityid);
-            $error = $this->dataprovider->getLanguageString('user_no_completed_activity', 'local_klap', $a);
+            $error = $this->dataprovider->getLanguageString('user_no_completed_activity', 'local_smart_klass', $a);
             $this->setLastError($error);
             
             return null;

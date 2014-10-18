@@ -1,12 +1,12 @@
 <?php
-namespace Klap\xAPI;
+namespace SmartKlass\xAPI;
 
 /**
  * Collector Class
  *
- * @package    local_klap
- * @copyright  Klap <kttp://www.klaptek.com>
- * @author     Oscar <oscar@klaptek.com>
+ * @package    local_smart_klass
+ * @copyright  KlassData <kttp://www.klassdata.com>
+ * @author     Oscar <oscar@klassdata.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -79,7 +79,7 @@ abstract class Collector  {
         Logger::add_to_log('start', $this->name);
 
         if (empty($collection)) {
-            $msg = $this->dataprovider->getLanguageString('no_record_to_update', 'local_klap');
+            $msg = $this->dataprovider->getLanguageString('no_record_to_update', 'local_smart_klass');
             Logger::add_to_log('msg', $msg);
             Logger::add_to_log('end', $this->name);
             return;
@@ -101,7 +101,7 @@ abstract class Collector  {
             if ( empty($xApi) ){
                 $this->dataprovider->updateCollector ($this->name, null, null, $this->data);
                 
-                $log_obj->result = $this->dataprovider->getLanguageString('ko', 'local_klap');;
+                $log_obj->result = $this->dataprovider->getLanguageString('ko', 'local_smart_klass');;
                 $log_obj->msg = $this->getLastError();
                 $log_obj->moodleid = $regid;
                 Logger::add_to_log('registry', $log_obj);
@@ -112,20 +112,21 @@ abstract class Collector  {
             
             //Set regId
             $regid_extension = new Extension(
-                                            'http://l-miner.klaptek.com/xapi/extensions/regid',
+                                            'http://xapi.klassdata.com/extensions/regid',
                                             $regid
                                             );
            $xApi->setContext('extension',  $regid_extension );
            $result = $xApi->sendStatement();
 
             if ($result->errorcode == '200') {
-                   if ( get_config('local_klap', 'save_log') ) {
-                       $log_obj->result = $this->dataprovider->getLanguageString('ok', 'local_klap');;
-                       $log_obj->msg = $this->dataprovider->getLanguageString('statement_send_ok', 'local_klap');
+                   if ( get_config('local_smart_klass', 'save_log') ) {
+                       $log_obj->result = $this->dataprovider->getLanguageString('ok', 'local_smart_klass');;
+                       $log_obj->msg = $this->dataprovider->getLanguageString('statement_send_ok', 'local_smart_klass');
                        $log_obj->errorcode = $result->errorcode;
-                       $log_obj->lrsid = $result->msg;
-                       if ( get_config('local_klap', 'save_log') && get_config('local_klap', 'savelog_ok_statement') ) 
-                           $log_obj->statement = $xApi->getStatement();
+                       $id = json_decode($result->msg);
+                       $log_obj->lrsid = current($id);
+                       if ( get_config('local_smart_klass', 'save_log') && get_config('local_smart_klass', 'savelog_ok_statement') ) 
+                           $log_obj->statement = json_decode( (string) $xApi->getStatement() );
 
                    }
                    $tt = strtotime ($xApi->getStatement()->getTimestamp());
@@ -143,12 +144,12 @@ abstract class Collector  {
                 }
                 $this->addReproccessIds($element->id);
 
-                if (get_config('local_klap', 'save_log')){
-                    $log_obj->result = $this->dataprovider->getLanguageString('ko', 'local_klap');;
+                if (get_config('local_smart_klass', 'save_log')){
+                    $log_obj->result = $this->dataprovider->getLanguageString('ko', 'local_smart_klass');;
                     $log_obj->msg = $msg;
                     $log_obj->errorcode = $result->errorcode;
                     $log_obj->lrsid = 'null';
-                    $log_obj->statement = $xApi->getStatement();
+                    $log_obj->statement = json_decode( (string) $xApi->getStatement() );
                 }
             }
             $log_obj->end = date('d/m/Y H:i:s');

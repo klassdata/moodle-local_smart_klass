@@ -15,11 +15,11 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Register Execution Klap Server Connection
+ * Register Execution Smart Klass Server Connection
  *
- * @package    local_klap
- * @copyright  Klap <kttp://www.klaptek.com>
- * @author     Oscar <oscar@klaptek.com>
+ * @package    local_smart_klass
+ * @copyright  KlassData <kttp://www.klassdata.com>
+ * @author     Oscar <oscar@klassdata.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -30,34 +30,34 @@ require_once(dirname(__FILE__).'/locallib.php');
 
 require_once(dirname(__FILE__).'/register_form.php');
 
-require_capability('local/klap:manage', get_context_instance(CONTEXT_SYSTEM));
+require_capability('local/smart_klass:manage', get_context_instance(CONTEXT_SYSTEM));
 require_login(); 
 
-$strheading = get_string('configure_access','local_klap');
+$strheading = get_string('configure_access','local_smart_klass');
 $PAGE->set_pagelayout('standard');
-$PAGE->set_url(new moodle_url('/local/klap/register.php'));
+$PAGE->set_url(new moodle_url('/local/smart_klass/register.php'));
 $PAGE->set_title( $strheading );
 $PAGE->navbar->add($strheading);
 echo $OUTPUT->header();
 echo $OUTPUT->box_start();
 
-$url = new moodle_url( get_config('local_klap', 'endpoint') . '../../register/');
-echo $OUTPUT->action_link($url, get_string('register', 'local_klap'), new popup_action('click', $url), array('style'=>'text-align:center;'));
+$url = new moodle_url( get_config('local_smart_klass', 'endpoint') . '../../register/');
+echo $OUTPUT->action_link($url, get_string('register', 'local_smart_klass'), new popup_action('click', $url), array('style'=>'text-align:center;'));
 echo $OUTPUT->box_end();
 
 
 
 
 echo $OUTPUT->box_start();
-$mform = new local_klap_lrs_login_form();
+$mform = new local_smart_klass_lrs_login_form();
 
 if ($mform->is_cancelled()) {
-    redirect( new moodle_url('/local/klap/register.php'));
+    redirect( new moodle_url('/local/smart_klass/register.php'));
 } else if ($mform->is_submitted() && $mform->is_validated() ) {
     $data = $mform->get_data();
     
-    set_config('username', $data->username,'local_klap');
-    set_config('password', $data->password,'local_klap');
+    set_config('username', $data->username,'local_smart_klass');
+    set_config('password', $data->password,'local_smart_klass');
 
     redirect("$CFG->wwwroot/");
 }

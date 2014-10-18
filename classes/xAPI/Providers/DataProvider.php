@@ -1,12 +1,12 @@
 <?php
-namespace Klap\xAPI;
+namespace SmartKlass\xAPI;
 
 /**
  * xAPI DataProvider Class
  *
- * @package    local_klap
- * @copyright  Klap <kttp://www.klaptek.com>
- * @author     Oscar <oscar@klaptek.com>
+ * @package    local_smart_klass
+ * @copyright  KlassData <kttp://www.klassdata.com>
+ * @author     Oscar <oscar@klassdata.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -25,12 +25,12 @@ class DataProvider {
     
     public function getAuth(){
        $auth = new \stdClass();
-       $auth->endpoint = get_config('local_klap', 'endpoint');
-       $auth->type = get_config('local_klap', 'authtype');
+       $auth->endpoint = get_config('local_smart_klass', 'endpoint');
+       $auth->type = get_config('local_smart_klass', 'authtype');
        
        switch ($auth->type){
            case 'basic':
-               $auth->chain = get_config('local_klap', 'username') . ':' . get_config('local_klap', 'password');
+               $auth->chain = get_config('local_smart_klass', 'username') . ':' . get_config('local_smart_klass', 'password');
                break;
            
            case 'oauth':
@@ -41,7 +41,7 @@ class DataProvider {
     }
     
     public function validateStatements () {
-        return ( 'true' == get_config('local_klap', 'check_statement') );
+        return ( 'true' == get_config('local_smart_klass', 'check_statement') );
     }
     
     public function get_user ($userid) {
@@ -57,7 +57,7 @@ class DataProvider {
     
     public function getManager () {
         global $DB;
-        $manager_email = get_config('local_klap', 'managerid');
+        $manager_email = get_config('local_smart_klass', 'managerid');
         $manager = $DB->get_record('user', array('email'=>$manager_email));
         return ( empty($manager_email) ) ? get_admin() : $manager;
     }
@@ -85,7 +85,7 @@ class DataProvider {
     
     public function getCollector($name=null) {
         global $DB;
-        $collector = $DB->get_record('local_klap', array('name'=>$name, 'active'=>1));
+        $collector = $DB->get_record('local_smart_klass', array('name'=>$name, 'active'=>1));
         return ( empty($collector) ) ? null : $collector;
     }
     
@@ -95,7 +95,7 @@ class DataProvider {
         
         
         
-        $collector = $DB->get_record('local_klap', array('name'=>$name));
+        $collector = $DB->get_record('local_smart_klass', array('name'=>$name));
         
         if ( empty($collector) )return false;
         
@@ -107,7 +107,7 @@ class DataProvider {
             $collector->data = json_encode($new_data);
        
           
-        $DB->update_record('local_klap', $collector);
+        $DB->update_record('local_smart_klass', $collector);
     }
     
     public function getCourses (Collector $collector) {
@@ -132,7 +132,7 @@ class DataProvider {
                 $moduleinfo = $this->getModule($section);
                 if ( !empty($moduleinfo) ) $course->modules[] = $moduleinfo;
             } 
-            ksort($course->modules[], SORT_NUMERIC);
+            ksort($course->modules, SORT_NUMERIC);
         }
         return $reg;
     }

@@ -1,12 +1,12 @@
 <?php
-namespace Klap\xAPI;
+namespace SmartKlass\xAPI;
 
 /**
  * LogCollector Class
  *
- * @package    local_klap
- * @copyright  Klap <kttp://www.klaptek.com>
- * @author     Oscar <oscar@klaptek.com>
+ * @package    local_smart_klass
+ * @copyright  KlassData <kttp://www.klassdata.com>
+ * @author     Oscar <oscar@klassdata.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -33,7 +33,7 @@ class LogCollector extends Collector {
             $a = new \stdClass();
             $a->module = $object->modname;
             $a->action = $object->action;
-            $error = $this->dataprovider->getLanguageString('error_lo_verb_from_log', 'local_klap', $a);
+            $error = $this->dataprovider->getLanguageString('error_lo_verb_from_log', 'local_smart_klass', $a);
             $this->setLastError($error);
             return null;
         }
@@ -57,7 +57,7 @@ class LogCollector extends Collector {
             $xAPI_statement->setContext('contextActivities',  array('grouping'=>$this->dataprovider->getModuleId($object->course, $object->moduleid)) );
        
         $role_extension = new Extension(
-                                            'http://l-miner.klaptek.com/xapi/extensions/role',
+                                            'http://xapi.klassdata.com/extensions/role',
                                             $this->dataprovider->getRole($object->userid, $object->course)
                                             );
         $xAPI_statement->setContext('extension',  $role_extension );

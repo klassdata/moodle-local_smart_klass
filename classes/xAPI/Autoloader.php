@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Klap\xAPI;
+namespace SmartKlass\xAPI;
 
 /**
  * Implements a lightweight PSR-0 compliant autoloader.

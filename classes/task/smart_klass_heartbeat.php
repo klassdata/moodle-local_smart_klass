@@ -18,21 +18,21 @@
 /**
  * Class for cron
  *
- * @package    local_klap
- * @copyright  Klap <kttp://www.klaptek.com>
- * @author     Oscar <oscar@klaptek.com>
+ * @package    local_smart_klass
+ * @copyright  KlassData <kttp://www.klassdata.com>
+ * @author     Oscar <oscar@klassdata.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace klap\task;
+namespace smart_klass\task;
 
 class heartbeat extends \core\task\scheduled_task {      
     public function get_name() {
-        return get_string('heartbeat', 'local_klap');
+        return get_string('heartbeat', 'local_smart_klass');
     }
                                                                      
     public function execute() { 
-        local_klap_harvest();
+        local_smart_klass_harvest();
     }                                                                                                                               
 }
 

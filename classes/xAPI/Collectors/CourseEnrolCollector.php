@@ -1,12 +1,12 @@
 <?php
-namespace Klap\xAPI;
+namespace SmartKlass\xAPI;
 
 /**
  * CourseEnrolCollector Class
  *
- * @package    local_klap
- * @copyright  Klap <kttp://www.klaptek.com>
- * @author     Oscar <oscar@klaptek.com>
+ * @package    local_smart_klass
+ * @copyright  KlassData <kttp://www.klassdata.com>
+ * @author     Oscar <oscar@klassdata.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -44,7 +44,7 @@ class CourseEnrolCollector extends Collector {
 
             //SetContext
           $role_extension = new Extension(
-                                            'http://l-miner.klaptek.com/xapi/extensions/role',
+                                            'http://xapi.klassdata.com/extensions/role',
                                             $this->dataprovider->getRole($object->userid, $object->course)
                                             );
            $xAPI_statement->setContext('extension',  $role_extension );
@@ -63,7 +63,7 @@ class CourseEnrolCollector extends Collector {
             $a = new \stdClass();
             $a->user = $actor->mbox;
             $a->course = $this->dataprovider->getCourseId($object->course);
-            $error = $this->dataprovider->getLanguageString('user_no_enrol_course', 'local_klap', $a);
+            $error = $this->dataprovider->getLanguageString('user_no_enrol_course', 'local_smart_klass', $a);
             $this->setLastError($error);
             return null;
         }

@@ -17,31 +17,31 @@
 /**
  * Plugin version info
  *
- * @package    local_klap
- * @copyright  Klap <kttp://www.klaptek.com>
- * @author     Oscar <oscar@klaptek.com>
+ * @package    local_smart_klass
+ * @copyright  KlassData <kttp://www.klassdata.com>
+ * @author     Oscar <oscar@klassdata.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-define('KLAP_ACTION_DEFAULT',        'd');
-define('KLAP_ACTION_HARVERTS',       'h');
-define('KLAP_ACTION_EDIT',           'e');
-define('KLAP_ACTION_ACTIVATE',       'a');
+define('SMART_KLASS_ACTION_DEFAULT',        'd');
+define('SMART_KLASS_ACTION_HARVERTS',       'h');
+define('SMART_KLASS_ACTION_EDIT',           'e');
+define('SMART_KLASS_ACTION_ACTIVATE',       'a');
 
 
-define('KLAP_DASHBOARD_STUDENT',          1);
-define('KLAP_DASHBOARD_TEACHER',          2);
-define('KLAP_DASHBOARD_INSTITUTION',      3);
+define('SMART_KLASS_DASHBOARD_STUDENT',          1);
+define('SMART_KLASS_DASHBOARD_TEACHER',          2);
+define('SMART_KLASS_DASHBOARD_INSTITUTION',      3);
 
 
-define('KLAP_OAUTHSERVER_URL', 'http://develop.klaptek.com/oauth/resource.php');
-define('KLAP_DASHBOARD_URL',   'http://develop.klaptek.com/dashboard/');
+define('SMART_KLASS_OAUTHSERVER_URL', 'http://develop.klaptek.com/oauth/resource.php');
+define('SMART_KLASS_DASHBOARD_URL',   'http://develop.klaptek.com/dashboard/');
 
-define('KLAP_MOODLE_27',   2014051200);
-define('KLAP_MOODLE_26',   2013111800);
-define('KLAP_MOODLE_25',   2013051300);
+define('SMART_KLASS_MOODLE_27',   2014051200);
+define('SMART_KLASS_MOODLE_26',   2013111800);
+define('SMART_KLASS_MOODLE_25',   2013051300);
 
 
 /**
@@ -52,19 +52,19 @@ define('KLAP_MOODLE_25',   2013051300);
  * 
  * @return stdClass Object with a valid oauth credentials. null if invalid oauth credentials
  */
-function local_klap_get_oauth_accesstoken ($userid, $role){
+function local_smart_klass_get_oauth_accesstoken ($userid, $role){
     global $DB;
     
-    $oauth_obj = $DB->get_record( 'local_klap_dashboard_oauth', array('userid'=>$userid, 'dashboard_role'=>$role) );
+    $oauth_obj = $DB->get_record( 'local_smart_klass_dash_oauth', array('userid'=>$userid, 'dashboard_role'=>$role) );
 
 
     
-    if (local_klap_oauth_validate($oauth_obj->access_token)){
+    if (local_smart_klass_oauth_validate($oauth_obj->access_token)){
         $oauth_obj->modified = time();
         
     } else {
         //Try refresh token
-        $accesstoken = local_klap_oauth_refreshtoken ($oauth_obj->refresh_token);
+        $accesstoken = local_smart_klass_oauth_refreshtoken ($oauth_obj->refresh_token);
         if ( empty($accesstoken) ) return null;
         $time = time();
         $oauth_obj->access_token = $accesstoken;
@@ -72,7 +72,7 @@ function local_klap_get_oauth_accesstoken ($userid, $role){
         $oauth_obj->created = $time;
     }
 
-    $DB->update_record('local_klap_dashboard_oauth', $oauth_obj);
+    $DB->update_record('local_smart_klass_dash_oauth', $oauth_obj);
 
     return $oauth_obj;
 }
@@ -86,7 +86,7 @@ function local_klap_get_oauth_accesstoken ($userid, $role){
  * @param  string $user_id    moodle user_id associate with accesstoken
  * @return mixed record id if OK or false if KO
  */
-function local_klap_save_access_token ($code, $refresh, $email, $rol, $user_id) {
+function local_smart_klass_save_access_token ($code, $refresh, $email, $rol, $user_id) {
     global $DB;
     
     $t = time();
@@ -99,7 +99,7 @@ function local_klap_save_access_token ($code, $refresh, $email, $rol, $user_id) 
     $obj->modified = $t;
     $obj->created = $t;
 
-    return $DB->insert_record('local_klap_dashboard_oauth', $obj);
+    return $DB->insert_record('local_smart_klass_dash_oauth', $obj);
 }
 
 
@@ -108,13 +108,13 @@ function local_klap_save_access_token ($code, $refresh, $email, $rol, $user_id) 
  * @param  string $accesstoken    accesstoken to validate with oauth server
  * @return bool true if oauth accesstoken is ok, false is oauth accesstoken is KO
  */
-function local_klap_oauth_validate ($access_token=null){
+function local_smart_klass_oauth_validate ($access_token=null){
     //TODO 1 Posiziona: Validate access_token in oauth server
 
 		$fields = array('access_token' => $access_token);
-		$ch = curl_init(KLAP_OAUTHSERVER_URL);
+		$ch = curl_init(SMART_KLASS_OAUTHSERVER_URL);
 		
-		$url = KLAP_OAUTHSERVER_URL;
+		$url = SMART_KLASS_OAUTHSERVER_URL;
 		$qry_str = "?access_token=".$access_token;
 
 
@@ -144,7 +144,7 @@ function local_klap_oauth_validate ($access_token=null){
  * @param  string $refreshtoken    Valid oauth refresh token
  * @return string new access token if OK, null if KO
  */
-function local_klap_oauth_refreshtoken ($refresh_token=null){
+function local_smart_klass_oauth_refreshtoken ($refresh_token=null){
     //TODO 2 Posiziona: Try to get the access_token throw refresh_token in oauth server
 
 
@@ -157,23 +157,23 @@ function local_klap_oauth_refreshtoken ($refresh_token=null){
 
 /**
  * Validate access token in oauth servr
- * @param  string $accesstoken    accesstoken to validate with Klap Dashboard
+ * @param  string $accesstoken    accesstoken to validate with Smart Klass Dashboard
  * @return DEFINE BY POSIZIONA
  */
-function local_klap_get_dashboard ($access_token=null){
-    //TODO 3 Posiziona: Get the correct dashboard from Klap Dashboard
+function local_smart_klass_get_dashboard ($access_token=null){
+    //TODO 3 Posiziona: Get the correct dashboard from Smart Klass Dashboard
 }
 
 
 /**
- * Determines whether the current user can access to manage Klap Configuration
+ * Determines whether the current user can access to manage Smart Klass Configuration
  *
  * @return bool true if user can access logs
  */
-function local_klap_can_manage() {
+function local_smart_klass_can_manage() {
     $context = context_system::instance();
 
-    if (has_capability('local/klap:manage', $context)) {
+    if (has_capability('local/smart_klass:manage', $context)) {
         return true;
     }
 
@@ -182,7 +182,7 @@ function local_klap_can_manage() {
 
 
 
-function local_klap_dashboard_roles ($userid) {
+function local_smart_klass_dashboard_roles ($userid) {
     global $PAGE;
     $roles	= get_user_roles($PAGE->context, $userid, true);
 
@@ -209,33 +209,33 @@ function local_klap_dashboard_roles ($userid) {
 
 
 
-function local_klap_extends_navigation(global_navigation $navigation) {
+function local_smart_klass_extends_navigation(global_navigation $navigation) {
     global $CFG, $PAGE, $USER;
     
     //Creo menú en el Bloque de administración para el plugin
-    $nodeKlap = $navigation->add(get_string('pluginname', 'local_klap') );
+    $nodeSmartKlap = $navigation->add(get_string('pluginname', 'local_smart_klass') );
 	
     
-	if (get_config('local_klap', 'username') == '' || get_config('local_klap', 'password') == ''){
-        if (get_config('local_klap', 'activate_student_dashboard') == '1' && local_klap_can_manage())
-            $nodeKlap->add( get_string('configure_access', 'local_klap'), new moodle_url($CFG->wwwroot.'/local/klap/register.php' ));
+	if (get_config('local_smart_klass', 'username') == '' || get_config('local_smart_klass', 'password') == ''){
+        if (get_config('local_smart_klass', 'activate_student_dashboard') == '1' && local_smart_klass_can_manage())
+            $nodeSmartKlap->add( get_string('configure_access', 'local_smart_klass'), new moodle_url($CFG->wwwroot.'/local/smart_klass/register.php' ));
     } else {
-        $dashboard_roles = local_klap_dashboard_roles($USER->id);
-        if ( get_config('local_klap', 'activate_student_dashboard') == '1' && $dashboard_roles->student ) {
-            $nodeKlap->add( get_string('studentdashboard', 'local_klap'), new moodle_url($CFG->wwwroot.'/local/klap/dashboard.php', array('cid' => $PAGE->context->id, 'dt'=>KLAP_DASHBOARD_STUDENT)));
+        $dashboard_roles = local_smart_klass_dashboard_roles($USER->id);
+        if ( get_config('local_smart_klass', 'activate_student_dashboard') == '1' && $dashboard_roles->student ) {
+            $nodeSmartKlap->add( get_string('studentdashboard', 'local_smart_klass'), new moodle_url($CFG->wwwroot.'/local/smart_klass/dashboard.php', array('cid' => $PAGE->context->id, 'dt'=>SMART_KLASS_DASHBOARD_STUDENT)));
         }
-        if ( get_config('local_klap', 'activate_teacher_dashboard') == '1' && $dashboard_roles->teacher ) {
-            $nodeKlap->add( get_string('teacherdashboard', 'local_klap'), new moodle_url($CFG->wwwroot.'/local/klap/dashboard.php', array('cid' => $PAGE->context->id, 'dt'=>KLAP_DASHBOARD_TEACHER)));
+        if ( get_config('local_smart_klass', 'activate_teacher_dashboard') == '1' && $dashboard_roles->teacher ) {
+            $nodeSmartKlap->add( get_string('teacherdashboard', 'local_smart_klass'), new moodle_url($CFG->wwwroot.'/local/smart_klass/dashboard.php', array('cid' => $PAGE->context->id, 'dt'=>SMART_KLASS_DASHBOARD_TEACHER)));
         }
 
-        if ( get_config('local_klap', 'activate_institution_dashboard') == '1' &&  ($dashboard_roles->institution || local_klap_can_manage()) ) {
-            $nodeKlap->add( get_string('institutiondashboard', 'local_klap'), new moodle_url($CFG->wwwroot.'/local/klap/dashboard.php', array('cid' => $PAGE->context->id, 'dt'=>KLAP_DASHBOARD_INSTITUTION)));
+        if ( get_config('local_smart_klass', 'activate_institution_dashboard') == '1' &&  ($dashboard_roles->institution || local_smart_klass_can_manage()) ) {
+            $nodeSmartKlap->add( get_string('institutiondashboard', 'local_smart_klass'), new moodle_url($CFG->wwwroot.'/local/smart_klass/dashboard.php', array('cid' => $PAGE->context->id, 'dt'=>SMART_KLASS_DASHBOARD_INSTITUTION)));
         }  
     }
     
-    //Remove Klap root node it empty
-    if ( !$nodeKlap->has_children()) 
-        $nodeKlap->remove();
+    //Remove Smart Klass root node it empty
+    if ( !$nodeSmartKlap->has_children()) 
+        $nodeSmartKlap->remove();
        
  }
 
@@ -246,32 +246,32 @@ function local_klap_extends_navigation(global_navigation $navigation) {
  * @return void
  */
 
-function local_klap_cron() {  
+function local_smart_klass_cron() {  
     global $CFG;
-    if ($CFG->version < KLAP_MOODLE_27) local_klap_harvest();
+    if ($CFG->version < SMART_KLASS_MOODLE_27) local_smart_klass_harvest();
 }
 
 
-function local_klap_harvest( $collector=array() ) {
-    if ( get_config('local_klap', 'activate') != 1){
-        echo get_string('harvester_service_unavailable', 'local_klap');
+function local_smart_klass_harvest( $collector=array() ) {
+    if ( get_config('local_smart_klass', 'activate') != 1){
+        echo get_string('harvester_service_unavailable', 'local_smart_klass');
         return; 
     }
     
-    /*if (get_config('local_klap', 'croninprogress') == true){
-        echo get_string('harvester_service_instance_running', 'local_klap');
+    /*if (get_config('local_smart_klass', 'croninprogress') == true){
+        echo get_string('harvester_service_instance_running', 'local_smart_klass');
         return;
     }*/
     
     global $CFG, $USER, $DB;
     
-    set_config('croninprogress', true, 'local_klap');
+    set_config('croninprogress', true, 'local_smart_klass');
     
     $out = array();
     
     //Autoload library class
     require_once (dirname(__FILE__) . '/classes/xAPI/Autoloader.php');
-    Klap\xAPI\Autoloader::register();
+    SmartKlass\xAPI\Autoloader::register();
     
     
     
@@ -290,47 +290,53 @@ function local_klap_harvest( $collector=array() ) {
         if (!empty($collector)) {
             $custom_collector = (count($collector)>0) ? ' AND id IN (' . implode(',', $collector) . ') ' : '';
         }
-        $collectors = $DB->get_records_select('local_klap', 'active=?' . $custom_collector, array(1));
+        $collectors = $DB->get_records_select('local_smart_klass', 'active=?' . $custom_collector, array(1));
 
         foreach ($collectors as $item){
             $trace =  '...... Recolectando ' . $item->name . ' -- Inicio: ' . date('r')  . ' / ';      
-            $collector_class = 'Klap\\xAPI\\' . $item->name . 'Collector';
+            $collector_class = 'SmartKlass\\xAPI\\' . $item->name . 'Collector';
             $collector = new $collector_class;
             $trace .= 'Fin: ' . date('r');   
             $out[] = $trace;     
         }
-        $objlog->logfile = Klap\xAPI\Logger::save_log();
+        $objlog->logfile = SmartKlass\xAPI\Logger::save_log();
         $objlog->finish = time();
         $objlog->result = 1;
+        $objlog->error = '';
         $out[] = 'Enviados xAPI statements............... -- ' . date('r', $objlog->finish);
-        $url = Klap\xAPI\Logger::get_url($objlog->logfile);
+        $url = SmartKlass\xAPI\Logger::get_url($objlog->logfile);
         $out[] = html_writer::link($url, $objlog->logfile);
         
-        set_config('croninprogress', false, 'local_klap');
-        set_config('lastcron', $objlog->finish, 'local_klap');
+        set_config('croninprogress', false, 'local_smart_klass');
+        set_config('lastcron', $objlog->finish, 'local_smart_klass');
         
     } catch (Exception $e){
+        set_config('croninprogress', false, 'local_smart_klass');
         $objlog->error = json_encode($e);
-        $objlog->logfile = Klap\xAPI\Logger::save_log();
-        set_config('croninprogress', false, 'local_klap');
+        $objlog->logfile = SmartKlass\xAPI\Logger::save_log();
+        $objlog->finish = time();
+        $objlog->result = 0;
+        $out[] = 'Error............... -- ' . date('r', $objlog->finish);
+        $url = SmartKlass\xAPI\Logger::get_url($objlog->logfile);
+        $out[] = html_writer::link($url, $objlog->logfile);
     } 
     
-    $collectors = $DB->get_records_select('local_klap', 'active=?' . $custom_collector, array(1));
+    $collectors = $DB->get_records_select('local_smart_klass', 'active=?' . $custom_collector, array(1));
     $objlog->collectors = json_encode($collectors);
-    $DB->insert_record('local_klap_log', $objlog);
+    $DB->insert_record('local_smart_klass_log', $objlog);
     $br = html_writer::empty_tag('br');
     echo implode($br, $out);
     
 }
 
-function local_klap_pluginfile($course, $cm, $context, $filearea, $args, $forcedownload, array $options=array()) {
+function local_smart_klass_pluginfile($course, $cm, $context, $filearea, $args, $forcedownload, array $options=array()) {
     // Check the contextlevel is as expected - if your plugin is a block, this becomes CONTEXT_BLOCK, etc.
     if ($context->contextlevel != CONTEXT_SYSTEM) {
         return false; 
     }
  
     // Make sure the filearea is one of those used by the plugin.
-    if ($filearea !== 'local_klap' ) {
+    if ($filearea !== 'local_smart_klass' ) {
         return false;
     }
  
@@ -338,7 +344,7 @@ function local_klap_pluginfile($course, $cm, $context, $filearea, $args, $forced
     require_login();
  
     // Check the relevant capabilities - these may vary depending on the filearea being accessed.
-    if (!has_capability('local/klap:manage', $context)) {
+    if (!has_capability('local/smart_klass:manage', $context)) {
         return false;
     }
     
@@ -358,11 +364,11 @@ function local_klap_pluginfile($course, $cm, $context, $filearea, $args, $forced
         $filepath = '/'.implode('/', $args).'/'; // $args contains elements of the filepath
     }
     
-    set_config('croninprogress', false, 'local_klap');
+    set_config('croninprogress', false, 'local_smart_klass');
     
     // Retrieve the file from the Files API.
     $fs = get_file_storage();
-    $file = $fs->get_file($context->id, 'local_klap', $filearea, $itemid, $filepath, $filename);
+    $file = $fs->get_file($context->id, 'local_smart_klass', $filearea, $itemid, $filepath, $filename);
     if (!$file) {
         return false; // The file does not exist.
     }
@@ -370,17 +376,17 @@ function local_klap_pluginfile($course, $cm, $context, $filearea, $args, $forced
     send_stored_file($file, 'default', 0, true, $options);
 }
 
-function local_klap_activate_harvester( $collectorid ) {
+function local_smart_klass_activate_harvester( $collectorid ) {
     global $DB;
-    $collector= $DB->get_record('local_klap', array('id'=>$collectorid), 'id, active' );
+    $collector= $DB->get_record('local_smart_klass', array('id'=>$collectorid), 'id, active' );
     $collector->active = ($collector->active == 1) ? 0 : 1;
-    $DB->update_record('local_klap', $collector);
+    $DB->update_record('local_smart_klass', $collector);
 }
 
-function local_klap_get_harvesters () {
+function local_smart_klass_get_harvesters () {
     global $CFG, $DB;
     
-    $harvesters = $DB->get_records('local_klap', null, null, 'name');
+    $harvesters = $DB->get_records('local_smart_klass', null, null, 'name');
     
     $collectors_class = scandir(dirname(__FILE__).'/classes/xAPI/Collectors');
    
@@ -399,14 +405,14 @@ function local_klap_get_harvesters () {
             try {
                 //Autoload library class
                 require_once (dirname(__FILE__) . '/classes/xAPI/Autoloader.php');
-                Klap\xAPI\Autoloader::register();
+                SmartKlass\xAPI\Autoloader::register();
 
                 $class_file = dirname(__FILE__) . "/classes/xAPI/Collectors/{$item}Collector.php";               
                 if ( !file_exists($class_file) ) continue;
-               // if (!class_exists("Klap\\xAPI\\$item") ) continue;
-                $class = new \ReflectionClass("Klap\\xAPI\\{$item}Collector");
+               // if (!class_exists("SmartKlass\\xAPI\\$item") ) continue;
+                $class = new \ReflectionClass("SmartKlass\\xAPI\\{$item}Collector");
                 $parentclass = $class->getParentClass();
-                if( $parentclass->name != 'Klap\\xAPI\\Collector' ||
+                if( $parentclass->name != 'SmartKlass\\xAPI\\Collector' ||
                     $class->getMethod('collectData') == null ||
                     $class->getMethod('prepareStatement') == null
                   ) continue;
@@ -418,7 +424,7 @@ function local_klap_get_harvesters () {
                 $o->deleted = 0;
                 $o->lastregistry = 0;
                 $o->lastexectime = 0;
-                $id = $DB->insert_record ('local_klap', $o);
+                $id = $DB->insert_record ('local_smart_klass', $o);
             } catch (Exception $ex) {} 
          } 
         unset($harvesters[$item]);
@@ -426,12 +432,12 @@ function local_klap_get_harvesters () {
     }
     if (count($harvesters) > 0) {
         foreach ($harvesters as $key=>$value) {
-            $o = $DB->get_record('local_klap', array('name'=>$key), 'id, deleted' );
+            $o = $DB->get_record('local_smart_klass', array('name'=>$key), 'id, deleted' );
             $o->deleted = '1';
-            $status = $DB->update_record_raw('local_klap', $o);
+            $status = $DB->update_record_raw('local_smart_klass', $o);
         }
     }
-    $harvesters = $DB->get_records('local_klap', array('deleted'=>'0'));
+    $harvesters = $DB->get_records('local_smart_klass', array('deleted'=>'0'));
     return $harvesters;
     
 }
