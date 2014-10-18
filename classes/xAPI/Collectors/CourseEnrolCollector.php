@@ -2,7 +2,7 @@
 namespace Klap\xAPI;
 
 /**
- * CourseInitializedCollector Class
+ * CourseEnrolCollector Class
  *
  * @package    local_klap
  * @copyright  Klap <kttp://www.klaptek.com>
@@ -10,14 +10,14 @@ namespace Klap\xAPI;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-class CourseInitializedCollector extends Collector {
+class CourseEnrolCollector extends Collector {
     
     const MAX_REGS = 1000;
     
     public function collectData(){
         global $DB;
         
-        $data = $this->dataprovider->getCourseInitDate($this); 
+        $data = $this->dataprovider->getEnrolments($this); 
         
         return (empty($data)) ? null : $data;
         
@@ -25,12 +25,12 @@ class CourseInitializedCollector extends Collector {
     
     
     public function prepareStatement(StatementRequest $xAPI_statement, $object){
-        if (!empty($object->time) && !empty($object->timeenrolled)) {
+        if (!empty($object->time)) {
             //SetActor
             $xAPI_statement->setActor($object->userid);
 
             //SetVerb
-            $xAPI_statement->setVerb('initialized');
+            $xAPI_statement->setVerb('registered');
 
             //SetObject
             $activity = new Activity($this->dataprovider->getCourseId($object->course));
@@ -43,7 +43,7 @@ class CourseInitializedCollector extends Collector {
             //SetResult
 
             //SetContext
-            $role_extension = new Extension(
+          $role_extension = new Extension(
                                             'http://l-miner.klaptek.com/xapi/extensions/role',
                                             $this->dataprovider->getRole($object->userid, $object->course)
                                             );
@@ -51,16 +51,22 @@ class CourseInitializedCollector extends Collector {
            
            $instructors = $this->getInstructors($object->course);
            if ( !empty($instructors) ) $xAPI_statement->setContext('instructor',  $instructors );
-           
+
             //SetTimeStamp
             $xAPI_statement->setTimestamp($object->time);
 
             return $xAPI_statement;
         } else {
             $this->addReproccessIds($object->id);
+            $agent = new Agent($object->userid);
+            $actor = json_decode($agent);
+            $a = new \stdClass();
+            $a->user = $actor->mbox;
+            $a->course = $this->dataprovider->getCourseId($object->course);
+            $error = $this->dataprovider->getLanguageString('user_no_enrol_course', 'local_klap', $a);
+            $this->setLastError($error);
             return null;
         }
-        
     }
     
     public function getMaxId() {

@@ -25,6 +25,8 @@ abstract class Collector  {
     protected $dataprovider=null;
     
     private $aditional_collectors;
+    
+    private $last_error  = null;
 
     public function __construct ($data=null) {
         $this->dataprovider = DataProviderFactory::build();
@@ -73,75 +75,88 @@ abstract class Collector  {
     
     protected function execute( $collection=null ) {
         ini_set('max_execution_time', 0);
-        
-        Logger::add_to_log($this->name . ' ----------------------------------- INICIO');
-        
+
+        Logger::add_to_log('start', $this->name);
+
         if (empty($collection)) {
-            Logger::add_to_log('No hay nuevos registros a actualizar (' . get_class($this) . ')');
-            Logger::add_to_log($this->name . ' ----------------------------------- FIN');
+            $msg = $this->dataprovider->getLanguageString('no_record_to_update', 'local_klap');
+            Logger::add_to_log('msg', $msg);
+            Logger::add_to_log('end', $this->name);
             return;
         } else {
-            Logger::add_to_log('Total Registros (' . count($collection) . ')');
+            Logger::add_to_log('total_records', count($collection));
         }
         
         
         foreach ($collection as $element){
             $xApi = $this->getXapi();
             $xApi = $this->prepareStatement($xApi, $element);
-            $log_element = $element->id . ': ';
+            
+            
+            $log_obj = new \stdClass();
+            $log_obj->start = date('d/m/Y H:i:s');
+            
+            $regid = $this->dataprovider->get_reg_id($element->id, get_class($this));
+            $log_obj->moodleid = $regid;
             if ( empty($xApi) ){
-                $log_element .= 'KO (Valor Null para sentencia generada)';
                 $this->dataprovider->updateCollector ($this->name, null, null, $this->data);
-                Logger::add_to_log($log_element); 
+                
+                $log_obj->result = $this->dataprovider->getLanguageString('ko', 'local_klap');;
+                $log_obj->msg = $this->getLastError();
+                $log_obj->moodleid = $regid;
+                Logger::add_to_log('registry', $log_obj);
                 continue;
             }
             //Set plattform
             $xApi->setContext('platform',  $this->dataprovider->get_platform_version() );
             
             //Set regId
-            $regid = $this->dataprovider->get_reg_id($element->id, get_class($this));
             $regid_extension = new Extension(
                                             'http://l-miner.klaptek.com/xapi/extensions/regid',
                                             $regid
                                             );
            $xApi->setContext('extension',  $regid_extension );
            $result = $xApi->sendStatement();
-             
-            Logger::add_to_log('-- ERRORCODE: ' . $result->errorcode);
-             if ($result->errorcode == '200') {
-                    if ( get_config('local_klap', 'save_log') ) {
-                        $log_element .= 'OK (ERRORCODE: ' . $result->errorcode . ' MSG: Sentencia enviada correctamente)';
 
-                        if ( get_config('local_klap', 'savelog_ok_statement') ) {
-                            $log_element .= ' - STATEMENT ' . $result->msg . ' - ' . $regid . ': ' . (string) $xApi->getStatement();
-                        } else {
-                            $log_element .= ' - STATEMENT ' . $result->msg . ' - ' . $regid;
-                        }
-                    }
-                    $tt = strtotime ($xApi->getStatement()->getTimestamp());
-                    if ($this->last_execution < $tt) 
-                        $this->last_execution = $tt;
-                    if ($this->last_registry < $element->id) 
-                        $this->last_registry = $element->id;
-                    $this->removeReproccessId($element->id);
-             } else {
-                 $msg = json_decode($result->msg);
-                 if ( isset($msg->message) ) {
-                    $msg = $msg->message;
-                 } else if (isset($msg->error->message)) {
-                    $msg = $msg->error->message . '(in ' . $msg->error->file . ' - line ' . $msg->error->line . ')';
-                 }
-                 $this->addReproccessIds($element->id);
-                 if (get_config('local_klap', 'save_log')) {
-                    $log_element .= 'KO (ERRORCODE: ' . $result->errorcode . ' MSG: ' . $msg . ') - STATEMENT: ' . (string) $xApi->getStatement();
-                 }
-                    
+            if ($result->errorcode == '200') {
+                   if ( get_config('local_klap', 'save_log') ) {
+                       $log_obj->result = $this->dataprovider->getLanguageString('ok', 'local_klap');;
+                       $log_obj->msg = $this->dataprovider->getLanguageString('statement_send_ok', 'local_klap');
+                       $log_obj->errorcode = $result->errorcode;
+                       $log_obj->lrsid = $result->msg;
+                       if ( get_config('local_klap', 'save_log') && get_config('local_klap', 'savelog_ok_statement') ) 
+                           $log_obj->statement = $xApi->getStatement();
+
+                   }
+                   $tt = strtotime ($xApi->getStatement()->getTimestamp());
+                   if ($this->last_execution < $tt) 
+                       $this->last_execution = $tt;
+                   if ($this->last_registry < $element->id) 
+                       $this->last_registry = $element->id;
+                   $this->removeReproccessId($element->id);
+            } else {
+                $msg = json_decode($result->msg);
+                if ( isset($msg->message) ) {
+                   $msg = $msg->message;
+                } else if (isset($msg->error->message)) {
+                   $msg = $msg->error->message . '(in ' . $msg->error->file . ' - line ' . $msg->error->line . ')';
+                }
+                $this->addReproccessIds($element->id);
+
+                if (get_config('local_klap', 'save_log')){
+                    $log_obj->result = $this->dataprovider->getLanguageString('ko', 'local_klap');;
+                    $log_obj->msg = $msg;
+                    $log_obj->errorcode = $result->errorcode;
+                    $log_obj->lrsid = 'null';
+                    $log_obj->statement = $xApi->getStatement();
+                }
             }
+            $log_obj->end = date('d/m/Y H:i:s');
+            Logger::add_to_log('registry', $log_obj);
 
-             $this->dataprovider->updateCollector ($this->name, $this->last_execution, $this->last_registry, $this->data);
-             Logger::add_to_log($log_element); 
+            $this->dataprovider->updateCollector ($this->name, $this->last_execution, $this->last_registry, $this->data);
         } 
-        Logger::add_to_log($this->name . ' ----------------------------------- FIN');
+        Logger::add_to_log('end', $this->name);
     }
     
     private function getXapi() {
@@ -237,6 +252,14 @@ abstract class Collector  {
             
         }
         return $instructors;
+    }
+    
+    protected function setLastError ($error) {
+        $this->last_error = (string) $error;
+    }
+    
+    protected function getLastError () {
+        return $this->last_error;
     }
     
     abstract public function getMaxId ();

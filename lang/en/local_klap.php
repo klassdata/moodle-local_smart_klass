@@ -78,3 +78,13 @@ $string['institution_dashboard_noactive'] = 'Institution dashboard is inactive. 
 $string['invalid_dataprovider'] = 'Invalid DataProvider type given.';
 $string['harvester_service_unavailable'] = 'Harvester service not available';
 $string['harvester_service_instance_running'] = 'Harvester service instance is currently running. There can be only one active instance';
+
+$string['user_no_complete_course'] = 'El usuario {$a->user} no ha completado en el curso {$a->course} por lo que no se enviará el registro';
+$string['user_no_enrol_course'] = 'El usuario {$a->user} no está matriculado en el curso {$a->course} por lo que no se enviará el registro';
+$string['user_no_init_course'] = 'El usuario {$a->user} no ha iniciado el curso {$a->course} por lo que no se enviará el registro';
+$string['user_no_completed_activity'] = 'El usuario {$a->user} no ha completado la actividad {$a->activity} por lo que no se enviará el registro';
+$string['error_lo_verb_from_log'] = 'No se puede generar un verbo para el modulo {$a->module} cy la acción {$a->action}';
+$string['no_record_to_update'] = 'No hay nuevos registros a actualizar';
+$string['statement_send_ok'] =  'Sentencia enviada correctamente';
+$string['ok'] =  'OK';
+$string['ko'] =  'KO';

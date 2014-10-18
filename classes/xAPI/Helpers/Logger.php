@@ -12,24 +12,27 @@ namespace Klap\xAPI;
 
 class Logger {
     
-    static $logger = '';
+    static $logger = array();
   
   
-    public static function add_to_log ($str = '') {
-        if ( get_config('local_klap', 'save_log') != 1 || empty ($str) ) return;
-
-        self::$logger .= date('d/m/Y H:i:s') . ' ' . $str . PHP_EOL; 
-
+    public static function add_to_log ($key = '', $value = '') {
+        
+        if ( get_config('local_klap', 'save_log') != 1 || empty ($key)) return;     
+        $logobj = new \stdClass();
+        $logobj->key = $key;
+        $logobj->value = $value;
+        $logobj->date = date('d/m/Y H:i:s');       
+        self::$logger[] = $logobj;
     }
 
-    public static function save_log () {
+    public static function save_log ($name='') {
 
         if ( get_config('local_klap', 'save_log') != 1) return;
 
         $syscontext = \context_system::instance();
         $fs = get_file_storage();
 
-        $filename = 'xAPI_log_' . date('Ymd_His') . '.txt';
+        $filename = ( ( !empty($name) ) ? $name : 'xAPI_log_' . date('Ymd_His') ) . '.json';
 
         // Prepare file record object
         $fileinfo = array(
@@ -40,8 +43,7 @@ class Logger {
             'filepath' => '/',           // any path beginning and ending in /
             'filename' => $filename); // any filename
 
-        // Create file containing text 'hello world'
-        $fs->create_file_from_string($fileinfo, self::$logger);
+        $fs->create_file_from_string($fileinfo, json_encode(self::$logger));
         
         self::clear_log();
         
@@ -77,7 +79,7 @@ class Logger {
     }
     
     public static function clear_log (){
-        self::$logger = '';
+        self::$logger = new \stdClass();
     }
     
     public static function get_url ($filename) {

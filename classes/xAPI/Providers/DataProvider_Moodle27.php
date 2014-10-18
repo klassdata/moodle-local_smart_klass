@@ -28,7 +28,7 @@ class DataProvider_Moodle27 extends DataProvider {
                                         "(id>?{$reprocess}) AND visible=?", 
                                         array($collector->getLastRegistry(), 1),
                                         '', 
-                                        'id, course, name, summary, section, sequence, visible',
+                                        'id, course, name, summary, section, sequence, visible, availability',
                                         0, $limit
           );
         
@@ -46,20 +46,25 @@ class DataProvider_Moodle27 extends DataProvider {
         if ( is_int($section) ) {
             $section = $DB->get_record (    'course_sections', 
                                             array('id'=>$section, 'visible'>1),
-                                            'id, course, name, summary, section, sequence, visible'
+                                            'id, course, name, summary, section, sequence, visible, availability'
                                         );
         }
         $obj = new \stdClass();
         $obj->id = $section->id;
         $obj->course = $section->course;
         $obj->name = (empty($section->name)) ? 'Módulo ' . $section->section : $section->name;
+        
+        $modinfo = get_fast_modinfo($section->course);
+        $cm = $modinfo->get_cm($cmid);
+        $availableinfo = $cm->availableinfo;
+        
         if ( !empty($section->summary) ){
             $obj->summary = strip_tags($section->summary);
         }
 
         $modulesarr = array();
         $modules = $DB->get_records_sql("
-            SELECT cm.id, m.name AS modname, added, availablefrom, availableuntil
+            SELECT cm.id, m.name AS modname, added, availability
               FROM {course_modules} cm
               JOIN {modules} m ON m.id = cm.module
              WHERE cm.course = ?

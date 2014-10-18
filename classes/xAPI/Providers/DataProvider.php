@@ -538,5 +538,9 @@ class DataProvider {
         return current($roles)->shortname;
     }
     
+    public function getLanguageString ($identifier, $component = '', $a = null, $lazyload = false) {
+        return get_string ($identifier, $component, $a, $lazyload);
+    }
+    
     
 }

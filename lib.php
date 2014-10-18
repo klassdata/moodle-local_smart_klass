@@ -40,6 +40,8 @@ define('KLAP_OAUTHSERVER_URL', 'http://develop.klaptek.com/oauth/resource.php');
 define('KLAP_DASHBOARD_URL',   'http://develop.klaptek.com/dashboard/');
 
 define('KLAP_MOODLE_27',   2014051200);
+define('KLAP_MOODLE_26',   2013111800);
+define('KLAP_MOODLE_25',   2013051300);
 
 
 /**
@@ -268,8 +270,10 @@ function local_klap_harvest( $collector=array() ) {
     $out = array();
     
     //Autoload library class
-    require_once (dirname(__FILE__) . '/xAPI/Autoloader.php');
+    require_once (dirname(__FILE__) . '/classes/xAPI/Autoloader.php');
     Klap\xAPI\Autoloader::register();
+    
+    
     
     $objlog = new stdClass();
     $objlog->init = 0;
@@ -293,9 +297,8 @@ function local_klap_harvest( $collector=array() ) {
             $collector_class = 'Klap\\xAPI\\' . $item->name . 'Collector';
             $collector = new $collector_class;
             $trace .= 'Fin: ' . date('r');   
-            $out[] = $trace;
+            $out[] = $trace;     
         }
-
         $objlog->logfile = Klap\xAPI\Logger::save_log();
         $objlog->finish = time();
         $objlog->result = 1;
@@ -308,14 +311,16 @@ function local_klap_harvest( $collector=array() ) {
         
     } catch (Exception $e){
         $objlog->error = json_encode($e);
+        $objlog->logfile = Klap\xAPI\Logger::save_log();
         set_config('croninprogress', false, 'local_klap');
-    }
+    } 
     
     $collectors = $DB->get_records_select('local_klap', 'active=?' . $custom_collector, array(1));
     $objlog->collectors = json_encode($collectors);
     $DB->insert_record('local_klap_log', $objlog);
     $br = html_writer::empty_tag('br');
     echo implode($br, $out);
+    
 }
 
 function local_klap_pluginfile($course, $cm, $context, $filearea, $args, $forcedownload, array $options=array()) {
@@ -373,11 +378,11 @@ function local_klap_activate_harvester( $collectorid ) {
 }
 
 function local_klap_get_harvesters () {
-    global $DB;
+    global $CFG, $DB;
     
     $harvesters = $DB->get_records('local_klap', null, null, 'name');
     
-    $collectors_class = scandir(dirname(__FILE__).'/xAPI/Collectors');
+    $collectors_class = scandir(dirname(__FILE__).'/classes/xAPI/Collectors');
    
     $key = array_search ( 'Collector.php', $collectors_class );
     unset($collectors_class[$key]);
@@ -393,10 +398,10 @@ function local_klap_get_harvesters () {
             
             try {
                 //Autoload library class
-                require_once (dirname(__FILE__) . '/xAPI/Autoloader.php');
+                require_once (dirname(__FILE__) . '/classes/xAPI/Autoloader.php');
                 Klap\xAPI\Autoloader::register();
-                
-                $class_file = dirname(__FILE__) . "/xAPI/Collectors/{$item}Collector.php";               
+
+                $class_file = dirname(__FILE__) . "/classes/xAPI/Collectors/{$item}Collector.php";               
                 if ( !file_exists($class_file) ) continue;
                // if (!class_exists("Klap\\xAPI\\$item") ) continue;
                 $class = new \ReflectionClass("Klap\\xAPI\\{$item}Collector");

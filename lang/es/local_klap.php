@@ -78,3 +78,13 @@ $string['institution_dashboard_noactive'] = 'El panel de institución está inac
 $string['invalid_dataprovider'] = 'El tipo DataProvider proporcionado es incorrecto.';
 $string['harvester_service_unavailable'] = 'Servicio de recolección de datos inactivo';
 $string['harvester_service_instance_running'] = 'Instancia del servicio de recolección de datos en curso. Solamente puede existir una instancia activa';
+
+$string['user_no_complete_course'] = 'User {$a->user} do not completed the course {$a->course} so the record will not be sent';
+$string['user_no_enrol_course'] = 'User {$a->user} do not enrol the course {$a->course} so the record will not be sent';
+$string['user_no_init_course'] = 'User {$a->user} do not init the course {$a->course} so the record will not be sent';
+$string['user_no_completed_activity'] = 'User {$a->user} do not completed the activity {$a->activity} so the record will not be sent';
+$string['error_lo_verb_from_log'] = 'Unable to generate a verb for the module {$a->module} and the action {$a->action}';
+$string['no_record_to_update'] = 'No records to update';
+$string['statement_send_ok'] =  'The statement will be send correctly';
+$string['ok'] =  'OK';
+$string['ko'] =  'KO';

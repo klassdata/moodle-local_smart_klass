@@ -44,6 +44,7 @@ class StatementRequest {
         require_once (dirname(__FILE__) . '/Autoloader.php');
         Autoloader::register();
         
+        
         $this->statement = new Statement();
         
         $this->endpoint = $endpoint;

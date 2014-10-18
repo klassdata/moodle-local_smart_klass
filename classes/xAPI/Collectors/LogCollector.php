@@ -29,7 +29,14 @@ class LogCollector extends Collector {
         
         //SetVerb
         $verb = $this->getVerb($object->modname, $object->action);
-        if ($verb == null) return null;
+        if ($verb == null) {
+            $a = new \stdClass();
+            $a->module = $object->modname;
+            $a->action = $object->action;
+            $error = $this->dataprovider->getLanguageString('error_lo_verb_from_log', 'local_klap', $a);
+            $this->setLastError($error);
+            return null;
+        }
         $xAPI_statement->setVerb($verb);
         
         //SetObject

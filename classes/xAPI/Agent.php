@@ -63,34 +63,6 @@ class Agent extends xApiObject {
        $this->data_provider = DataProviderFactory::build();         
     }
     
-    public function setAgentId ($id, $type='mbox') {      
-        switch ($this->agentid_type) {
-            case 'mbox':
-                if ( filter_var($id, FILTER_VALIDATE_EMAIL) === false )
-                    $this->agentid = 'unidentified';
-                else
-                    $this->agentid = 'mailto:'.$user->email;
-                break;
-            case 'mbox_sha1sum':
-                if ( filter_var($id, FILTER_VALIDATE_EMAIL) === false )
-                    $this->agentid = 'unidentified';
-                else
-                    $this->agentid = sha1('mailto:'.$user->email);
-                break;
-            case 'account':
-                $accountobj = new \stdClass();
-                $accountobj->homePage = $id->homePage;
-                $accountobj->name = $id->name;
-                $this->agentid = $accountobj;
-                break;
-            case 'openID':
-                $obj->openID = 'unidentified';
-                break;
-        }
-        
-        return $this;    
-    }
-   
     public function expose () {
         $obj = new \stdClass();
         $user = $this->data_provider->get_user($this->id);

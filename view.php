@@ -39,7 +39,7 @@ $strheading = get_string('controlpanel', 'local_klap');
 
 switch ($action) {
    case  KLAP_ACTION_DEFAULT:
-       require_once (dirname(__FILE__) . '/xAPI/Helpers/Logger.php');
+       require_once (dirname(__FILE__) . '/classes/xAPI/Helpers/Logger.php');
              
        $PAGE->set_pagelayout('standard');
        $PAGE->set_url(new moodle_url('/local/klap/view.php'));
@@ -149,7 +149,7 @@ switch ($action) {
        $PAGE->set_title( $strheading );
        $PAGE->set_heading( $strheading );
        
-       require_once ('./xAPI/StatementRequest.php');
+       require_once ('./classes/xAPI/StatementRequest.php');
        
        echo $OUTPUT->header();
        echo $OUTPUT->box_start();

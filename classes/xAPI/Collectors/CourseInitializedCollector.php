@@ -2,7 +2,7 @@
 namespace Klap\xAPI;
 
 /**
- * ActivityCompletedCollector Class
+ * CourseInitializedCollector Class
  *
  * @package    local_klap
  * @copyright  Klap <kttp://www.klaptek.com>
@@ -10,14 +10,14 @@ namespace Klap\xAPI;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-class ActivityCompletedCollector extends Collector {
+class CourseInitializedCollector extends Collector {
     
-    const MAX_REGS = 2000;
+    const MAX_REGS = 1000;
     
     public function collectData(){
         global $DB;
         
-        $data = $this->dataprovider->getActivitiesCompletion($this); 
+        $data = $this->dataprovider->getCourseInitDate($this); 
         
         return (empty($data)) ? null : $data;
         
@@ -25,29 +25,25 @@ class ActivityCompletedCollector extends Collector {
     
     
     public function prepareStatement(StatementRequest $xAPI_statement, $object){
-        if ($object->completionstate == '1'  && !empty($object->timemodified)) {
+        if (!empty($object->time) && !empty($object->timeenrolled)) {
             //SetActor
             $xAPI_statement->setActor($object->userid);
 
             //SetVerb
-            $xAPI_statement->setVerb('completed');
+            $xAPI_statement->setVerb('initialized');
 
             //SetObject
-            $activity = new Activity($this->dataprovider->getActivityId($object->mod, $object->activityid));
+            $activity = new Activity($this->dataprovider->getCourseId($object->course));
 
-            $activity_definition = new ActivityDefinition($this->dataprovider->getActivityType($object->mod));
+            $activity_definition = new ActivityDefinition('course');
 
            $activity->setDefinition($activity_definition);
            $xAPI_statement->setObject($activity);
 
-            //SetResult    
-           $xAPI_statement->setResult('completion', true);  
-           
-           //SetContext
-           $xAPI_statement->setContext('contextActivities',  array('parent'=>$this->dataprovider->getCourseId($object->course)) );
-           $xAPI_statement->setContext('contextActivities',  array('grouping'=>$this->dataprovider->getModuleId($object->course, $object->section)) );
-        
-           $role_extension = new Extension(
+            //SetResult
+
+            //SetContext
+            $role_extension = new Extension(
                                             'http://l-miner.klaptek.com/xapi/extensions/role',
                                             $this->dataprovider->getRole($object->userid, $object->course)
                                             );
@@ -55,20 +51,26 @@ class ActivityCompletedCollector extends Collector {
            
            $instructors = $this->getInstructors($object->course);
            if ( !empty($instructors) ) $xAPI_statement->setContext('instructor',  $instructors );
-        
-           //SetTimeStamp
-           $xAPI_statement->setTimestamp($object->timemodified);
+           
+            //SetTimeStamp
+            $xAPI_statement->setTimestamp($object->time);
 
-           return $xAPI_statement;
+            return $xAPI_statement;
         } else {
             $this->addReproccessIds($object->id);
+            $agent = new Agent($object->userid);
+            $actor = json_decode($agent);
+            $a = new \stdClass();
+            $a->user = $actor->mbox;
+            $a->course = $this->dataprovider->getCourseId($object->course);
+            $error = $this->dataprovider->getLanguageString('user_no_init_course', 'local_klap', $a);
+            $this->setLastError($error);
             return null;
         }
+        
     }
     
     public function getMaxId() {
-        return $this->dataprovider->getMaxId('course_modules_completion'); 
+        return $this->dataprovider->getMaxId('course_completions'); 
     }
-    
-   
 }
