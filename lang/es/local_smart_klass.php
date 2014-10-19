@@ -88,3 +88,4 @@ $string['no_record_to_update'] = 'No records to update';
 $string['statement_send_ok'] =  'The statement will be send correctly';
 $string['ok'] =  'OK';
 $string['ko'] =  'KO';
+$tring['crontask'] = 'Smart Class cron task';

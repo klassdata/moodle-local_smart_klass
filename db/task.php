@@ -28,7 +28,7 @@ defined('MOODLE_INTERNAL') || die();
 
 $tasks = array(                                                                                                                     
     array(                                                                                                                          
-        'classname' => 'local_smart_klass\task\smart_klass_heartbeat',                                                                            
+        'classname' => 'local_smart_klass\task\cron_task',                                                                            
         'blocking' => 0,                                                                                                            
         'minute' => '*/15',                                                                                                            
         'hour' => '*',                                                                                                              

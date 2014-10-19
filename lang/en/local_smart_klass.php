@@ -88,3 +88,4 @@ $string['no_record_to_update'] = 'No hay nuevos registros a actualizar';
 $string['statement_send_ok'] =  'Sentencia enviada correctamente';
 $string['ok'] =  'OK';
 $string['ko'] =  'KO';
+$tring['crontask'] = 'Tareas programadas de Smart Klass';
