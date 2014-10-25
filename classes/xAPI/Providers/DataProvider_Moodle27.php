@@ -6,32 +6,30 @@ namespace SmartKlass\xAPI;
  *
  * @package    local_smart_klass
  * @copyright  KlassData <kttp://www.klassdata.com>
- * @author     Oscar <oscar@klassdata.com>
+ * @author     Oscar Ruesga <oscar@klassdata.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 class DataProvider_Moodle27 extends DataProvider {
-    
-    public function __construct() {   
+
+    public function __construct() {
     }
-    
-    
-    
-    
+
     public function getModules (Collector $collector) {
         global $DB;
         
-        $reprocess = (count($collector->getReproccessIds())>0) ? ' OR id IN (' . implode(',', $collector->getReproccessIds()) . ') ' : '';
+        $table = 'course_sections';
+        $reprocess = (count($collector->getReproccessIds($table))>0) ? ' OR id IN (' . implode(',', $collector->getReproccessIds($table)) . ') ' : '';
         $limit = $collector->getMaxRegistrys();
         $limit = ($limit == null) ? 0 : $limit;
         $reg = $DB->get_records_select ('course_sections', 
                                         "(id>?{$reprocess}) AND visible=?", 
-                                        array($collector->getLastRegistry(), 1),
+                                        array($collector->getLastRegistry($table), 1),
                                         '', 
                                         'id, course, name, summary, section, sequence, visible, availability',
                                         0, $limit
           );
-        
+
         $sections = array();
         foreach ($reg as $section){
             $sections[] = $this->getModule($section);
@@ -39,8 +37,7 @@ class DataProvider_Moodle27 extends DataProvider {
         ksort($sections, SORT_NUMERIC);
         return $sections;
     }
-    
-    
+
     public function getModule ($section) {
         global $DB;
         if ( is_int($section) ) {
@@ -53,15 +50,7 @@ class DataProvider_Moodle27 extends DataProvider {
         $obj->id = $section->id;
         $obj->course = $section->course;
         $obj->name = (empty($section->name)) ? 'Módulo ' . $section->section : $section->name;
-        
 
-        //$modinfo = get_fast_modinfo($section->course);
-        //$cms = $modinfo->get_cms();
-        //$availableinfo = $cms->get_available_info();
-            
-            
-        
-        
         if ( !empty($section->summary) ){
             $obj->summary = strip_tags($section->summary);
         }
@@ -149,5 +138,162 @@ class DataProvider_Moodle27 extends DataProvider {
 
         $obj->timecreated = $module_date_creation;
         return $obj;
+    }
+    
+    
+  
+    public function getLog (Collector $collector) {
+        global $DB;
+
+        
+        $limit = $collector->getMaxRegistrys();
+        $limit = ($limit == null) ? 0 : $limit;
+
+        $logmanager = get_log_manager();
+        
+
+        $readers = $logmanager->get_readers('core\log\sql_select_reader'); 
+
+        $reg = array();
+        foreach ($readers as $reader) {
+            $filter = new \stdClass();
+            $logreader = $reader;
+
+            $joins = array();
+            $params = array();
+            if ( $reader instanceof \logstore_legacy\log\store ) {
+                $joins[] = "id > " . $collector->getLastRegistry('log');
+                $joins[] = "cmid <> 0";
+                $joins[] = 'module IN ("assign", "chat", "course", "feedback", "folder", "forum", "page", "quiz", "resource", "scorm", "url")';             
+            } else {
+                $joins[] = "id > " . $collector->getLastRegistry('log');
+                // Filter out anonymous actions, this is N/A for legacy log because it never stores them.
+                $joins[] = "anonymous = 0";
+                $joins[] = "component LIKE 'mod_%'";
+            }
+            $start = ($start == null) ? 0 : $start;
+            $selector = implode(' AND ', $joins);
+            
+            $logs = $logreader->get_events_select($selector, $params, null,0, $limit);
+            
+            foreach ($logs as $k => $log){   
+                $id =  $reader->get_name() . '/' . $k;
+                $data = $log->get_data();
+                
+                if ($data['contextinstanceid'] == '0') continue;
+                $obj = new \stdClass();
+                $obj->time = $data['timecreated'];
+                $obj->userid = $data['userid'];
+                $obj->course = $data['courseid'];
+                if ( $reader instanceof \logstore_legacy\log\store ) 
+                    list($obj->modname, $obj->action) = explode('_', $data['eventname']);
+                else {
+                    list($g, $obj->modname) = explode ('_', $data['component']);
+                    $obj->action = "{$data['action']} {$data['objecttable']}";
+                }
+    
+                $obj->cmid =$data['contextinstanceid'];
+
+                $d = $DB->get_record('course_modules', array('id'=>$obj->cmid ), 'instance as activityid,section as moduleid');
+                $obj->activityid = $d->activityid;
+                $obj->moduleid = $d->moduleid;
+                $obj->id = $id;
+                $reg[$id] = $obj;
+            }
+
+        }
+        return $reg;
+    }
+    
+    public function getVerb ($module, $action) {
+        switch ($module){
+            case 'assign':
+                switch ($action){
+                    case 'submit': return 'answered';
+                    case 'view': return 'attempted';
+                    default: return null;
+                }        
+            case 'chat':
+                switch ($action){
+                    case 'talk':
+                    case 'send chat_messages':
+                        return 'interacted';
+                    case 'view': 
+                    case 'viewed chat':   
+                        return 'attempted';
+                    default: return null;
+                }
+            case 'course':
+                switch ($action){
+                    case 'view': return 'attempted';
+                    default: return null;
+                }
+            case 'feedback':
+                switch ($action){
+                    case 'startcomplete': return 'attempted';
+                    default: return null;
+                }
+            case 'folder':
+                switch ($action){
+                    case 'view': return 'attempted';
+                    default: return null;
+                }
+            case 'forum':
+                switch ($action){
+                    case 'add post':
+                    case 'created forum_posts': 
+                        return 'commented';
+                    case 'add discussion': 
+                    case 'created forum_discussions':    
+                        return 'created';
+                    case 'view forum':
+                    case 'view discussion':
+                    case 'viewed forum':
+                    case 'viewed forum_discussions':
+                        return 'attempted';
+                    default: return null;
+                }
+                break;
+            
+            case 'page':
+                switch ($action){
+                    case 'view': return 'attempted';
+                    default: return null;
+                }
+                break;
+            
+            case 'quiz':
+                switch ($action){
+                    case 'attempt': return 'attempted';
+                    case 'close attempt': return 'suspended';
+                    case 'continue attempt': return 'resumed';
+                    case 'view': return 'launched';
+                    case 'preview': return 'experienced';
+                    case 'view summary': return 'experienced';
+                    default: return null;
+                }
+                break;
+            
+            case 'resource':
+                switch ($action){
+                    case 'view': return 'attempted';
+                    default: return null;
+                }
+                break;
+            
+            case 'scorm':
+                switch ($action){
+                    case 'launch': return 'attempted';
+                    default: return null;
+                }
+                break;
+            
+            case 'url':
+                switch ($action){
+                    case 'view': return 'attempted';
+                    default: return null;
+                }
+                break;
+        }
     }
 }

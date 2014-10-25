@@ -6,7 +6,7 @@ namespace SmartKlass\xAPI;
  *
  * @package    local_smart_klass
  * @copyright  KlassData <kttp://www.klassdata.com>
- * @author     Oscar <oscar@klassdata.com>
+ * @author     Oscar Ruesga <oscar@klassdata.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -28,7 +28,7 @@ class LogCollector extends Collector {
         $xAPI_statement->setActor($object->userid);
         
         //SetVerb
-        $verb = $this->getVerb($object->modname, $object->action);
+        $verb = $this->dataprovider->getVerb($object->modname, $object->action);
         if ($verb == null) {
             $a = new \stdClass();
             $a->module = $object->modname;
@@ -69,89 +69,5 @@ class LogCollector extends Collector {
         $xAPI_statement->setTimestamp($object->time);
         
         return $xAPI_statement;
-    }
-    
-    private function getVerb ($module, $action) {
-        switch ($module){
-            case 'assign':
-                switch ($action){
-                    case 'submit': return 'answered';
-                    case 'view': return 'attempted';
-                    default: return null;
-                }        
-            case 'chat':
-                switch ($action){
-                    case 'talk': return 'interacted';
-                    case 'view': return 'attempted';
-                    default: return null;
-                }
-            case 'course':
-                switch ($action){
-                    case 'view': return 'attempted';
-                    default: return null;
-                }
-            case 'feedback':
-                switch ($action){
-                    case 'startcomplete': return 'attempted';
-                    default: return null;
-                }
-            case 'folder':
-                switch ($action){
-                    case 'view': return 'attempted';
-                    default: return null;
-                }
-            case 'forum':
-                switch ($action){
-                    case 'add post': return 'commented';
-                    case 'add discussion': return 'created';
-                    case 'view forum': return 'attempted';
-                    default: return null;
-                }
-                break;
-            
-            case 'page':
-                switch ($action){
-                    case 'view': return 'attempted';
-                    default: return null;
-                }
-                break;
-            
-            case 'quiz':
-                switch ($action){
-                    case 'attempt': return 'attempted';
-                    case 'close attempt': return 'suspended';
-                    case 'continue attempt': return 'resumed';
-                    case 'view': return 'launched';
-                    case 'preview': return 'experienced';
-                    case 'view summary': return 'experienced';
-                    default: return null;
-                }
-                break;
-            
-            case 'resource':
-                switch ($action){
-                    case 'view': return 'attempted';
-                    default: return null;
-                }
-                break;
-            
-            case 'scorm':
-                switch ($action){
-                    case 'launch': return 'attempted';
-                    default: return null;
-                }
-                break;
-            
-            case 'url':
-                switch ($action){
-                    case 'view': return 'attempted';
-                    default: return null;
-                }
-                break;
-        }
-    }
-    
-    public function getMaxId() {
-        return $this->dataprovider->getMaxId('log'); 
     }
 }

@@ -6,7 +6,7 @@ namespace SmartKlass\xAPI;
  *
  * @package    local_smart_klass
  * @copyright  KlassData <kttp://www.klassdata.com>
- * @author     Oscar <oscar@klassdata.com>
+ * @author     Oscar Ruesga <oscar@klassdata.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -64,9 +64,5 @@ class CourseCreateCollector extends Collector {
         $xAPI_statement->setTimestamp($object->timecreated);
         
         return $xAPI_statement;
-    }
-    
-    public function getMaxId() {
-        return $this->dataprovider->getMaxId('course'); 
     }
 }

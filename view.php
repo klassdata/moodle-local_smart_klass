@@ -19,7 +19,7 @@
  *
  * @package    local_smart_klass
  * @copyright  KlassData <kttp://www.klassdata.com>
- * @author     Oscar <oscar@klassdata.com>
+ * @author     Oscar Ruesga <oscar@klassdata.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -87,11 +87,21 @@ switch ($action) {
            $line[] = $img;
            $line[] = html_writer::link(new moodle_url('/local/smart_klass/view.php', array('action'=>SMART_KLASS_ACTION_EDIT, 'cid'=>$harvester->id)), $harvester->name);
            
-           $collectordata = json_decode($harvester->data);
-           $txtlastregistry = $harvester->lastregistry;
-           $txtlastregistry .= ( empty($collectordata->max_id) ) ? '' : '/' . $collectordata->max_id;
-           $line[] = $txtlastregistry;
-           $line[] = ($harvester->lastexectime == 0) ? '-' : date('d/m/Y H:i:s', $harvester->lastexectime);          
+           $collectordata = json_decode($harvester->data,true);
+           $v = $t = array();
+           if ( empty($collectordata) ){
+               $v[] = '-';             
+               $t[] = '-';
+           } else {
+                foreach($collectordata as $d) {
+                    $max_id = $d['max_id'];
+                    $v[] = $d['last_registry'] . ( ( empty($max_id) ) ? '' : '/' . $max_id);             
+                    $t[] = ($d['last_execution'] == 0) ? '-' : date('d/m/Y H:i:s', $d['last_execution']); 
+                }
+            }
+           
+           $line[] = implode(html_writer::empty_tag('br'), $v);
+           $line[] = implode(html_writer::empty_tag('br'), $t);        
            
            
            $buttons = array();
@@ -119,10 +129,6 @@ switch ($action) {
        $content .= $OUTPUT->box_start();
        $content .= $OUTPUT->heading( get_string('collector_status', 'local_smart_klass') );
        
-       $lastcron = $DB->get_field_sql('SELECT MAX(lastcron) FROM {modules}');
-       $cronoverdue = ($lastcron < time() - 3600 * 24);
-       
-       if (!$cronoverdue) $content .= $OUTPUT->box(get_string('cronwarning', 'admin'), 'generalbox adminwarning');
        $content .= html_writer::table($table);
        $content .= $OUTPUT->action_link($url, get_string('fullharvester', 'local_smart_klass'), new popup_action('click', $url));
        $content .= $OUTPUT->box_end();

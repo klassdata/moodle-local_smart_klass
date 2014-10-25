@@ -19,7 +19,7 @@
  *
  * @package    local_smart_klass
  * @copyright  KlassData <kttp://www.klassdata.com>
- * @author     Oscar <oscar@klassdata.com>
+ * @author     Oscar Ruesga <oscar@klassdata.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -109,8 +109,6 @@ function local_smart_klass_save_access_token ($code, $refresh, $email, $rol, $us
  * @return bool true if oauth accesstoken is ok, false is oauth accesstoken is KO
  */
 function local_smart_klass_oauth_validate ($access_token=null){
-    //TODO 1 Posiziona: Validate access_token in oauth server
-
 		$fields = array('access_token' => $access_token);
 		$ch = curl_init(SMART_KLASS_OAUTHSERVER_URL);
 		
@@ -128,9 +126,6 @@ function local_smart_klass_oauth_validate ($access_token=null){
 		$curl_response = curl_exec($ch);	// execute curl request
 	    $curl_response  = json_decode($curl_response);
 		curl_close($ch);
-		
-
-
 
 		if(empty($curl_response) || $curl_response->error=='invalid_token')
 			return false;
@@ -145,11 +140,7 @@ function local_smart_klass_oauth_validate ($access_token=null){
  * @return string new access token if OK, null if KO
  */
 function local_smart_klass_oauth_refreshtoken ($refresh_token=null){
-    //TODO 2 Posiziona: Try to get the access_token throw refresh_token in oauth server
-
-
-
-
+    //TODO 2  Try to get the access_token throw refresh_token in oauth server
 }
 
 
@@ -158,10 +149,10 @@ function local_smart_klass_oauth_refreshtoken ($refresh_token=null){
 /**
  * Validate access token in oauth servr
  * @param  string $accesstoken    accesstoken to validate with Smart Klass Dashboard
- * @return DEFINE BY POSIZIONA
+ * @return 
  */
 function local_smart_klass_get_dashboard ($access_token=null){
-    //TODO 3 Posiziona: Get the correct dashboard from Smart Klass Dashboard
+    //TODO 3 Get the correct dashboard from Smart Klass Dashboard
 }
 
 
@@ -258,10 +249,10 @@ function local_smart_klass_harvest( $collector=array() ) {
         return; 
     }
     
-    if (get_config('local_smart_klass', 'croninprogress') == true){
+  /* if (get_config('local_smart_klass', 'croninprogress') == true){
         echo get_string('harvester_service_instance_running', 'local_smart_klass');
         return;
-    }
+    }*/
     
     global $CFG, $USER, $DB;
     

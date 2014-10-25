@@ -6,7 +6,7 @@ namespace SmartKlass\xAPI;
  *
  * @package    local_smart_klass
  * @copyright  KlassData <kttp://www.klassdata.com>
- * @author     Oscar <oscar@klassdata.com>
+ * @author     Oscar Ruesga <oscar@klassdata.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -61,7 +61,8 @@ class ActivityCompletedCollector extends Collector {
 
            return $xAPI_statement;
         } else {
-            $this->addReproccessIds($object->id);   
+            $regid = $this->dataprovider->get_reg_id ($object->id, get_class($this));
+            $this->addReproccessIds($regid->table, $object->id);   
 
             $agent = new Agent($object->userid);
             $actor = json_decode($agent);
@@ -74,10 +75,5 @@ class ActivityCompletedCollector extends Collector {
             return null;
         }
     }
-    
-    public function getMaxId() {
-        return $this->dataprovider->getMaxId('course_modules_completion'); 
-    }
-    
-   
+ 
 }

@@ -19,7 +19,7 @@
  *
  * @package    local_smart_klass
  * @copyright  KlassData <kttp://www.klassdata.com>
- * @author     Oscar <oscar@klassdata.com>
+ * @author     Oscar Ruesga <oscar@klassdata.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -79,13 +79,13 @@ $string['invalid_dataprovider'] = 'Invalid DataProvider type given.';
 $string['harvester_service_unavailable'] = 'Harvester service not available';
 $string['harvester_service_instance_running'] = 'Harvester service instance is currently running. There can be only one active instance';
 
-$string['user_no_complete_course'] = 'El usuario {$a->user} no ha completado en el curso {$a->course} por lo que no se enviará el registro';
-$string['user_no_enrol_course'] = 'El usuario {$a->user} no está matriculado en el curso {$a->course} por lo que no se enviará el registro';
-$string['user_no_init_course'] = 'El usuario {$a->user} no ha iniciado el curso {$a->course} por lo que no se enviará el registro';
-$string['user_no_completed_activity'] = 'El usuario {$a->user} no ha completado la actividad {$a->activity} por lo que no se enviará el registro';
-$string['error_lo_verb_from_log'] = 'No se puede generar un verbo para el modulo {$a->module} cy la acción {$a->action}';
-$string['no_record_to_update'] = 'No hay nuevos registros a actualizar';
-$string['statement_send_ok'] =  'Sentencia enviada correctamente';
+$string['user_no_complete_course'] = 'User {$a->user} do not completed the course {$a->course} so the record will not be sent';
+$string['user_no_enrol_course'] = 'User {$a->user} do not enrol the course {$a->course} so the record will not be sent';
+$string['user_no_init_course'] = 'User {$a->user} do not init the course {$a->course} so the record will not be sent';
+$string['user_no_completed_activity'] = 'User {$a->user} do not completed the activity {$a->activity} so the record will not be sent';
+$string['error_lo_verb_from_log'] = 'Unable to generate a verb for the module {$a->module} and the action {$a->action}';
+$string['no_record_to_update'] = 'No records to update';
+$string['statement_send_ok'] =  'The statement will be send correctly';
 $string['ok'] =  'OK';
 $string['ko'] =  'KO';
-$tring['crontask'] = 'Tareas programadas de Smart Klass';
+$tring['crontask'] = 'Smart Class cron task';

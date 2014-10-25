@@ -24,7 +24,7 @@ require_once($CFG->dirroot.'/lib/formslib.php');
  *
  * @package    local_smart_klass
  * @copyright  KlassData <kttp://www.klassdata.com>
- * @author     Oscar <oscar@klassdata.com>
+ * @author     Oscar Ruesga <oscar@klassdata.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class local_smart_klass_lrs_login_form extends moodleform {

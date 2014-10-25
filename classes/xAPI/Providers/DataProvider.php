@@ -6,7 +6,7 @@ namespace SmartKlass\xAPI;
  *
  * @package    local_smart_klass
  * @copyright  KlassData <kttp://www.klassdata.com>
- * @author     Oscar <oscar@klassdata.com>
+ * @author     Oscar Ruesga <oscar@klassdata.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -34,7 +34,7 @@ class DataProvider {
                break;
            
            case 'oauth':
-                //TODO: Incluir autenticación oAUTH
+                //TODO: Incluir autenticaciÃ³n oAUTH
                break;   
        }
         return $auth;
@@ -89,7 +89,7 @@ class DataProvider {
         return ( empty($collector) ) ? null : $collector;
     }
     
-    public function updateCollector ($name='', $new_execution, $new_registry, $new_data){
+    public function updateCollector ($name='', $new_data){
         global $DB;
         if ( empty($name) )return false;
         
@@ -99,10 +99,6 @@ class DataProvider {
         
         if ( empty($collector) )return false;
         
-        if ($new_execution != null )
-            $collector->lastexectime = $new_execution;
-        if ($new_registry != null )
-            $collector->lastregistry = $new_registry;
         if ($new_data != null )
             $collector->data = json_encode($new_data);
        
@@ -113,12 +109,13 @@ class DataProvider {
     public function getCourses (Collector $collector) {
         global $DB;
         
-        $reprocess = (count($collector->getReproccessIds())>0) ? ' OR id IN (' . implode(',', $collector->getReproccessIds()) . ') ' : '';
+        $table = 'course';
+        $reprocess = (count($collector->getReproccessIds($table))>0) ? ' OR id IN (' . implode(',', $collector->getReproccessIds($table)) . ') ' : '';
         $limit = $collector->getMaxRegistrys();
         $limit = ($limit == null) ? 0 : $limit;
-        $reg = $DB->get_records_select ('course', 
+        $reg = $DB->get_records_select ($table, 
                                         'id>?' . $reprocess, 
-                                        array($collector->getLastRegistry()),
+                                        array($collector->getLastRegistry($table)),
                                         '', 
                                         'id, category, fullname, shortname,  startdate, timecreated, timemodified, enablecompletion',
                                         0, $limit
@@ -171,12 +168,13 @@ class DataProvider {
     public function getModules (Collector $collector) {
         global $DB;
         
-        $reprocess = (count($collector->getReproccessIds())>0) ? ' OR id IN (' . implode(',', $collector->getReproccessIds()) . ') ' : '';
+        $table = 'course_sections';
+        $reprocess = (count($collector->getReproccessIds($table))>0) ? ' OR id IN (' . implode(',', $collector->getReproccessIds($table)) . ') ' : '';
         $limit = $collector->getMaxRegistrys();
         $limit = ($limit == null) ? 0 : $limit;
-        $reg = $DB->get_records_select ('course_sections', 
+        $reg = $DB->get_records_select ($table, 
                                         "(id>?{$reprocess}) AND visible=?", 
-                                        array($collector->getLastRegistry(), 1),
+                                        array($collector->getLastRegistry($table), 1),
                                         '', 
                                         'id, course, name, summary, section, sequence, visible, availablefrom, availableuntil',
                                         0, $limit
@@ -202,7 +200,7 @@ class DataProvider {
         $obj = new \stdClass();
         $obj->id = $section->id;
         $obj->course = $section->course;
-        $obj->name = (empty($section->name)) ? 'Módulo ' . $section->section : $section->name;
+        $obj->name = (empty($section->name)) ? 'MÃ³dulo ' . $section->section : $section->name;
         if ( !empty($section->summary) ){
             $obj->summary = strip_tags($section->summary);
         }
@@ -307,13 +305,13 @@ class DataProvider {
 
     public function getLog (Collector $collector) {
         global $DB;
-        
-        $reprocess = (count($collector->getReproccessIds())>0) ? ' OR id IN (' . implode(',', $collector->getReproccessIds()) . ') ' : '';
+        $table = 'log';
+        $reprocess = (count($collector->getReproccessIds($table))>0) ? ' OR id IN (' . implode(',', $collector->getReproccessIds($table)) . ') ' : '';
         $limit = $collector->getMaxRegistrys();
         $limit = ($limit == null) ? 0 : $limit;
-        $reg = $DB->get_records_select ('log', 
+        $reg = $DB->get_records_select ($table, 
                                         '(id>? AND module IN ("assign", "chat", "course", "feedback", "folder", "forum", "page", "quiz", "resource", "scorm", "url") )' . $reprocess, 
-                                        array($collector->getLastRegistry()),
+                                        array($collector->getLastRegistry($table)),
                                         '', 
                                         'id, time, userid, course, module as modname, cmid, action',
                                         0, $limit
@@ -346,13 +344,13 @@ class DataProvider {
     
     public function getCourseCompletion (Collector $collector, $colums='*' ) {
         global $DB;
-        
-        $reprocess = (count($collector->getReproccessIds())>0) ? ' OR id IN (' . implode(',', $collector->getReproccessIds()) . ') ' : '';
+        $table = 'course_completions';
+        $reprocess = (count($collector->getReproccessIds($table))>0) ? ' OR id IN (' . implode(',', $collector->getReproccessIds($table)) . ') ' : '';
         $limit = $collector->getMaxRegistrys();
         $limit = ($limit == null) ? 0 : $limit;
-        $reg = $DB->get_records_select ('course_completions', 
+        $reg = $DB->get_records_select ($table, 
                                         'id>?' . $reprocess, 
-                                        array($collector->getLastRegistry()),
+                                        array($collector->getLastRegistry($table)),
                                         '',
                                         $colums,
                                         0, $limit
@@ -362,13 +360,13 @@ class DataProvider {
     
     public function getActivitiesCompletion (Collector $collector) {
         global $DB;
-        
-        $reprocess = (count($collector->getReproccessIds())>0) ? ' OR id IN (' . implode(',', $collector->getReproccessIds()) . ') ' : '';
+        $table = 'course_modules_completion';
+        $reprocess = (count($collector->getReproccessIds($table))>0) ? ' OR id IN (' . implode(',', $collector->getReproccessIds($table)) . ') ' : '';
         $limit = $collector->getMaxRegistrys();
         $limit = ($limit == null) ? 0 : $limit;
-        $reg = $DB->get_records_select ('course_modules_completion', 
+        $reg = $DB->get_records_select ($table, 
                                         'id>?' . $reprocess, 
-                                        array($collector->getLastRegistry()),
+                                        array($collector->getLastRegistry($table)),
                                         '',
                                         'id, coursemoduleid as cmid, userid, completionstate, timemodified',
                                         0, $limit
@@ -388,59 +386,11 @@ class DataProvider {
         return array_filter($reg);
     }
     
-    /*public function getCourseGrades ($userid=null, $courseid=null, $moduleid=null, $time=null){
-        global $DB;
-        if ($userid===null || $courseid===null) return null;
-        $params = array($userid, $courseid);
-        $additional_conditions = '';
-        
-        if ($moduleid !== null){
-            $params[] = $moduleid;
-            $additional_conditions .= ' AND gi.moduleid=?';
-        }
-        
-        if ($time !== null){
-            $params[] = $time;
-            $additional_conditions .= ' AND ggh.timemodified<=?';
-        }
-        
-        $grades = $DB->get_records_sql("
-                 SELECT ggh.id,
-                        ggh.oldid AS grdeid,
-                        ggh.userid,
-                        gi.courseid,
-                        (SELECT id
-                           FROM {course_modules} cm
-                          WHERE     cm.module = (SELECT id
-                                                   FROM {modules} m
-                                                  WHERE m.name = gi.itemmodule)
-                                AND cm.instance=gi.iteminstance AND cm.course = gi.courseid)
-                           AS moduleid,
-                        gi.itemmodule as activitytype,
-                        gi.iteminstance AS activityid,
-                        gi.grademax AS maxscore,
-                        gi.grademin AS minscore,
-                        ggh.finalgrade AS score,
-                        ggh.timemodified as time
-                   FROM {grade_grades_history} ggh
-                        JOIN {grade_items} gi ON gi.id = ggh.itemid
-                  WHERE     
-                        AND ggh.source LIKE 'mod/%'
-                        AND ggh.finalgrade IS NOT NULL
-                        AND ggh.userid=?
-                        AND gi.courseid=?
-                        {$additional_conditions};", 
-                    $params);
-        
-        foreach ($grades as $grade){
-            
-        }
-        return $reg;
-    }*/
     public function getGrades (Collector $collector) {
         global $DB;
         
-        $reprocess = (count($collector->getReproccessIds())>0) ? ' OR ggh.id IN (' . implode(',', $collector->getReproccessIds()) . ') ' : '';
+        $table = 'grade_grades_history';
+        $reprocess = (count($collector->getReproccessIds($table))>0) ? ' OR ggh.id IN (' . implode(',', $collector->getReproccessIds($table)) . ') ' : '';
         $limit = $collector->getMaxRegistrys();
         $limit = ($limit == null) ? 0 : $limit;
         $reg = $DB->get_records_sql("
@@ -460,12 +410,12 @@ class DataProvider {
                         gi.grademin AS minscore,
                         ggh.finalgrade AS score,
                         ggh.timemodified as time
-                   FROM {grade_grades_history} ggh
+                   FROM {{$table}} ggh
                         JOIN {grade_items} gi ON gi.id = ggh.itemid
                   WHERE     (ggh.id > ?{$reprocess})
                         AND ggh.source LIKE 'mod/%'
                         AND ggh.finalgrade IS NOT NULL ORDER BY ggh.id ASC", 
-                    array($collector->getLastRegistry()), 0, $limit);
+                    array($collector->getLastRegistry($table)), 0, $limit);
         return $reg;
     }
        
@@ -508,6 +458,88 @@ class DataProvider {
         }
     }
     
+    public function getVerb ($module, $action) {
+        switch ($module){
+            case 'assign':
+                switch ($action){
+                    case 'submit': return 'answered';
+                    case 'view': return 'attempted';
+                    default: return null;
+                }        
+            case 'chat':
+                switch ($action){
+                    case 'talk': return 'interacted';
+                    case 'view': return 'attempted';
+                    default: return null;
+                }
+            case 'course':
+                switch ($action){
+                    case 'view': return 'attempted';
+                    default: return null;
+                }
+            case 'feedback':
+                switch ($action){
+                    case 'startcomplete': return 'attempted';
+                    default: return null;
+                }
+            case 'folder':
+                switch ($action){
+                    case 'view': return 'attempted';
+                    default: return null;
+                }
+            case 'forum':
+                switch ($action){
+                    case 'add post': return 'commented';
+                    case 'add discussion': return 'created';
+                    case 'view forum':
+                    case 'view discussion':
+                        return 'attempted';
+                    default: return null;
+                }
+                break;
+            
+            case 'page':
+                switch ($action){
+                    case 'view': return 'attempted';
+                    default: return null;
+                }
+                break;
+            
+            case 'quiz':
+                switch ($action){
+                    case 'attempt': return 'attempted';
+                    case 'close attempt': return 'suspended';
+                    case 'continue attempt': return 'resumed';
+                    case 'view': return 'launched';
+                    case 'preview': return 'experienced';
+                    case 'view summary': return 'experienced';
+                    default: return null;
+                }
+                break;
+            
+            case 'resource':
+                switch ($action){
+                    case 'view': return 'attempted';
+                    default: return null;
+                }
+                break;
+            
+            case 'scorm':
+                switch ($action){
+                    case 'launch': return 'attempted';
+                    default: return null;
+                }
+                break;
+            
+            case 'url':
+                switch ($action){
+                    case 'view': return 'attempted';
+                    default: return null;
+                }
+                break;
+        }
+    }
+    
     public function getMaxId($table){
         global $DB;
         return $DB->get_field($table, 'MAX(id)', array());
@@ -517,6 +549,15 @@ class DataProvider {
         global $CFG;
         $arr_collectors =  explode("\\", $collectorname);
         $collectorname = array_pop($arr_collectors);
+        
+        if (!is_numeric($id)){
+            $splitter = explode('/',$id);
+            $tablename = ucwords ($splitter[0]);
+            $tablename = str_replace(' ', '', $tablename);
+            $collectorname .= '_'  . $tablename;
+            $id = $splitter[1];
+            
+        }
         switch ($collectorname){
             case 'ActivityCompletedCollector': $table_base = 'course_modules_completion'; break;
             case 'CourseCompletedCollector': $table_base = 'course_completions'; break;
@@ -524,12 +565,16 @@ class DataProvider {
             case 'CourseEnrolCollector': $table_base = 'course_completions'; break;
             case 'CourseInitializedCollector': $table_base = 'course_completions'; break;
             case 'GradeCollector': $table_base = 'grade_grades_history'; break;
-            case 'LogCollector': $table_base = 'log'; break;
+            case 'LogCollector_LegacyLog': $table_base = 'log'; break;
+            case 'LogCollector_StandardLog': $table_base = 'logstore_standard_log'; break;
             case 'ModuleCreateCollector': $table_base = 'course_sections'; break;
             
         }
-        
-        return $CFG->wwwroot . '/' . $table_base . '/' . $id;
+        $return = new \stdClass();
+        $return->uri = $CFG->wwwroot . '/' . $table_base . '/' . $id;
+        $return->id = $id;
+        $return->table = $table_base;
+        return $return;
     }
     
     public function getRole ($userid, $courseid){  

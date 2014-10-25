@@ -6,7 +6,7 @@ namespace SmartKlass\xAPI;
  *
  * @package    local_smart_klass
  * @copyright  KlassData <kttp://www.klassdata.com>
- * @author     Oscar <oscar@klassdata.com>
+ * @author     Oscar Ruesga <oscar@klassdata.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -19,8 +19,7 @@ abstract class Collector  {
       
     private $name = null;
     private $data = null;
-    private $last_registry = null;
-    private $last_execution = null;
+    private $max_registrys = null;
     
     protected $dataprovider=null;
     
@@ -37,23 +36,21 @@ abstract class Collector  {
         
         if ( empty($collector) ) return null;
         
-        $this->data = json_decode($collector->data);
-        if ($this->data==null) $this->data = new \stdClass();
-        $this->last_registry = ( empty($collector->lastregistry) ) ? 0 : $collector->lastregistry;
-        $this->last_execution = ( empty($collector->lastexecute) ) ? 0 : $collector->lastexecute;
+        $this->data = json_decode($collector->data, true);
+        if ($this->data==null) $this->data = array();
         
-        //compruebo si tiene fijada estrategia de ejecución del colector y sino fijo la estrategia por defecto
-        $this->data->strategy = ( isset($this->data->strategy) ) ? 
-                                    $this->data->strategy :
-                                    self::STRATEGY_DEFAULT;            
-        
-        $this->data->reprocessids = ( isset($this->data->reprocessids) && is_array($this->data->reprocessids) ) ? 
-                                    $this->data->reprocessids :
+        /*foreach ($this->data as $table => &$data) {
+            /*$data[$table]->last_registry = isset($data[$table]->last_registry) ? $data[$table]->last_registry : 0;
+            $data[$table]->last_execution = isset($data[$table]->last_execution) ? $data[$table]->last_execution : 0;
+            $data[$table]->strategy = ( isset($data[$table]->strategy) ) ? $data[$table]->strategy : self::STRATEGY_DEFAULT; 
+            $data[$table]->reprocessids = ( isset($data[$table]->reprocessids) && is_array($data[$table]->reprocessids) ) ? 
+                                    $data[$table]->reprocessids :
                                     array();
         
-        $this->data->max_id = $this->getMaxId();
-        
-    
+            $data[$table]->max_id = $this->getMaxId($table);
+            
+        }*/
+
         $collection = $this->collectData($this);
         $this->execute( $collection );
         
@@ -64,7 +61,7 @@ abstract class Collector  {
 
                 } catch (Exception $e) {}
             }
-    }
+        }
     }
     
     protected function registerAdiccionalCollector ($name, $object) {
@@ -97,13 +94,13 @@ abstract class Collector  {
             $log_obj->start = date('d/m/Y H:i:s');
             
             $regid = $this->dataprovider->get_reg_id($element->id, get_class($this));
-            $log_obj->moodleid = $regid;
+            $log_obj->moodleid = $regid->uri;
             if ( empty($xApi) ){
-                $this->dataprovider->updateCollector ($this->name, null, null, $this->data);
+                $this->dataprovider->updateCollector ($this->name, $this->data);
                 
                 $log_obj->result = $this->dataprovider->getLanguageString('ko', 'local_smart_klass');;
                 $log_obj->msg = $this->getLastError();
-                $log_obj->moodleid = $regid;
+                $log_obj->moodleid = $regid->uri;
                 Logger::add_to_log('registry', $log_obj);
                 continue;
             }
@@ -113,7 +110,7 @@ abstract class Collector  {
             //Set regId
             $regid_extension = new Extension(
                                             'http://xapi.klassdata.com/extensions/regid',
-                                            $regid
+                                            $regid->uri
                                             );
            $xApi->setContext('extension',  $regid_extension );
            $result = $xApi->sendStatement();
@@ -130,11 +127,12 @@ abstract class Collector  {
 
                    }
                    $tt = strtotime ($xApi->getStatement()->getTimestamp());
-                   if ($this->last_execution < $tt) 
-                       $this->last_execution = $tt;
-                   if ($this->last_registry < $element->id) 
-                       $this->last_registry = $element->id;
-                   $this->removeReproccessId($element->id);
+                   if ($this->getLastExecution($regid->table) < $tt) 
+                       $this->setLastExecution($regid->table, $tt);
+                   if ($this->getLastRegistry($regid->table) < $regid->id) 
+                        $this->setLastRegistry($regid->table, $regid->id);
+                   $this->removeReproccessId($regid->table, $regid->id);
+                   $this->setData($regid->table, 'max_id', $this->getMaxId($regid->table));
             } else {
                 $msg = json_decode($result->msg);
                 if ( isset($msg->message) ) {
@@ -142,7 +140,7 @@ abstract class Collector  {
                 } else if (isset($msg->error->message)) {
                    $msg = $msg->error->message . '(in ' . $msg->error->file . ' - line ' . $msg->error->line . ')';
                 }
-                $this->addReproccessIds($element->id);
+                $this->addReproccessIds($regid->table, $regid->id);
 
                 if (get_config('local_smart_klass', 'save_log')){
                     $log_obj->result = $this->dataprovider->getLanguageString('ko', 'local_smart_klass');;
@@ -155,7 +153,7 @@ abstract class Collector  {
             $log_obj->end = date('d/m/Y H:i:s');
             Logger::add_to_log('registry', $log_obj);
 
-            $this->dataprovider->updateCollector ($this->name, $this->last_execution, $this->last_registry, $this->data);
+            $this->dataprovider->updateCollector ($this->name, $this->data);
         } 
         Logger::add_to_log('end', $this->name);
     }
@@ -166,29 +164,27 @@ abstract class Collector  {
        return new StatementRequest($auth->endpoint, $auth->type, $auth->chain, $validate_statements);
     }
     
-    public function getReproccessIds (){
-        return $this->data->reprocessids;
+    public function getReproccessIds ($table){
+        return $this->data[$table]['reprocessids'];
     }
     
-    public function addReproccessIds ($ids=array() ){
+    public function addReproccessIds ($table, $ids=array() ){
         if ( is_array($ids) && count($ids)>0 )
-            $this->data->reprocessids = array_merge($this->data->reprocessids, $ids);
+    $this->data[$table]['reprocessids'] = array_merge($this->data[$table]['reprocessids'], $ids);
         else {
-            if ( !in_array($ids, $this->data->reprocessids) )
-                $this->data->reprocessids[] =  $ids;
-            
-           
+            if ( !in_array($ids, $this->data[$table]['reprocessids']) )
+                $this->data[$table]['reprocessids'][] =  $ids;
         }
     }
     
-    public function removeReproccessId ($id) {
-        if (($key = array_search($id, $this->data->reprocessids)) !== false) {
-            unset($this->data->reprocessids[$key]);
+    public function removeReproccessId ($table, $id) {
+        if (($key = array_search($id, $this->data[$table]['reprocessids'])) !== false) {
+            unset($this->data[$table]['reprocessids'][$key]);
         }
     }
     
-    public function getStrategy (){
-        switch ($this->data->strategy){
+    public function getStrategy ($table){
+        switch ($this->data[$table]['strategy']){
             case self::STRATEGY_DEFAULT: return STRATEGY_DEFAULT;
             case self::STRATEGY_LAST_ID: return STRATEGY_LAST_ID;
             case self::STRATEGY_LAST_TIMESTAMP: return STRATEGY_LAST_TIMESTAMP;
@@ -197,47 +193,54 @@ abstract class Collector  {
         return STRATEGY_DEFAULT;
     }
     
-    public function setStrategy ($strategy){  
+    public function setStrategy ($table, $strategy){  
         switch ($strategy){
-            case self::STRATEGY_DEFAULT: $this->data->strategy = STRATEGY_DEFAULT;break;
-            case self::STRATEGY_LAST_ID: $this->data->strategy = STRATEGY_LAST_ID;break;
-            case self::STRATEGY_LAST_TIMESTAMP: $this->data->strategy = STRATEGY_LAST_TIMESTAMP;break;
-            case self::STRATEGY_ALL: $this->data->strategy = STRATEGY_ALL;break;
+            case self::STRATEGY_DEFAULT: $this->data[$table]['strategy'] = STRATEGY_DEFAULT;break;
+            case self::STRATEGY_LAST_ID: $this->data[$table]['strategy'] = STRATEGY_LAST_ID;break;
+            case self::STRATEGY_LAST_TIMESTAMP: $this->data[$table]['strategy'] = STRATEGY_LAST_TIMESTAMP;break;
+            case self::STRATEGY_ALL: $this->data[$table]['strategy'] = STRATEGY_ALL;break;
         }
     }
-    public function getLastExecution (){
-        return $this->last_execution;
+    public function getLastExecution ($table){    
+        return ( empty($this->data[$table]['last_execution']) )  ? 0 : $this->data[$table]['last_execution'];
     }
     
-    public function setLastExecution ($new_execution){
-        $this->last_execution = $new_execution;
+    public function setLastExecution ($table, $new_execution){
+        if ( empty($new_execution) ) return;
+        $this->data[$table]['last_execution'] = $new_execution;
     }
     
-    public function getLastRegistry (){
-        return $this->last_registry;
+    public function getLastRegistry ($table){
+        return ( empty($this->data[$table]['last_registry']) )  ? 0 : $this->data[$table]['last_registry'];
     }
     
-    public function setLastRegistry ($new_registry){
-        $this->last_registry = $new_registry;
+    public function setLastRegistry ($table, $new_registry){
+        if ( empty($new_registry) ) return;
+        $this->data[$table]['last_registry'] = $new_registry;
     }
     
-    public function setData ($param, $value){
-        $this->data->$param = $value;
+    public function getData ($table, $param){  
+        return $this->data[$table][$param] = $value;
     }
     
-    public function getData ($param, $value){  
-        $this->data->$param = $value;
+    public function setData ($table, $param, $value){
+        $this->data[$table][$param] = $value;
     }
-    
+
     public function getMaxRegistrys () {
-        return ( defined ( 'static::MAX_REGS' ) ) ? static::MAX_REGS : null;
+        return ( empty($this->max_registrys) ) ? 
+            ( defined ( 'static::MAX_REGS' ) ) ? static::MAX_REGS : null : 
+            $this->max_registrys;
+    }
+    
+    public function setMaxRegistrys ($max) {
+        $this->max_registrys = $max;
     }
     
     public function getFileLog (){
         return $this->filelog;
     }
-    
-    
+
     public function getInstructors ($courseid) {
         $instructors = null;
         $instructorsids = $this->dataprovider->getInstructors($courseid);
@@ -255,6 +258,10 @@ abstract class Collector  {
         return $instructors;
     }
     
+    public function getMaxId($table) {
+        return $this->dataprovider->getMaxId($table);
+    }
+    
     protected function setLastError ($error) {
         $this->last_error = (string) $error;
     }
@@ -262,9 +269,7 @@ abstract class Collector  {
     protected function getLastError () {
         return $this->last_error;
     }
-    
-    abstract public function getMaxId ();
-    
+   
     abstract function collectData();
     abstract function prepareStatement(StatementRequest $xapi, $element);
 }
