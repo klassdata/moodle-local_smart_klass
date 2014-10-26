@@ -310,7 +310,7 @@ class DataProvider {
         $limit = $collector->getMaxRegistrys();
         $limit = ($limit == null) ? 0 : $limit;
         $reg = $DB->get_records_select ($table, 
-                                        '(id>? AND module IN ("assign", "chat", "course", "feedback", "folder", "forum", "page", "quiz", "resource", "scorm", "url") )' . $reprocess, 
+                                        '(id>? AND cmid>0 AND module IN ("assign", "chat", "course", "feedback", "folder", "forum", "page", "quiz", "resource", "scorm", "url") )' . $reprocess, 
                                         array($collector->getLastRegistry($table)),
                                         '', 
                                         'id, time, userid, course, module as modname, cmid, action',
@@ -565,7 +565,7 @@ class DataProvider {
             case 'CourseEnrolCollector': $table_base = 'course_completions'; break;
             case 'CourseInitializedCollector': $table_base = 'course_completions'; break;
             case 'GradeCollector': $table_base = 'grade_grades_history'; break;
-            case 'LogCollector_LegacyLog': $table_base = 'log'; break;
+            case 'LogCollector_LegacyLog': case 'LogCollector':  $table_base = 'log'; break;
             case 'LogCollector_StandardLog': $table_base = 'logstore_standard_log'; break;
             case 'ModuleCreateCollector': $table_base = 'course_sections'; break;
             
