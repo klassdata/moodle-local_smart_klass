@@ -249,10 +249,10 @@ function local_smart_klass_harvest( $collector=array() ) {
         return; 
     }
     
-  /* if (get_config('local_smart_klass', 'croninprogress') == true){
+    if (get_config('local_smart_klass', 'croninprogress') == true){
         echo get_string('harvester_service_instance_running', 'local_smart_klass');
         return;
-    }*/
+    }
     
     global $CFG, $USER, $DB;
     

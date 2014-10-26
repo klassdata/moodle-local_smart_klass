@@ -43,14 +43,14 @@ if ($hassiteconfig) {
 	
     
     //Agrego campos de configuración del Plugin
-    $settings->add(new admin_setting_configcheckbox('local_smart_klass/activate', get_string('activate', 'local_smart_klass'), get_string('activatedescription', 'local_smart_klass'), 0));
+    $settings->add(new admin_setting_configcheckbox('local_smart_klass/activate', get_string('activate', 'local_smart_klass'), get_string('activatedescription', 'local_smart_klass'), 1));
     
-    $settings->add(new admin_setting_configcheckbox('local_smart_klass/save_log', get_string('save_log', 'local_smart_klass'), get_string('savelogdescription', 'local_smart_klass'), 0));
+    $settings->add(new admin_setting_configcheckbox('local_smart_klass/save_log', get_string('save_log', 'local_smart_klass'), get_string('savelogdescription', 'local_smart_klass'), 1));
     
     $settings->add(new admin_setting_configcheckbox('local_smart_klass/savelog_ok_statement', get_string('savelog_ok_statement', 'local_smart_klass'), get_string('savelog_ok_statement_description', 'local_smart_klass'), 0));
     
     $options = array('http://l-miner.klaptek.com/data/xAPI/' => get_string('defaultserver', 'local_smart_klass'),
-        'https://l-miner.klaptek.com/data/xAPI/' => get_string('secureserver', 'local_smart_klass'), 'http://localhost/learninglocker/public/data/xAPI/'=>get_string('localserver', 'local_smart_klass'));
+        'https://l-miner.klaptek.com/data/xAPI/' => get_string('secureserver', 'local_smart_klass'), 'http://develop.klaptek.com/learninglocker/data/xAPI/'=>get_string('localserver', 'local_smart_klass'));
     $settings->add(new admin_setting_configselect('local_smart_klass/endpoint', get_string('endpoint',
         'local_smart_klass'), get_string('endpointdescription', 'local_smart_klass'), 'http://l-miner.klaptek.com/data/xAPI/', $options));
     
@@ -67,7 +67,7 @@ if ($hassiteconfig) {
     
     $settings->add(new admin_setting_configcheckbox('local_smart_klass/check_statement', get_string('check_statement', 'local_smart_klass'), get_string('checkstatementdescription', 'local_smart_klass'), 0));
     
-    $settings->add(new admin_setting_configcheckbox('local_smart_klass/activate_student_dashboard', get_string('activate_student_dashboard', 'local_smart_klass'), get_string('activate_student_dashboard_description', 'local_smart_klass'), 0));
-    $settings->add(new admin_setting_configcheckbox('local_smart_klass/activate_teacher_dashboard', get_string('activate_teacher_dashboard', 'local_smart_klass'), get_string('activate_teacher_dashboard_description', 'local_smart_klass'), 0));
-    $settings->add(new admin_setting_configcheckbox('local_smart_klass/activate_institution_dashboard', get_string('activate_institution_dashboard', 'local_smart_klass'), get_string('activate_institution_dashboard_description', 'local_smart_klass'), 0));
+    $settings->add(new admin_setting_configcheckbox('local_smart_klass/activate_student_dashboard', get_string('activate_student_dashboard', 'local_smart_klass'), get_string('activate_student_dashboard_description', 'local_smart_klass'), 1));
+    $settings->add(new admin_setting_configcheckbox('local_smart_klass/activate_teacher_dashboard', get_string('activate_teacher_dashboard', 'local_smart_klass'), get_string('activate_teacher_dashboard_description', 'local_smart_klass'), 1));
+    $settings->add(new admin_setting_configcheckbox('local_smart_klass/activate_institution_dashboard', get_string('activate_institution_dashboard', 'local_smart_klass'), get_string('activate_institution_dashboard_description', 'local_smart_klass'), 1));
 }
