@@ -17,15 +17,15 @@
 /**
  * Plugin version info
  *
- * @package    local_klap
- * @copyright  Klap <kttp://www.klaptek.com>
- * @author     Oscar <oscar@klaptek.com>
+ * @package    local_smart_klass
+ * @copyright  KlassData <kttp://www.klassdata.com>
+ * @author     Oscar Ruesga <oscar@klassdata.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2014100800; // The current plugin version (Date: YYYYMMDDXX)
+$plugin->version   = 2014102500; // The current plugin version (Date: YYYYMMDDXX)
 $plugin->requires  = 2011092104; // Requires this Moodle version
-$plugin->component = 'local_klap'; // Full name of the plugin (used for diagnostics)
+$plugin->component = 'local_smart_klass'; // Full name of the plugin (used for diagnostics)
 

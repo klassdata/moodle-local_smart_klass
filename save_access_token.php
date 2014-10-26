@@ -13,7 +13,7 @@ require_once(dirname(__FILE__).'/locallib.php');
 		$obj =  array('access_token'=>$_POST['access_token'], 'refresh_token'=>$_POST['refresh_token'], 'userid'=>$_POST['userid'],'dashboard_role'=>$_POST['dashboard_role'],"created"=>$date,"email"=>$_POST['email']) ;
 		print_r($obj);
 		
-		$DB->insert_record('local_klap_dashboard_oauth', $obj);
+		$DB->insert_record('local_smart_klass_dash_oauth', $obj);
 //	}
 
 ?>

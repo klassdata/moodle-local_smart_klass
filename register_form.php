@@ -20,14 +20,14 @@ require_once($CFG->dirroot.'/lib/formslib.php');
 
 
 /**
- * Register Execution Klap Server Connection
+ * Register Execution Smart Klass Server Connection
  *
- * @package    local_klap
- * @copyright  Klap <kttp://www.klaptek.com>
- * @author     Oscar <oscar@klaptek.com>
+ * @package    local_smart_klass
+ * @copyright  KlassData <kttp://www.klassdata.com>
+ * @author     Oscar Ruesga <oscar@klassdata.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class local_klap_lrs_login_form extends moodleform {
+class local_smart_klass_lrs_login_form extends moodleform {
 
     /**
      * Form element definition
@@ -39,13 +39,13 @@ class local_klap_lrs_login_form extends moodleform {
         $form->addElement('text', 'username', get_string('username'), array('size'=>52));
         $form->addRule('username', get_string('required'), 'required');
         $form->setType('username', PARAM_TEXT);
-        $form->setDefault('username', get_config('local_klap', 'username'));
+        $form->setDefault('username', get_config('local_smart_klass', 'username'));
 
          // Password.
         $form->addElement('password', 'password', get_string('password'), array('size'=>52));
         $form->addRule('password', get_string('required'), 'required');
         $form->setType('password', PARAM_TEXT);
-        $form->setDefault('password', get_config('local_klap', 'password'));
+        $form->setDefault('password', get_config('local_smart_klass', 'password'));
 
         $this->add_action_buttons();
     }
