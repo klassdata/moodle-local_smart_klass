@@ -432,3 +432,74 @@ function local_smart_klass_get_harvesters () {
     return $harvesters;
     
 }
+
+
+
+function local_smart_klass_trackurl() {
+    global $DB, $PAGE, $COURSE, $SITE, $USER;
+    $pageinfo = get_context_info_array($PAGE->context->id);
+    $trackurl = "'";
+    if (isset($pageinfo[1]->category)) {
+        if ($category = $DB->get_record('course_categories', array('id'=>$pageinfo[1]->category))) {
+            $cats=explode("/",$category->path);
+            foreach(array_filter($cats) as $cat) {
+                if ($categorydepth = $DB->get_record("course_categories", array("id" => $cat))) {;
+                    $trackurl .= $categorydepth->name.'/';
+                }
+            }
+        }
+    }
+    if (isset($pageinfo[1]->fullname)) {
+        if (isset($pageinfo[2]->name)) {
+            $trackurl .= $pageinfo[1]->fullname.'/';
+        } else if ($PAGE->user_is_editing()) {
+            $trackurl .= $pageinfo[1]->fullname.'/'.get_string('edit', 'local_smart_klass') . '/';
+        } else {
+            $trackurl .= $pageinfo[1]->fullname.'/'.get_string('view', 'local_smart_klass') . '/';
+        }
+    }
+    if (isset($pageinfo[2]->name)) {
+        $trackurl .= $pageinfo[2]->modname.'/'.$pageinfo[2]->name . '/';
+    }
+    if (!empty($USER->id)) {
+        $trackurl .= $USER->email . '/';
+        
+        $roles	= get_user_roles($PAGE->context, $USER->id, true);
+        foreach($roles as $role){
+            $trackurl .= $role->name . '|';
+        }
+        $trackurl .= '/';
+    }
+    $trackurl .= "'";
+    return $trackurl;
+}
+ 
+function local_smart_klass_insert_analytics_tracking() {
+    global $CFG, $USER;
+
+    $siteurl = get_config('local_smart_klass', 'tracker_url');
+    $siteid = get_config('local_smart_klass', 'tracker_id');
+    $userid = ( empty($USER->email) ) ? 'void@klassdata.com' : $USER->email;
+    
+	if (!empty($siteurl) && !empty($siteid)) {
+			$CFG->additionalhtmlfooter .= "
+<script type='text/javascript'>
+    var _paq = _paq || [];
+    _paq.push(['setDocumentTitle', ".local_smart_klass_trackurl()."]);
+    _paq.push(['setUserId', '" . $userid . "']);
+    _paq.push(['trackPageView']);
+    _paq.push(['enableLinkTracking']);
+    (function() {
+      var u='//".$siteurl."/';
+      _paq.push(['setTrackerUrl', u+'piwik.php']);
+      _paq.push(['setSiteId', ".$siteid."]);
+      var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+    g.type='text/javascript'; g.async=true; g.defer=true; g.src=u+'piwik.js'; s.parentNode.insertBefore(g,s);
+    })();
+</script>
+<noscript><p><img src=".$siteurl."/piwik.php?idsite=".$siteid." style='border:0;' alt='' /></p></noscript>";
+		
+	}
+}
+
+insert_analytics_tracking();
