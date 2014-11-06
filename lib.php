@@ -36,8 +36,8 @@ define('SMART_KLASS_DASHBOARD_TEACHER',          2);
 define('SMART_KLASS_DASHBOARD_INSTITUTION',      3);
 
 
-define('SMART_KLASS_OAUTHSERVER_URL', 'http://develop.klaptek.com/oauth/resource.php');
-define('SMART_KLASS_DASHBOARD_URL',   'http://develop.klaptek.com/dashboard/');
+define('SMART_KLASS_OAUTHSERVER_URL', 'http://develop2.klaptek.com/oauth/resource.php');
+define('SMART_KLASS_DASHBOARD_URL',   'http://demo.klassdata.com/');
 
 define('SMART_KLASS_MOODLE_27',   2014051200);
 define('SMART_KLASS_MOODLE_26',   2013111800);
