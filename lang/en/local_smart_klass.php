@@ -25,7 +25,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$string['pluginname'] = 'Smart Klass';
+$string['pluginname'] = 'SmartKlass';
 
 $string['controlpanel'] = 'Control Panel';
 $string['fullharvester'] = 'Execute data harvest';
@@ -89,3 +89,5 @@ $string['statement_send_ok'] =  'The statement will be send correctly';
 $string['ok'] =  'OK';
 $string['ko'] =  'KO';
 $tring['crontask'] = 'Smart Class cron task';
+$string['view'] = 'View';
+$string['edit'] = 'Edit';
