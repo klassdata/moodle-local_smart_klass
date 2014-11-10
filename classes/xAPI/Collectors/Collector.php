@@ -154,6 +154,9 @@ abstract class Collector  {
             Logger::add_to_log('registry', $log_obj);
 
             $this->dataprovider->updateCollector ($this->name, $this->data);
+            
+            //reset number of cicles of harvester
+            set_config('harvestcicles', 0, 'local_smart_klass');
         } 
         Logger::add_to_log('end', $this->name);
     }

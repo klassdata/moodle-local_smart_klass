@@ -28,7 +28,7 @@ require_once (dirname(dirname(dirname(__FILE__))).'/config.php');
 require_once(dirname(__FILE__).'/lib.php');
 require_once(dirname(__FILE__).'/locallib.php');
 
-require_once(dirname(__FILE__).'/register_form.php');
+require_once(dirname(__FILE__).'/classes/Curl.php');
 
 require_capability('local/smart_klass:manage', get_context_instance(CONTEXT_SYSTEM));
 require_login(); 
@@ -38,30 +38,52 @@ $PAGE->set_pagelayout('standard');
 $PAGE->set_url(new moodle_url('/local/smart_klass/register.php'));
 $PAGE->set_title( $strheading );
 $PAGE->navbar->add($strheading);
+$PAGE->requires->js('/local/smart_klass/javascript/iframeResizer.min.js', true);
+
 echo $OUTPUT->header();
-echo $OUTPUT->box_start();
-
-$url = new moodle_url( get_config('local_smart_klass', 'endpoint') . '../../register/');
-echo $OUTPUT->action_link($url, get_string('register', 'local_smart_klass'), new popup_action('click', $url), array('style'=>'text-align:center;'));
-echo $OUTPUT->box_end();
 
 
+$access_token = get_config('local_smart_klass', 'oauth_access_token');
+$client_id= get_config('local_smart_klass', 'oauth_client_id');
+$secret = get_config('local_smart_klass', 'oauth_secret');
 
+$server = get_config('local_smart_klass', 'oauth_server');
+$redirect_uri = implode('', array(
+                                isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http',
+                                '://',
+                                $_SERVER['SERVER_NAME'],
+                                $_SERVER['SCRIPT_NAME'],
+                            ));
 
-echo $OUTPUT->box_start();
-$mform = new local_smart_klass_lrs_login_form();
+$curl = new Curl;
 
-if ($mform->is_cancelled()) {
-    redirect( new moodle_url('/local/smart_klass/register.php'));
-} else if ($mform->is_submitted() && $mform->is_validated() ) {
-    $data = $mform->get_data();
+if ( $access_token == false || $client_id == false || $secret == false) {
+
+   $server .= '/authorize'; 
     
-    set_config('username', $data->username,'local_smart_klass');
-    set_config('password', $data->password,'local_smart_klass');
+    $output = $curl->get( $server, array('endpoint' => $CFG->wwwroot,'redirect_uri' => $redirect_uri));
+    
+    $output_json = json_decode($output);
+    if ( is_object ($output_json) == true ) {
+        $errors = $output_json->errors;
+        $errors = implode('<br>', $errors);
+        print_error($errors);
+        echo $OUTPUT->footer();
+        die;
+    }    
 
-    redirect("$CFG->wwwroot/");
+    echo $OUTPUT->box('', 'generalbox', 'smartklass');
+    $PAGE->requires->js_init_call('M.local_smart_klass.createContent', array( $output, 'smartklass'), true );
+    echo $OUTPUT->footer();
+    
+} else {
+    $server .= '/access_token';
+    $output = $curl->get( $server, array(
+                            'token' => $access_token,
+                            '$client_id' => $access_token,
+                            '$secret' => $access_token,
+                            'redirect_uri' => $redirect_uri,
+                        ));
+    
+    
 }
-$mform->display();
-echo $OUTPUT->box_end();
-
-echo $OUTPUT->footer();
