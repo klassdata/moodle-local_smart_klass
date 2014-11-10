@@ -521,3 +521,4 @@ function local_smart_klass_insert_analytics_tracking() {
 }
 
 local_smart_klass_insert_analytics_tracking();
+

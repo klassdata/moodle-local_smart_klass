@@ -101,7 +101,7 @@ if ( !empty($oauth_obj) ){
 	
 
 //	echo html_writer::empty_tag('iframe', $options);
-	echo "<iframe src='".SMART_KLASS_DASHBOARD_URL."conexion_oauth/check_user/".urlencode($USER->email)."/".$oauth_obj->access_token."'   width='100%' height='608px' style='border:none' /></iframe>";	
+	echo "<iframe src='".SMART_KLASS_DASHBOARD_URL."/conexion_oauth/check_user/".urlencode($USER->email)."/".$oauth_obj->access_token."'   width='100%' height='608px' style='border:none' /></iframe>";	
 
 
 
@@ -135,7 +135,7 @@ if ( !empty($oauth_obj) ){
        // $PAGE->requires->js_init_call('M.local_smart_klass.save_access_token', array( $code, $refresh, $email, $rol, $user_id), true );
 		
         $options = array(); 
-        $options['src'] = SMART_KLASS_DASHBOARD_URL . 'register/reg/'.urlencode($USER->email).'/'.$dashboard_role.'/'.$USER->id.'/'.$USER->sesskey.'/'.($ident_course);
+        $options['src'] = SMART_KLASS_DASHBOARD_URL . '/register/reg/'.urlencode($USER->email).'/'.$dashboard_role.'/'.$USER->id.'/'.$USER->sesskey.'/'.($ident_course);
         $options['width'] = '100%';
         $options['height'] = '608px';
         $options['style'] = 'border:none';
@@ -146,7 +146,7 @@ if ( !empty($oauth_obj) ){
 		$ident_course  = (str_replace('/','8br8',$ident_course));		
 
 
-	    echo "<iframe src='".SMART_KLASS_DASHBOARD_URL."register/reg/".urlencode($USER->email)."/".$dashboard_role."/".$USER->id."/".$USER->sesskey."/".$ident_course."'   width='100%' height='608px' style='border:none' /></iframe>";
+	    echo "<iframe src='".SMART_KLASS_DASHBOARD_URL."/register/reg/".urlencode($USER->email)."/".$dashboard_role."/".$USER->id."/".$USER->sesskey."/".$ident_course."'   width='100%' height='608px' style='border:none' /></iframe>";
 		
     }else if(($_GET['error']) ){
          echo html_writer::empty_tag('br');
