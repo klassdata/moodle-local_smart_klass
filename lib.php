@@ -502,4 +502,4 @@ function local_smart_klass_insert_analytics_tracking() {
 	}
 }
 
-insert_analytics_tracking();
+//insert_analytics_tracking();
