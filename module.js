@@ -38,3 +38,28 @@ M.local_smart_klass.save_access_token_callback =  function(tid, outcome) {
     }    
 }
 
+M.local_smart_klass.createContent = function (Y, content, target) {
+    var docElem = document.getElementById(target);
+    var iframe = document.createElement('iframe');
+    iframe.width = '100%';
+    iframe.scrolling = 'no';
+    iframe.frameBorder  = 0;
+       
+    docElem.appendChild(iframe);
+    iFrameResize ({checkOrigin:false,heightCalculationMethod:'documentElementScroll'});
+    if (iframe.contentWindow){
+        iframe = iframe.contentWindow;
+    }else{
+        if (iframe.contentDocument && iframe.contentDocument.document){
+            iframe = iframe.contentDocument.document;
+        }else{
+            iframe = iframe.contentDocument;
+        }
+    }
+    iframe.document.open();
+    iframe.document.write(content);
+    iframe.document.close();
+    
+    
+    
+}
