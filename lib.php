@@ -206,8 +206,8 @@ function local_smart_klass_extends_navigation(global_navigation $navigation) {
     //Creo menú en el Bloque de administración para el plugin
     $nodeSmartKlap = $navigation->add(get_string('pluginname', 'local_smart_klass') );
 	
-    
-	if (get_config('local_smart_klass', 'oauth_clientid') == '' || get_config('local_smart_klass', 'oauth_secret') == ''){
+    if (get_config('local_smart_klass', 'username') == '' || get_config('local_smart_klass', 'password') == ''){
+	//if (get_config('local_smart_klass', 'oauth_clientid') == '' || get_config('local_smart_klass', 'oauth_secret') == ''){
         if ( local_smart_klass_can_manage() )
             $nodeSmartKlap->add( get_string('configure_access', 'local_smart_klass'), new moodle_url($CFG->wwwroot.'/local/smart_klass/register.php' ));
     } else {
@@ -248,19 +248,14 @@ function local_smart_klass_harvest( $collector=array() ) {
         echo get_string('harvester_service_unavailable', 'local_smart_klass');
         return; 
     }
-    
-    if (get_config('local_smart_klass', 'croninprogress') == true){
-        echo get_string('harvester_service_instance_running', 'local_smart_klass');
-        return;
-    }
-    
+
     global $CFG, $USER, $DB;
     
-    $harvest_cicles = get_config('harvestcicles', 'local_smart_klass');
+    $harvest_cicles = get_config('local_smart_klass', 'harvestcicles');
     $harvest_cicles = ( empty($harvest_cicles) ) ? 0 : $harvest_cicles;
     $harvest_cicles++;
     
-    $max_cicles = get_config('max_block_cicles', 'local_smart_klass');
+    $max_cicles = get_config('local_smart_klass', 'max_block_cicles');
     
     if ($harvest_cicles >= $max_cicles) {
         set_config('croninprogress', false, 'local_smart_klass');
@@ -268,6 +263,11 @@ function local_smart_klass_harvest( $collector=array() ) {
     } else {
         set_config('croninprogress', true, 'local_smart_klass');
         set_config('max_block_cicles', $harvest_cicles, 'local_smart_klass');
+    }
+    
+    if (get_config('local_smart_klass', 'croninprogress') == true){
+        echo get_string('harvester_service_instance_running', 'local_smart_klass');
+        return;
     }
     
     

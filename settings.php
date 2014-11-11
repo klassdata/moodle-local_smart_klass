@@ -52,7 +52,7 @@ if ($hassiteconfig) {
     $settings->add(new admin_setting_configtext('local_smart_klass/max_block_cicles', get_string('max_block_cicles', 'local_smart_klass'),
                        get_string('max_block_ciclesdescription', 'local_smart_klass'), 5, PARAM_INT));
     
-    /*$options = array('http://develop.klaptek.com/learninglocker/data/xAPI/' => get_string('defaultserver', 'local_smart_klass'),
+    $options = array('http://develop.klaptek.com/learninglocker/data/xAPI/' => get_string('defaultserver', 'local_smart_klass'),
         'https://l-miner.klaptek.com/data/xAPI/' => get_string('secureserver', 'local_smart_klass'), 'http://develop.klaptek.com/learninglocker/data/xAPI/'=>get_string('localserver', 'local_smart_klass'));
     $settings->add(new admin_setting_configselect('local_smart_klass/endpoint', get_string('endpoint',
         'local_smart_klass'), get_string('endpointdescription', 'local_smart_klass'), 'http://l-miner.klaptek.com/data/xAPI/', $options));
@@ -65,7 +65,7 @@ if ($hassiteconfig) {
                        get_string('usernamedescription', 'local_smart_klass'), '', PARAM_RAW));
     
     $settings->add(new admin_setting_configtext('local_smart_klass/password', get_string('password', 'local_smart_klass'),
-                       get_string('passworddescription', 'local_smart_klass'), '', PARAM_RAW));*/
+                       get_string('passworddescription', 'local_smart_klass'), '', PARAM_RAW));
     
     
     $settings->add(new admin_setting_configcheckbox('local_smart_klass/check_statement', get_string('check_statement', 'local_smart_klass'), get_string('checkstatementdescription', 'local_smart_klass'), 0));

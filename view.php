@@ -129,6 +129,9 @@ switch ($action) {
        $content .= $OUTPUT->box_start();
        $content .= $OUTPUT->heading( get_string('collector_status', 'local_smart_klass') );
        
+       
+       $content .= (get_config('local_smart_klass', 'croninprogress') == true) ? 'Proceso de recolección en curso' : 'Proceso de recolección detenido';
+       $content .= '(' . get_config('local_smart_klass', 'harvestcicles') . ')';
        $content .= html_writer::table($table);
        $content .= $OUTPUT->action_link($url, get_string('fullharvester', 'local_smart_klass'), new popup_action('click', $url));
        $content .= $OUTPUT->box_end();
