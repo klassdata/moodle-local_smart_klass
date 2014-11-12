@@ -57,7 +57,7 @@ if ($hassiteconfig) {
     $settings->add(new admin_setting_configselect('local_smart_klass/endpoint', get_string('endpoint',
         'local_smart_klass'), get_string('endpointdescription', 'local_smart_klass'), 'http://l-miner.klaptek.com/data/xAPI/', $options));
     
-    $options = array('basic' => get_string('basic', 'local_smart_klass');
+    $options = array('basic' => get_string('basic', 'local_smart_klass'));
     $settings->add(new admin_setting_configselect('local_smart_klass/authtype', get_string('authtype',
         'local_smart_klass'), get_string('authtypedescription', 'local_smart_klass'), 'basic', $options));
     
