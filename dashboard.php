@@ -31,6 +31,8 @@ require_once(dirname(__FILE__).'/locallib.php');
 
 $contextid      = required_param('cid', PARAM_INT);
 $contextid		= $COURSE->id;
+
+
 $dashboard_role = required_param('dt', PARAM_INT);
 
 
@@ -90,10 +92,11 @@ $oauth_obj = local_smart_klass_get_oauth_accesstoken ($USER->id, $dashboard_role
 $u_course = $COURSE->id;
 $ident_course =  $CFG->wwwroot . '/course/' . $u_course;
 
+
 if ( !empty($oauth_obj) ){
 	
     $options = array(); 
-    $options['src'] = SMART_KLASS_OAUTHSERVER_URL . '/conexion_oauth/check_user/'.urlencode($USER->email).'/'.$oauth_obj->access_token;
+    $options['src'] = SMART_KLASS_OAUTHSERVER_URL . '/conexion_oauth/check_user/'.urlencode($USER->email).'/'.$oauth_obj->access_token.'/'.md5($ident_course);
     $options['width'] = '100%';
     $options['height'] = '608px';
     $options['style'] = 'border:none';
@@ -101,7 +104,7 @@ if ( !empty($oauth_obj) ){
 	
 
 //	echo html_writer::empty_tag('iframe', $options);
-	echo "<iframe src='".SMART_KLASS_DASHBOARD_URL."/conexion_oauth/check_user/".urlencode($USER->email)."/".$oauth_obj->access_token."'   width='100%' height='608px' style='border:none' /></iframe>";	
+	echo "<iframe src='".SMART_KLASS_DASHBOARD_URL."/conexion_oauth/check_user/".urlencode($USER->email)."/".$oauth_obj->access_token.'/'.md5($ident_course)."'   width='100%' height='608px' style='border:none' /></iframe>";	
 
 
 
