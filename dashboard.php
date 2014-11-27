@@ -74,17 +74,6 @@ $PAGE->navbar->add($strheading);
 echo $OUTPUT->header();
 echo $OUTPUT->box_start();
 
-/*
-//VARIABLES DE GESTIÓN DEL DASHBOARD
-echo 'USER_ID: ' . $USER->id . '<br>';
-echo 'USER_EMAIL: ' . $USER->email . '<br>';
-echo 'ROLE_SOLICITADO: ' . $dashboard_role . '<br>';
-echo 'DASHBOARD A PRESENTAR: ' . $strheading . '<br>';
-echo 'ROLES SOPORTADOS POR EL USUARIO EN EL CURSO: ';
-if($dashboard_roles->student)  echo 'id: ' . SMART_KLASS_DASHBOARD_STUDENT . 'STUDENT, ';
-if($dashboard_roles->teacher)  echo 'id: ' . SMART_KLASS_DASHBOARD_TEACHER . 'TEACHER, ';
-if($dashboard_roles->institution)  echo 'id: ' . SMART_KLASS_DASHBOARD_INSTITUTION . 'INSTITUTION';
-*/
 $oauth_obj = local_smart_klass_get_oauth_accesstoken ($USER->id, $dashboard_role);
 
 $u_course = $COURSE->id;
@@ -92,8 +81,13 @@ $ident_course =  $CFG->wwwroot . '/course/' . $u_course;
 
 if ( !empty($oauth_obj) ){
 	
+    require_once(dirname(__FILE__).'/classes/xAPI/Providers/Credentials.php');
+    $provider = SmartKlass\xAPI\Credentials::getProvider();
+    $credentials = $provider->getCredentials();
+    
+    
     $options = array(); 
-    $options['src'] = SMART_KLASS_OAUTHSERVER_URL . '/conexion_oauth/check_user/'.urlencode($USER->email).'/'.$oauth_obj->access_token;
+    $options['src'] = $credentials->dashboard_endpoint . '/conexion_oauth/check_user/'.urlencode($USER->email).'/'.$oauth_obj->access_token;
     $options['width'] = '100%';
     $options['height'] = '608px';
     $options['style'] = 'border:none';
@@ -101,7 +95,7 @@ if ( !empty($oauth_obj) ){
 	
 
 //	echo html_writer::empty_tag('iframe', $options);
-	echo "<iframe src='".SMART_KLASS_DASHBOARD_URL."conexion_oauth/check_user/".urlencode($USER->email)."/".$oauth_obj->access_token."'   width='100%' height='608px' style='border:none' /></iframe>";	
+	echo "<iframe src='".$credentials->dashboard_endpoint."conexion_oauth/check_user/".urlencode($USER->email)."/".$oauth_obj->access_token."'   width='100%' height='608px' style='border:none' /></iframe>";	
 
 
 

@@ -38,6 +38,10 @@ M.local_smart_klass.save_access_token_callback =  function(tid, outcome) {
     }    
 }
 
+M.local_smart_klass.refreshContent = function (Y, url) {
+   window.top.location = url; 
+}
+
 M.local_smart_klass.createContent = function (Y, content, target) {
     var docElem = document.getElementById(target);
     var iframe = document.createElement('iframe');
@@ -58,8 +62,5 @@ M.local_smart_klass.createContent = function (Y, content, target) {
     }
     iframe.document.open();
     iframe.document.write(content);
-    iframe.document.close();
-    
-    
-    
+    iframe.document.close();  
 }

@@ -37,15 +37,20 @@ $action  = optional_param('a', SMART_KLASS_ACTION_DEFAULT, PARAM_ALPHA );
 
 $strheading = get_string('controlpanel', 'local_smart_klass');
 
+
+
 switch ($action) {
    case  SMART_KLASS_ACTION_DEFAULT:
-       require_once (dirname(__FILE__) . '/classes/xAPI/Helpers/Logger.php');
-             
+       
+       SmartKlass\xAPI\Credentials::updateCredentials();   
+        
        $PAGE->set_pagelayout('standard');
        $PAGE->set_url(new moodle_url('/local/smart_klass/view.php'));
        $PAGE->set_title( $strheading );
        $PAGE->set_heading( $strheading );
        $PAGE->navbar->add($strheading);
+       
+    
 
        $content = $OUTPUT->heading($strheading);
   

@@ -27,23 +27,11 @@ defined('MOODLE_INTERNAL') || die();
 
 $string['pluginname'] = 'SmartKlass';
 
+$string['smartklass_manage'] = 'Gestionar SmartKlass';
 $string['controlpanel'] = 'Panel de Control';
 $string['fullharvester'] = 'Recolección completa de datos';
 $string['activate'] = 'Activar';
 $string['activatedescription'] = 'Activa el trazado de datos de Moodle al servidor SmartKlass';
-$string['endpoint'] = 'Servidor SmartKlass';
-$string['endpointdescription'] = 'Selecciona el servidor de SmartKlass al que deseas conectarte';
-$string['defaultserver'] = 'Servidor por defecto';
-$string['secureserver'] = 'Servidor seguro';
-$string['localserver'] = 'Servidor local';
-$string['authtype'] = 'Tipo de autenticación';
-$string['authtypedescription'] = 'Selecciona el tipo de autenticación con la plataforma SmartKlass';
-$string['basic'] = 'Básica';
-$string['oauth'] = 'oAUTH';
-$string['username'] = 'Usuario';
-$string['usernamedescription'] = 'Para autenticación básica, introduce el usuario a utilizar con la plataforma SmartKlass';
-$string['password'] = 'Contraseña';
-$string['passworddescription'] = 'Para autenticación básica, introduce la contraseña a utilizar con la plataforma SmartKlass';
 $string['save_log'] = 'Almacenar registro';
 $string['savelogdescription'] = 'Almacena registro de todas las ejecuciones de la tarea de recolección que se realicen en el sistema de ficheros de Moodle';
 $string['savelog_ok_statement'] = 'Almacena en el registro registro Declaraciones de Estado exitosas';

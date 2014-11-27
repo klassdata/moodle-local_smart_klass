@@ -43,6 +43,8 @@ define('SMART_KLASS_MOODLE_27',   2014051200);
 define('SMART_KLASS_MOODLE_26',   2013111800);
 define('SMART_KLASS_MOODLE_25',   2013051300);
 
+define('SMART_KLASS_TRACKER_EMPTYVALUE',   'EMPTY/');
+
 
 /**
  * Get a valid access token from oAuth server
@@ -207,7 +209,7 @@ function local_smart_klass_extends_navigation(global_navigation $navigation) {
     $nodeSmartKlap = $navigation->add(get_string('pluginname', 'local_smart_klass') );
 	
     
-	if (get_config('local_smart_klass', 'oauth_clientid') == '' || get_config('local_smart_klass', 'oauth_secret') == ''){
+	if (get_config('local_smart_klass', 'oauth_client_id') == false || get_config('local_smart_klass', 'oauth_client_secret') == false){
         if ( local_smart_klass_can_manage() )
             $nodeSmartKlap->add( get_string('configure_access', 'local_smart_klass'), new moodle_url($CFG->wwwroot.'/local/smart_klass/register.php' ));
     } else {
@@ -450,39 +452,62 @@ function local_smart_klass_get_harvesters () {
 
 
 function local_smart_klass_trackurl() {
-    global $DB, $PAGE, $COURSE, $SITE, $USER;
+    global $CFG, $DB, $PAGE, $COURSE, $SITE, $USER;
     $pageinfo = get_context_info_array($PAGE->context->id);
-    $trackurl = "'";
+    $trackurl = "'" . $CFG->wwwroot . "/";
+    $trackurl .= 'category_';
     if (isset($pageinfo[1]->category)) {
         if ($category = $DB->get_record('course_categories', array('id'=>$pageinfo[1]->category))) {
             $cats=explode("/",$category->path);
             foreach(array_filter($cats) as $cat) {
                 if ($categorydepth = $DB->get_record("course_categories", array("id" => $cat))) {;
-                    $trackurl .= $categorydepth->name.'/';
+                    $trackurl .= $categorydepth->id . '$' . $categorydepth->name.'#';
                 }
             }
+            $trackurl .= "/";
+        } else {
+            $trackurl .= SMART_KLASS_TRACKER_EMPTYVALUE;
         }
+    } else {
+        $trackurl .= SMART_KLASS_TRACKER_EMPTYVALUE;
     }
+    $trackurl .= 'course_';
     if (isset($pageinfo[1]->fullname)) {
+        $trackurl .= $pageinfo[1]->id . '$';
         if (isset($pageinfo[2]->name)) {
             $trackurl .= $pageinfo[1]->fullname.'/';
         } else if ($PAGE->user_is_editing()) {
-            $trackurl .= $pageinfo[1]->fullname.'/'.get_string('edit', 'local_smart_klass') . '/';
+            $trackurl .= $pageinfo[1]->fullname.'#'.get_string('edit', 'local_smart_klass') . '/';
         } else {
-            $trackurl .= $pageinfo[1]->fullname.'/'.get_string('view', 'local_smart_klass') . '/';
-        }
+            $trackurl .= $pageinfo[1]->fullname.'#'.get_string('view', 'local_smart_klass') . '/';
+        } 
+    } else {
+        $trackurl .= SMART_KLASS_TRACKER_EMPTYVALUE;
     }
+    
+    $trackurl .= 'activity_';
     if (isset($pageinfo[2]->name)) {
-        $trackurl .= $pageinfo[2]->modname.'/'.$pageinfo[2]->name . '/';
+        $trackurl .= $pageinfo[2]->id . '$';
+        $trackurl .= $pageinfo[2]->modname.'-'.$pageinfo[2]->name . '/';
+    } else {
+        $trackurl .= SMART_KLASS_TRACKER_EMPTYVALUE;
     }
+    
+    $trackurl .= 'user_';
     if (!empty($USER->id)) {
-        $trackurl .= $USER->email . '/';
-        
-        $roles	= get_user_roles($PAGE->context, $USER->id, true);
-        foreach($roles as $role){
-            $trackurl .= $role->name . '|';
+        $trackurl .= $USER->id . '/';
+        $trackurl .= 'role_';
+        if (is_siteadmin($USER->id)) $trackurl .= 'super#';
+        if ($roles	= get_user_roles($PAGE->context, $USER->id, true) ) {;
+            foreach($roles as $role){
+                $trackurl .= $role->name . '#';
+            }
+            $trackurl .= '/';
+        } elseif ( !is_siteadmin($USER->id) ) {
+           $trackurl .= SMART_KLASS_TRACKER_EMPTYVALUE; 
         }
-        $trackurl .= '/';
+    } else {
+        $trackurl .= SMART_KLASS_TRACKER_EMPTYVALUE;
     }
     $trackurl .= "'";
     return $trackurl;
@@ -494,10 +519,15 @@ function local_smart_klass_set_oauthserver ($endpoint) {
  
 function local_smart_klass_insert_analytics_tracking() {
     global $CFG, $USER;
-
-    $siteurl = get_config('local_smart_klass', 'tracker_url');
-    $siteid = get_config('local_smart_klass', 'tracker_id');
-    $userid = ( empty($USER->email) ) ? 'void@klassdata.com' : $USER->email;
+    
+    require_once(dirname(__FILE__).'/classes/xAPI/Providers/Credentials.php');
+    $provider = SmartKlass\xAPI\Credentials::getProvider();
+    $credentials = $provider->getCredentials();
+    
+    
+    $siteurl = $credentials->tracker_endpoint;
+    $siteid = $credentials->tracker_id;
+    $userid = $CFG->wwwroot . '/' . ( ( empty($USER->id) ) ? 0 : $USER->id );
     
 	if (!empty($siteurl) && !empty($siteid)) {
 			$CFG->additionalhtmlfooter .= "
@@ -520,4 +550,7 @@ function local_smart_klass_insert_analytics_tracking() {
 	}
 }
 
+//Autoload library class
+require_once (dirname(__FILE__) . '/classes/xAPI/Autoloader.php');
+SmartKlass\xAPI\Autoloader::register();
 local_smart_klass_insert_analytics_tracking();

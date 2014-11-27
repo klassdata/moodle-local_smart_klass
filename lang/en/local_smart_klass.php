@@ -27,23 +27,11 @@ defined('MOODLE_INTERNAL') || die();
 
 $string['pluginname'] = 'SmartKlass';
 
+$string['smartklass_manage'] = 'SmartKlass Manage';
 $string['controlpanel'] = 'Control Panel';
 $string['fullharvester'] = 'Execute data harvest';
 $string['activate'] = 'Enable';
 $string['activatedescription'] = 'Enables Moodle data tracing to SmartKlass Server';
-$string['endpoint'] = 'SmartKlass Server';
-$string['endpointdescription'] = 'Select the SmartKlass server you wish to connect';
-$string['defaultserver'] = 'Default Server';
-$string['secureserver'] = 'Secure Server';
-$string['localserver'] = 'Local Server';
-$string['authtype'] = 'Authentication Type';
-$string['authtypedescription'] = 'Select the type of authentication to the platform SmartKlass';
-$string['basic'] = 'Basic';
-$string['oauth'] = 'oAUTH';
-$string['username'] = 'Username';
-$string['usernamedescription'] = 'For basic authentication, enter the username to use the platform SmartKlass';
-$string['password'] = 'Password';
-$string['passworddescription'] = 'For basic authentication, enter the password to use the platform SmartKlass';
 $string['save_log'] = 'Save Log';
 $string['savelogdescription'] = 'Store all executions of harvest task in Moodle filesystem';
 $string['savelog_ok_statement'] = 'Save in log Ok statement result';
