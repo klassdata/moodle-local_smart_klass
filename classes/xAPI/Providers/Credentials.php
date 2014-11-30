@@ -13,7 +13,7 @@ namespace SmartKlass\xAPI;
 class Credentials {
     
      
-    const MAX_TIME = 20;
+    const MAX_TIME = 3600;
     
     private $dataprovider;
     private static $credentials;

@@ -58,15 +58,15 @@ function local_smart_klass_get_oauth_accesstoken ($userid, $role){
     global $DB;
     
     $oauth_obj = $DB->get_record( 'local_smart_klass_dash_oauth', array('userid'=>$userid, 'dashboard_role'=>$role) );
-
-
     
-    if (local_smart_klass_oauth_validate($oauth_obj->access_token)){
+    if ($oauth_obj == false) return null;
+
+    if (isset($oauth_obj->access_token) && local_smart_klass_oauth_validate($oauth_obj->access_token)){
         $oauth_obj->modified = time();
         
     } else {
         //Try refresh token
-        $accesstoken = local_smart_klass_oauth_refreshtoken ($oauth_obj->refresh_token);
+        $accesstoken = local_smart_klass_oauth_refreshtoken ($oauth_obj);
         if ( empty($accesstoken) ) return null;
         $time = time();
         $oauth_obj->access_token = $accesstoken;
@@ -141,8 +141,29 @@ function local_smart_klass_oauth_validate ($access_token=null){
  * @param  string $refreshtoken    Valid oauth refresh token
  * @return string new access token if OK, null if KO
  */
-function local_smart_klass_oauth_refreshtoken ($refresh_token=null){
-    //TODO 2  Try to get the access_token throw refresh_token in oauth server
+function local_smart_klass_oauth_refreshtoken ($oauthobj=null){
+    global $DB;
+    if ( $oauthobj == false) return null;
+    $refresh_token = $oauthobj->refresh_token;
+    $server = get_config('local_smart_klass','oauth_server') . '/oauth/refresh_token';
+    require_once(dirname(__FILE__).'/classes/xAPI/Helpers/Curl.php');
+    $curl = new Curl;
+    $params = array ( 
+                        'client_id' => get_config('local_smart_klass','oauth_client_id'),
+                        'client_secret' => get_config('local_smart_klass','oauth_client_secret'),
+                        'refresh_token' => $refresh_token,
+                        'grant_type' => 'refresh_token',
+    );
+    $output = $curl->post( $server, $params);
+
+    if ( isset($output->error) ) return null;
+
+    if ( isset($output->refresh_token) ) 
+        $oauthobj->refresh_token = $output->refresh_token;
+    if ( isset($output->access_token) )
+        $oauthobj->access_token = $output->access_token;
+    $oauth_obj = $DB->update_record( 'local_smart_klass_dash_oauth', $oauthobj );
+    return $oauthobj->access_token;
 }
 
 
@@ -197,6 +218,7 @@ function local_smart_klass_dashboard_roles ($userid) {
         if(in_array($role->roleid, $intitution_default_role))
             $dashboard->institution = true;
     }
+    if (is_siteadmin()) $dashboard->institution = true;
     return $dashboard;
 }
 

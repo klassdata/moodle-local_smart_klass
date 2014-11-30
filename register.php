@@ -56,22 +56,16 @@ $access_token = get_config('local_smart_klass', 'oauth_access_token');
 $client_id = get_config('local_smart_klass', 'oauth_client_id');
 $client_secret = get_config('local_smart_klass', 'oauth_client_secret');
 
-
-
-
 $server = get_config('local_smart_klass', 'oauth_server');
 $redirect_uri = implode('', array(
                                 isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http',
                                 '://',
                                 $_SERVER['SERVER_NAME'],
                                 isset($_SERVER['SERVER_PORT']) ? ':' . $_SERVER['SERVER_PORT'] : '',
-                                $_SERVER['SCRIPT_NAME'],
                             ));
 echo $OUTPUT->header();
 
 $curl = new Curl;
-
-
 
 if ( $access_token == false || $client_id == false || $client_secret == false) {
 
@@ -93,7 +87,7 @@ if ( $access_token == false || $client_id == false || $client_secret == false) {
     echo $OUTPUT->footer();
     
 } else {
-    /*$server .= '/access_token';
+    /*$server .= '/oauth/access_token';
     $output = $curl->get( $server, array(
                             'token' => $access_token,
                             '$client_id' => $access_token,
