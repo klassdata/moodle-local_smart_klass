@@ -91,17 +91,23 @@ function local_smart_klass_get_oauth_accesstoken ($userid, $role){
 function local_smart_klass_save_access_token ($code, $refresh, $email, $rol, $user_id) {
     global $DB;
     
-    $t = time();
-    $obj = new stdClass();
-    $obj->access_token = $code;
-    $obj->refresh_token = $refresh;
-    $obj->userid = $user_id;
-    $obj->email = $email;
-    $obj->dashboard_role = $rol;
-    $obj->modified = $t;
-    $obj->created = $t;
+    $item = $DB->get_record('local_smart_klass_dash_oauth', array('userid' => $user_id, 'dashboard_role' => $rol) );
+    
+    if ($item == false) {
+        $t = time();
+        $obj = new stdClass();
+        $obj->access_token = $code;
+        $obj->refresh_token = $refresh;
+        $obj->userid = $user_id;
+        $obj->email = $email;
+        $obj->dashboard_role = $rol;
+        $obj->modified = $t;
+        $obj->created = $t;
 
-    return $DB->insert_record('local_smart_klass_dash_oauth', $obj);
+        return $DB->insert_record('local_smart_klass_dash_oauth', $obj);
+    }
+    
+    return $item->id;
 }
 
 
@@ -549,27 +555,29 @@ function local_smart_klass_insert_analytics_tracking() {
     
     $siteurl = $credentials->tracker_endpoint;
     $siteid = $credentials->tracker_id;
+    if (is_null($siteurl) || is_null($siteid)) return
+    
     $userid = $CFG->wwwroot . '/' . ( ( empty($USER->id) ) ? 0 : $USER->id );
     
-	if (!empty($siteurl) && !empty($siteid)) {
-			$CFG->additionalhtmlfooter .= "
-<script type='text/javascript'>
-    var _paq = _paq || [];
-    _paq.push(['setDocumentTitle', ".local_smart_klass_trackurl()."]);
-    _paq.push(['setUserId', '" . $userid . "']);
-    _paq.push(['trackPageView']);
-    _paq.push(['enableLinkTracking']);
-    (function() {
-      var u='//".$siteurl."/';
-      _paq.push(['setTrackerUrl', u+'piwik.php']);
-      _paq.push(['setSiteId', ".$siteid."]);
-      var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
-    g.type='text/javascript'; g.async=true; g.defer=true; g.src=u+'piwik.js'; s.parentNode.insertBefore(g,s);
-    })();
-</script>
-<noscript><p><img src=".$siteurl."/piwik.php?idsite=".$siteid." style='border:0;' alt='' /></p></noscript>";
+
+	$CFG->additionalhtmlfooter .= "
+        <script type='text/javascript'>
+            var _paq = _paq || [];
+            _paq.push(['setDocumentTitle', ".local_smart_klass_trackurl()."]);
+            _paq.push(['setUserId', '" . $userid . "']);
+            _paq.push(['trackPageView']);
+            _paq.push(['enableLinkTracking']);
+            (function() {
+              var u='//".$siteurl."/';
+              _paq.push(['setTrackerUrl', u+'piwik.php']);
+              _paq.push(['setSiteId', ".$siteid."]);
+              var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+            g.type='text/javascript'; g.async=true; g.defer=true; g.src=u+'piwik.js'; s.parentNode.insertBefore(g,s);
+            })();
+        </script>
+        <noscript><p><img src=".$siteurl."/piwik.php?idsite=".$siteid." style='border:0;' alt='' /></p></noscript>";
 		
-	}
+
 }
 
 //Autoload library class

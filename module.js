@@ -64,3 +64,24 @@ M.local_smart_klass.createContent = function (Y, content, target) {
     iframe.document.write(content);
     iframe.document.close();  
 }
+
+M.local_smart_klass.loadContent = function (Y, url, target) {
+    var docElem = document.getElementById(target);
+    var iframe = document.createElement('iframe');
+    iframe.width = '100%';
+    iframe.scrolling = 'no';
+    iframe.frameBorder  = 0;
+    iframe.src = url;
+       
+    docElem.appendChild(iframe);
+    iFrameResize ({checkOrigin:false,heightCalculationMethod:'documentElementScroll'}); 
+    if (iframe.contentWindow){
+        iframe = iframe.contentWindow;
+    }else{
+        if (iframe.contentDocument && iframe.contentDocument.document){
+            iframe = iframe.contentDocument.document;
+        }else{
+            iframe = iframe.contentDocument;
+        }
+    }
+}
