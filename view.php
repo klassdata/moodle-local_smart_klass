@@ -42,7 +42,8 @@ $strheading = get_string('controlpanel', 'local_smart_klass');
 switch ($action) {
    case  SMART_KLASS_ACTION_DEFAULT:
        
-       SmartKlass\xAPI\Credentials::updateCredentials();   
+       $provider = SmartKlass\xAPI\Credentials::getProvider();
+       $credentials = $provider->updateCredentials();
         
        $PAGE->set_pagelayout('standard');
        $PAGE->set_url(new moodle_url('/local/smart_klass/view.php'));
@@ -132,17 +133,17 @@ switch ($action) {
        $url = new moodle_url('/local/smart_klass/view.php', array('a' => 'h'));
        
        $content .= $OUTPUT->box_start();
-       $content .= $OUTPUT->heading( get_string('collector_status', 'local_smart_klass') );
+       //$content .= $OUTPUT->heading( get_string('collector_status', 'local_smart_klass') );
        
        $content .= html_writer::table($table);
        $content .= $OUTPUT->action_link($url, get_string('fullharvester', 'local_smart_klass'), new popup_action('click', $url));
        $content .= $OUTPUT->box_end();
       
        //Logs
-       $content .= $OUTPUT->box_start();
+       /*$content .= $OUTPUT->box_start();
        $content .= $OUTPUT->heading( get_string('execution_log', 'local_smart_klass') );
        $content .= SmartKlass\xAPI\Logger::get_logs();
-       $content .= $OUTPUT->box_end();
+       $content .= $OUTPUT->box_end();*/
        
        echo $OUTPUT->header();
        echo $content;

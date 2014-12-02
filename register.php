@@ -62,6 +62,7 @@ $redirect_uri = implode('', array(
                                 '://',
                                 $_SERVER['SERVER_NAME'],
                                 isset($_SERVER['SERVER_PORT']) ? ':' . $_SERVER['SERVER_PORT'] : '',
+                                $_SERVER['SCRIPT_NAME'],
                             ));
 echo $OUTPUT->header();
 

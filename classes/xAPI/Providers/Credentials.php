@@ -13,7 +13,7 @@ namespace SmartKlass\xAPI;
 class Credentials {
     
      
-    const MAX_TIME = 3600;
+    const MAX_TIME = 86400;
     
     private $dataprovider;
     private static $credentials;
@@ -38,30 +38,42 @@ class Credentials {
         $curl = new Curl;
         $output = $curl->get( $server, array('access_token' => $access_token));
         
-        if ( isset($output->error) ) $this->refreshToken ();
+        if ( isset($output->error) ) {
+            $refresh_token = $this->refreshToken ();
+            if ($refresh_token == false) {
+                set_config('oauth_client_id', null, 'local_smart_klass');
+                set_config('oauth_client_secret', null, 'local_smart_klass');
+                set_config('oauth_access_token', null, 'local_smart_klass');
+                set_config('oauth_refresh_token', null, 'local_smart_klass');
+                redirect( moodle_url('/local/smart_klass/register.php') );
+            }
+            return;
+        }
         $output = json_decode ($output);
-        if ( isset($output->lrs_endpoint) ) 
-            set_config('lrs_endpoint', $output->lrs_endpoint, 'local_smart_klass');
-        if ( isset($output->lrs_username) )
-            set_config('lrs_username', $output->lrs_username, 'local_smart_klass');
-        if ( isset($output->lrs_password) )
-            set_config('lrs_password', $output->lrs_password, 'local_smart_klass');
         
-        if ( isset($output->dashboard_url) )
-            set_config('dashboard_endpoint', $output->dashboard_endpoint, 'local_smart_klass');
+        $value =  ( isset($output->lrs_endpoint) ) ? $output->lrs_endpoint : null;
+        set_config('lrs_endpoint', $value, 'local_smart_klass');
+        
+        $value =  ( isset($output->lrs_username) ) ? $output->lrs_username : null;
+        set_config('lrs_username', $value, 'local_smart_klass');
+        
+        $value =  ( isset($output->lrs_password) ) ? $output->lrs_password : null;
+        set_config('lrs_password', $value, 'local_smart_klass');
+        
+        $value =  ( isset($output->dashboard_endpoint) ) ? $output->dashboard_endpoint : null;
+        set_config('dashboard_endpoint', $value, 'local_smart_klass');
         
         
-        if ( isset($output->tracker_endpoint) )
-            set_config('tracker_endpoint', $output->tracker_endpoint, 'local_smart_klass');
-        if ( isset($output->tracker_id) )
-            set_config('tracker_id', $output->tracker_id, 'local_smart_klass');
+        $value =  ( isset($output->tracker_endpoint) ) ? $output->tracker_endpoint : null;
+        set_config('tracker_endpoint', $value, 'local_smart_klass');
+        
+        $value =  ( isset($output->tracker_id) ) ? $output->tracker_id : null;
+        set_config('tracker_id', $value, 'local_smart_klass');
 
     }
     
     
-    public function getCredentials () {
-        global $SESSION;
-        
+    public function getCredentials () {       
         $cicle = (integer) $this->dataprovider->getConfig('credential_cicle');
         if ($cicle == 0 ||  $cicle <= time()) {
             $this->dataprovider->setConfig('credential_cicle', time() + self::MAX_TIME);
@@ -69,12 +81,18 @@ class Credentials {
         }
        
         $credentials = new \stdClass();
-        $credentials->lrs_endpoint = $this->dataprovider->getConfig('lrs_endpoint');
-        $credentials->lrs_username = $this->dataprovider->getConfig('lrs_username');
-        $credentials->lrs_password = $this->dataprovider->getConfig('lrs_password');
-        $credentials->dashboard_endpoint = $this->dataprovider->getConfig('dashboard_endpoint');
-        $credentials->tracker_endpoint = $this->dataprovider->getConfig('tracker_endpoint');
-        $credentials->tracker_id = $this->dataprovider->getConfig('tracker_id');
+        if ($this->dataprovider->getConfig('lrs_endpoint') != false)
+            $credentials->lrs_endpoint = $this->dataprovider->getConfig('lrs_endpoint');
+        if ($this->dataprovider->getConfig('lrs_username') != false)
+            $credentials->lrs_username = $this->dataprovider->getConfig('lrs_username');
+        if ($this->dataprovider->getConfig('lrs_password') != false)
+            $credentials->lrs_password = $this->dataprovider->getConfig('lrs_password');
+        if ($this->dataprovider->getConfig('dashboard_endpoint') != false)
+            $credentials->dashboard_endpoint = $this->dataprovider->getConfig('dashboard_endpoint');
+        if ($this->dataprovider->getConfig('tracker_endpoint') != false)
+            $credentials->tracker_endpoint = $this->dataprovider->getConfig('tracker_endpoint');
+        if ($this->dataprovider->getConfig('tracker_id') != false)
+            $credentials->tracker_id = $this->dataprovider->getConfig('tracker_id');
         
         return $credentials;
     }
@@ -99,7 +117,6 @@ class Credentials {
         if ( isset($output->error) ) return false;
         
         if ( isset($output->refresh_token) ) 
-            set_config('oauth_refresh_token', $output->refresh_token, 'local_smart_klass');
             $this->dataprovider->setConfig('oauth_access_token', $output->access_token);
         if ( isset($output->access_token) )
             $this->dataprovider->setConfig('oauth_access_token', $output->access_token);
