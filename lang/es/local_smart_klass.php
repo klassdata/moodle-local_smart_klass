@@ -68,7 +68,6 @@ $string['institution_dashboard_noactive'] = 'El panel de institución está inac
 $string['invalid_dataprovider'] = 'El tipo DataProvider proporcionado es incorrecto.';
 $string['harvester_service_unavailable'] = 'Servicio de recolección de datos inactivo';
 $string['harvester_service_instance_running'] = 'Instancia del servicio de recolección de datos en curso. Solamente puede existir una instancia activa';
-
 $string['user_no_complete_course'] = 'El usuario {$a->user} no ha completado en el curso {$a->course} por lo que no se enviará el registro';
 $string['user_no_enrol_course'] = 'El usuario {$a->user} no está matriculado en el curso {$a->course} por lo que no se enviará el registro';
 $string['user_no_init_course'] = 'El usuario {$a->user} no ha iniciado el curso {$a->course} por lo que no se enviará el registro';
@@ -82,3 +81,4 @@ $tring['crontask'] = 'Tareas programadas de SmartKlass';
 $string['view'] = 'Ver';
 $string['edit'] = 'Editar';
 $string['no_role'] = 'No hay rol establecido';
+$string['no_oauth_comunication'] = 'No hay comunicación con el servidor de autenticación';

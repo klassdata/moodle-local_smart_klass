@@ -169,10 +169,7 @@ if ( !empty($oauth_obj) ){
     $credentials = $provider->getCredentials();
         
     $url = $credentials->dashboard_endpoint . '/access/token/' . $oauth_obj->access_token;
-    
-    $url = $credentials->dashboard_endpoint;
-    
-	
+  
     echo $OUTPUT->box('', 'generalbox', 'smartklass');
     $PAGE->requires->js_init_call('M.local_smart_klass.loadContent', array( $url, 'smartklass'), true );
     
@@ -183,7 +180,7 @@ if ( !empty($oauth_obj) ){
     $server = get_config('local_smart_klass', 'oauth_server');
 
     if ( $access_token == false || $client_id == false || $server == false) {
-        print_error('no_oauth_comm', 'local_smart_klass');
+        print_error('no_oauth_comunication', 'local_smart_klass');
     }
 
     $server .= '/dashboard/authorize'; 

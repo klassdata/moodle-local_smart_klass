@@ -68,7 +68,6 @@ $string['institution_dashboard_noactive'] = 'Institution dashboard is inactive. 
 $string['invalid_dataprovider'] = 'Invalid DataProvider type given.';
 $string['harvester_service_unavailable'] = 'Harvester service not available';
 $string['harvester_service_instance_running'] = 'Harvester service instance is currently running. There can be only one active instance at a time';
-
 $string['user_no_complete_course'] = 'User {$a->user} has not completed the course {$a->course} so the record will not be sent';
 $string['user_no_enrol_course'] = 'User {$a->user} is not enrolled in the course {$a->course} so the record will not be sent';
 $string['user_no_init_course'] = 'User {$a->user} has not started the course {$a->course} so the record will not be sent';
@@ -82,3 +81,4 @@ $tring['crontask'] = 'Smart Class cron tasks';
 $string['view'] = 'View';
 $string['edit'] = 'Edit';
 $string['no_role'] = 'No role has been set';
+$string['no_oauth_comunication'] = 'No communication with authentication server';
