@@ -93,7 +93,7 @@ if ( !is_null($auth_code) ){
 
 if ( !is_null($token) && !is_null($refresh_token) ){
     if ( is_null($SESSION->dt) ) {
-        print_error( 'No hay rol establecido' );
+        print_error( get_string('no_role', 'local_smart_klass') );
     }
     
     $item = local_smart_klass_save_access_token ($token, $refresh_token, $USER->email, $SESSION->dt, $USER->id);

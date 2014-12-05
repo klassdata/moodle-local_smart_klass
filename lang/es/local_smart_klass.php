@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -35,9 +35,9 @@ $string['activatedescription'] = 'Activa el trazado de datos de Moodle al servid
 $string['save_log'] = 'Almacenar registro';
 $string['savelogdescription'] = 'Almacena registro de todas las ejecuciones de la tarea de recolección que se realicen en el sistema de ficheros de Moodle';
 $string['savelog_ok_statement'] = 'Almacena en el registro registro Declaraciones de Estado exitosas';
-$string['savelog_ok_statement_description'] = 'Si está activo almacena en el registro las declaraciones des estado exitosas y fallidas de lo contrario solo almacena en el registro las declaraciones fallidas';
+$string['savelog_ok_statement_description'] = 'Si está activo, almacena en el registro las declaraciones de estado exitosas y fallidas; de lo contrario solo almacena en el registro las declaraciones fallidas';
 $string['check_statement'] = 'Comprobar Sentencias';
-$string['checkstatementdescription'] = 'Comprueba la validez de las sentencias previo envio al servidor SmartKlass';
+$string['checkstatementdescription'] = 'Comprueba la validez de las sentencias previo envío al servidor SmartKlass';
 $string['max_block_cicles'] = 'Número máximo de ciclos de bloqueo';
 $string['max_block_ciclesdescription'] = 'Define el número máximo de ciclos de recolección hasta que se libere el bloqueo de recolección';
 $string['collector_status'] = 'Estado de los Recolectores';
@@ -81,3 +81,4 @@ $string['ko'] =  'KO';
 $tring['crontask'] = 'Tareas programadas de SmartKlass';
 $string['view'] = 'Ver';
 $string['edit'] = 'Editar';
+$string['no_role'] = 'No hay rol establecido';
