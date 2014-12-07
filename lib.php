@@ -61,7 +61,7 @@ function local_smart_klass_get_oauth_accesstoken ($userid, $role){
     
     if ($oauth_obj == false) return null;
 
-    if (isset($oauth_obj->access_token) && local_smart_klass_oauth_validate($oauth_obj->access_token)){
+    if (isset($oauth_obj->access_token) && $oauth_obj = local_smart_klass_oauth_validate($oauth_obj)){
         $oauth_obj->modified = time();
         
     } else {
@@ -113,32 +113,23 @@ function local_smart_klass_save_access_token ($code, $refresh, $email, $rol, $us
 
 /**
  * Validate access token in oauth servr
- * @param  string $accesstoken    accesstoken to validate with oauth server
- * @return bool true if oauth accesstoken is ok, false is oauth accesstoken is KO
+ * @param  stdClass $oauth_obj    accesstoken to validate with oauth server
+ * @return $oauth_obj if validate and error if no validate.
  */
-function local_smart_klass_oauth_validate ($access_token=null){
-		$fields = array('access_token' => $access_token);
-		$ch = curl_init(SMART_KLASS_OAUTHSERVER_URL);
-		
-		$url = SMART_KLASS_OAUTHSERVER_URL;
-		$qry_str = "?access_token=".$access_token;
+function local_smart_klass_oauth_validate ($oauth_obj=null){
+           
+    $server = get_config('local_smart_klass', 'oauth_server');
+    $server .= '/dashboard/check'; 
 
+    $curl = new SmartKlass\xAPI\Curl;
+    $output =  $curl->get( $server, array('access_token' => $oauth_obj->access_token));
 
-		// Set query data here with the URL
-		curl_setopt($ch, CURLOPT_URL,$url.$qry_str); 
-		
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-		curl_setopt($ch, CURLOPT_TIMEOUT, '3');		
-		
-		
-		$curl_response = curl_exec($ch);	// execute curl request
-	    $curl_response  = json_decode($curl_response);
-		curl_close($ch);
-
-		if(empty($curl_response) || $curl_response->error=='invalid_token')
-			return false;
-		else
-			return true;
+    if ( isset($output->error) && $output->error == 'access_denied' ) {
+        
+        $oauth_obj = local_smart_klass_oauth_refreshtoken($oauth_obj);
+    }
+    
+    return $oauth_obj;
 }
 
 
@@ -161,15 +152,21 @@ function local_smart_klass_oauth_refreshtoken ($oauthobj=null){
                         'grant_type' => 'refresh_token',
     );
     $output = $curl->post( $server, $params);
-
-    if ( isset($output->error) ) return null;
-
+    $output = json_decode($output);
+    if ( isset($output->error) ) {
+        $DB->delete_records( 'local_smart_klass_dash_oauth', array('id' => $oauthobj->id) );
+        
+        print_error( get_string('no_access_token_aviable', 'local_smart_klass') );
+        return null;
+    }
+    
     if ( isset($output->refresh_token) ) 
         $oauthobj->refresh_token = $output->refresh_token;
     if ( isset($output->access_token) )
         $oauthobj->access_token = $output->access_token;
+    $oauth_obj->modified = time();
     $oauth_obj = $DB->update_record( 'local_smart_klass_dash_oauth', $oauthobj );
-    return $oauthobj->access_token;
+    return $oauthobj;
 }
 
 

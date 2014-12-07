@@ -111,16 +111,25 @@ if ( !is_null($token) && !is_null($refresh_token) ){
         print_error( get_string('no_role', 'local_smart_klass') );
     }
     
+    if ( is_null($SESSION->cid) ) {
+        print_error( get_string('no_context', 'local_smart_klass') );
+    }
+
     $item = local_smart_klass_save_access_token ($token, $refresh_token, $USER->email, $SESSION->dt, $USER->id);
     
-    $url = new moodle_url ('/local/smart_klass/dashboard.php', array('cid' => $COURSE->id, 'dt'=> $SESSION->dt) );
-    $PAGE->requires->js_init_call('M.local_smart_klass.refreshContent', [(string)$url], true );
+    $url = new moodle_url ('/local/smart_klass/dashboard.php', array('cid' => $SESSION->cid, 'dt'=> $SESSION->dt) );
+    echo $OUTPUT->header();
+    $PAGE->set_pagelayout('popup');
+    echo $OUTPUT->box_start();
+    $PAGE->requires->js_init_call('M.local_smart_klass.refreshContent', [$url->out(false)], true );
     echo $OUTPUT->footer();
 }
 
 $contextid      = required_param('cid', PARAM_INT);
-$contextid		= $COURSE->id;
 
+if ( !is_null($dashboard_role) ) {
+    $SESSION->cid = $contextid;
+}
 
 list($context, $course, $cm) = get_context_info_array($contextid);
 
@@ -181,25 +190,27 @@ if ( !empty($oauth_obj) ){
         echo $OUTPUT->footer();
         die;
     }
+    
+    
         
-    $url = $credentials->dashboard_endpoint . '/access/token/' . $oauth_obj->access_token . '/' . $COURSE->id;
+    $url = $credentials->dashboard_endpoint . '/oauth/authorize/' . $COURSE->id . '/' . $oauth_obj->access_token;
   
     echo $OUTPUT->box('', 'generalbox', 'smartklass');
     $PAGE->requires->js_init_call('M.local_smart_klass.loadContent', array( $url, 'smartklass'), true );
     
 } else {
-  
+    $server = get_config('local_smart_klass', 'oauth_server');
     $access_token = get_config('local_smart_klass', 'oauth_access_token');
     $client_id = get_config('local_smart_klass', 'oauth_client_id');
-    $server = get_config('local_smart_klass', 'oauth_server');
 
     if ( $access_token == false || $client_id == false || $server == false) {
         $url = new moodle_url ('/local/smart_klass/register.php');
+        $PAGE->set_pagelayout('popup');
         $PAGE->requires->js_init_call('M.local_smart_klass.refreshContent', [(string)$url], true );
         echo $OUTPUT->footer();
         
     }
-
+    
     $server .= '/dashboard/authorize'; 
 
     require_once(dirname(__FILE__) . '/classes/xAPI/Helpers/Curl.php');

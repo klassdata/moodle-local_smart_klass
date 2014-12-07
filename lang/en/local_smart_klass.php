@@ -83,4 +83,5 @@ $string['edit'] = 'Edit';
 $string['no_role'] = 'No role has been set';
 $string['no_oauth_comunication'] = 'No communication with authentication server';
 $string['harvest'] = 'Harvest';
-$string['no_dashboard_endpoint'] = 'Incorrect dashboard URL. Try again later.';
+$string['no_dashboard_endpoint'] = 'Incorrect dashboard URL. Please try again later.';
+$string['no_access_token_aviable'] = 'The access credentials are not available. Please try again later';
