@@ -80,19 +80,20 @@ class Credentials {
             $this->updateCredentials();      
         }
        
+
         $credentials = new \stdClass();
-        if ($this->dataprovider->getConfig('lrs_endpoint') != false)
-            $credentials->lrs_endpoint = $this->dataprovider->getConfig('lrs_endpoint');
-        if ($this->dataprovider->getConfig('lrs_username') != false)
-            $credentials->lrs_username = $this->dataprovider->getConfig('lrs_username');
-        if ($this->dataprovider->getConfig('lrs_password') != false)
-            $credentials->lrs_password = $this->dataprovider->getConfig('lrs_password');
-        if ($this->dataprovider->getConfig('dashboard_endpoint') != false)
-            $credentials->dashboard_endpoint = $this->dataprovider->getConfig('dashboard_endpoint');
-        if ($this->dataprovider->getConfig('tracker_endpoint') != false)
-            $credentials->tracker_endpoint = $this->dataprovider->getConfig('tracker_endpoint');
-        if ($this->dataprovider->getConfig('tracker_id') != false)
-            $credentials->tracker_id = $this->dataprovider->getConfig('tracker_id');
+        $credentials->lrs_endpoint = ($this->dataprovider->getConfig('lrs_endpoint') != false) ? 
+                $this->dataprovider->getConfig('lrs_endpoint') : null;
+        $credentials->lrs_username = ($this->dataprovider->getConfig('lrs_username') != false) ?
+            $this->dataprovider->getConfig('lrs_username') : null;
+        $credentials->lrs_password = ($this->dataprovider->getConfig('lrs_password') != false) ?
+             $this->dataprovider->getConfig('lrs_password') : null;
+        $credentials->dashboard_endpoint = ($this->dataprovider->getConfig('dashboard_endpoint') != false) ?
+             $this->dataprovider->getConfig('dashboard_endpoint') : null;
+        $credentials->tracker_endpoint = ($this->dataprovider->getConfig('tracker_endpoint') != false) ?
+             $this->dataprovider->getConfig('tracker_endpoint') : null;
+        $credentials->tracker_id = ($this->dataprovider->getConfig('tracker_id') != false) ?
+             $this->dataprovider->getConfig('tracker_id') : null;
         
         return $credentials;
     }

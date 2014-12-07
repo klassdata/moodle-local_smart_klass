@@ -202,9 +202,8 @@ function local_smart_klass_can_manage() {
 
 
 
-function local_smart_klass_dashboard_roles ($userid) {
-    global $PAGE;
-    $roles	= get_user_roles($PAGE->context, $userid, true);
+function local_smart_klass_dashboard_roles ($userid, $context) {
+    $roles	= get_user_roles($context, $userid, true);
 
     $dashboard	= new stdClass ();
     
@@ -237,11 +236,11 @@ function local_smart_klass_extends_navigation(global_navigation $navigation) {
     $nodeSmartKlap = $navigation->add(get_string('pluginname', 'local_smart_klass') );
 	
     
-	if (get_config('local_smart_klass', 'oauth_client_id') == false || get_config('local_smart_klass', 'oauth_client_secret') == false){
+    if (get_config('local_smart_klass', 'oauth_client_id') == false || get_config('local_smart_klass', 'oauth_client_secret') == false){
         if ( local_smart_klass_can_manage() )
             $nodeSmartKlap->add( get_string('configure_access', 'local_smart_klass'), new moodle_url($CFG->wwwroot.'/local/smart_klass/register.php' ));
     } else {
-        $dashboard_roles = local_smart_klass_dashboard_roles($USER->id);
+        $dashboard_roles = local_smart_klass_dashboard_roles($USER->id, $PAGE->context);
         if ( get_config('local_smart_klass', 'activate_student_dashboard') == '1' && $dashboard_roles->student ) {
             $nodeSmartKlap->add( get_string('studentdashboard', 'local_smart_klass'), new moodle_url($CFG->wwwroot.'/local/smart_klass/dashboard.php', array('cid' => $PAGE->context->id, 'dt'=>SMART_KLASS_DASHBOARD_STUDENT)));
         }
@@ -555,7 +554,7 @@ function local_smart_klass_insert_analytics_tracking() {
     
     $siteurl = $credentials->tracker_endpoint;
     $siteid = $credentials->tracker_id;
-    if (is_null($siteurl) || is_null($siteid)) return
+    if (is_null($siteurl) || is_null($siteid)) return;
     
     $userid = $CFG->wwwroot . '/' . ( ( empty($USER->id) ) ? 0 : $USER->id );
     
@@ -568,7 +567,7 @@ function local_smart_klass_insert_analytics_tracking() {
             _paq.push(['trackPageView']);
             _paq.push(['enableLinkTracking']);
             (function() {
-              var u='//".$siteurl."/';
+              var u='".$siteurl."/';
               _paq.push(['setTrackerUrl', u+'piwik.php']);
               _paq.push(['setSiteId', ".$siteid."]);
               var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];

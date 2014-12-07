@@ -32,6 +32,7 @@ $auth_error     = optional_param('error', null, PARAM_RAW);
 $dashboard_role = optional_param('dt', null, PARAM_INT);
 $token     = optional_param('token', null, PARAM_RAW);
 $refresh_token     = optional_param('refresh_token', null, PARAM_RAW);
+$payload = optional_param('p', null, PARAM_RAW);
 
 if ( !is_null($dashboard_role) ) {
     $SESSION->dt = $dashboard_role;
@@ -45,6 +46,20 @@ $redirect_uri = implode('', array(
                         ));
 
 if ( !is_null($auth_error) ) print_error($auth_error, 'local_smart_klass');  
+
+//Register LMS payload
+if (!is_null($payload)){
+    $payload = base64_decode($payload);
+    $payload = json_decode($payload);
+    set_config('oauth_access_token', $payload->access_token, 'local_smart_klass');
+    set_config('oauth_refresh_token', $payload->refresh_token, 'local_smart_klass');
+    set_config('oauth_client_id', $payload->client_id, 'local_smart_klass');
+    set_config('oauth_client_secret', $payload->client_secret, 'local_smart_klass');
+    $url = new moodle_url ('/local/smart_klass/view.php');
+    echo $OUTPUT->header();
+    $PAGE->requires->js_init_call('M.local_smart_klass.refreshContent', [(string)$url], true );
+    echo $OUTPUT->footer();
+}
 
 if ( !is_null($auth_code) ){
        
@@ -110,19 +125,13 @@ $contextid		= $COURSE->id;
 list($context, $course, $cm) = get_context_info_array($contextid);
 
 
-$dashboard_roles = local_smart_klass_dashboard_roles ($USER->id);
+$dashboard_roles = local_smart_klass_dashboard_roles ($USER->id, $context);
 
 if($dashboard_roles->institution){
 	require_login();
-}else{
+} else {
     require_login($course, true);
 }
-
-
-
-
- 
-
 
 switch ($dashboard_role) {
     case SMART_KLASS_DASHBOARD_STUDENT:
@@ -142,8 +151,7 @@ switch ($dashboard_role) {
     case SMART_KLASS_DASHBOARD_INSTITUTION:
         $strheading = get_string('institutiondashboard', 'local_smart_klass');
         if (!$dashboard_roles->institution) print_error('noinstitutionrole', 'local_smart_klass');
-        if (get_config('local_smart_klass', 'activate_institution_dashboard') != '1') print_error('institution_dashboard_noactive', 'local_smart_klass');
-        $PAGE->set_context($context);
+        if (get_config('local_smart_klass', 'activate_institution_dashboard') != '1') print_error('institution_dashboard_noactive', 'local_smart_klass');        
         $role = 'institution';
         break;
 }
@@ -154,21 +162,27 @@ $PAGE->set_url(new moodle_url('/local/smart_klass/dashboard.php'));
 $PAGE->set_title( $strheading );
 $PAGE->requires->js('/local/smart_klass/javascript/iframeResizer.min.js', true);
 $PAGE->navbar->add($strheading);
+$PAGE->set_context($context);
+
 echo $OUTPUT->header();
 echo $OUTPUT->box_start();
 
 $oauth_obj = local_smart_klass_get_oauth_accesstoken ($USER->id, $dashboard_role);
-
-$u_course = $COURSE->id;
-$ident_course =  $CFG->wwwroot . '/course/' . $u_course;
 
 if ( !empty($oauth_obj) ){
 	
     require_once(dirname(__FILE__).'/classes/xAPI/Providers/Credentials.php');
     $provider = SmartKlass\xAPI\Credentials::getProvider();
     $credentials = $provider->getCredentials();
+    
+    if ( is_null($credentials->dashboard_endpoint) ) {
+        set_config('credential_cicle', 0, 'local_smart_klass');
+        print_error( get_string('no_dashboard_endpoint', 'local_smart_klass') );
+        echo $OUTPUT->footer();
+        die;
+    }
         
-    $url = $credentials->dashboard_endpoint . '/access/token/' . $oauth_obj->access_token;
+    $url = $credentials->dashboard_endpoint . '/access/token/' . $oauth_obj->access_token . '/' . $COURSE->id;
   
     echo $OUTPUT->box('', 'generalbox', 'smartklass');
     $PAGE->requires->js_init_call('M.local_smart_klass.loadContent', array( $url, 'smartklass'), true );
@@ -180,7 +194,10 @@ if ( !empty($oauth_obj) ){
     $server = get_config('local_smart_klass', 'oauth_server');
 
     if ( $access_token == false || $client_id == false || $server == false) {
-        print_error('no_oauth_comunication', 'local_smart_klass');
+        $url = new moodle_url ('/local/smart_klass/register.php');
+        $PAGE->requires->js_init_call('M.local_smart_klass.refreshContent', [(string)$url], true );
+        echo $OUTPUT->footer();
+        
     }
 
     $server .= '/dashboard/authorize'; 

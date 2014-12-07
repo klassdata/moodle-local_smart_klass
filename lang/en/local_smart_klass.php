@@ -82,3 +82,5 @@ $string['view'] = 'View';
 $string['edit'] = 'Edit';
 $string['no_role'] = 'No role has been set';
 $string['no_oauth_comunication'] = 'No communication with authentication server';
+$string['harvest'] = 'Harvest';
+$string['no_dashboard_endpoint'] = 'Incorrect dashboard URL. Try again later.';
