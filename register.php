@@ -28,38 +28,41 @@ require_once (dirname(dirname(dirname(__FILE__))).'/config.php');
 require_once(dirname(__FILE__).'/lib.php');
 require_once(dirname(__FILE__).'/locallib.php');
 
-require_once(dirname(__FILE__).'/classes/Curl.php');
+require_once(dirname(__FILE__).'/classes/xAPI/Helpers/Curl.php');
 
-require_capability('local/smart_klass:manage', get_context_instance(CONTEXT_SYSTEM));
+require_capability('local/smart_klass:manage', context_system::instance());
 require_login(); 
+
 
 $strheading = get_string('configure_access','local_smart_klass');
 $PAGE->set_pagelayout('standard');
+$PAGE->set_context(context_system::instance());
 $PAGE->set_url(new moodle_url('/local/smart_klass/register.php'));
 $PAGE->set_title( $strheading );
 $PAGE->navbar->add($strheading);
 $PAGE->requires->js('/local/smart_klass/javascript/iframeResizer.min.js', true);
 
-echo $OUTPUT->header();
-
 
 $access_token = get_config('local_smart_klass', 'oauth_access_token');
-$client_id= get_config('local_smart_klass', 'oauth_client_id');
-$secret = get_config('local_smart_klass', 'oauth_secret');
+$client_id = get_config('local_smart_klass', 'oauth_client_id');
+$client_secret = get_config('local_smart_klass', 'oauth_client_secret');
 
 $server = get_config('local_smart_klass', 'oauth_server');
 $redirect_uri = implode('', array(
                                 isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http',
                                 '://',
                                 $_SERVER['SERVER_NAME'],
-                                $_SERVER['SCRIPT_NAME'],
+                                isset($_SERVER['SERVER_PORT']) ? ':' . $_SERVER['SERVER_PORT'] : '',
+                                /*$_SERVER['SCRIPT_NAME'],*/
+                                '/local/smart_klass/dashboard.php',
                             ));
+echo $OUTPUT->header();
 
 $curl = new Curl;
 
-if ( $access_token == false || $client_id == false || $secret == false) {
+if ( $access_token == false || $client_id == false || $client_secret == false) {
 
-   $server .= '/authorize'; 
+   $server .= '/oauth/authorize'; 
     
     $output = $curl->get( $server, array('endpoint' => $CFG->wwwroot,'redirect_uri' => $redirect_uri));
     
@@ -77,13 +80,15 @@ if ( $access_token == false || $client_id == false || $secret == false) {
     echo $OUTPUT->footer();
     
 } else {
-    $server .= '/access_token';
+    /*$server .= '/oauth/access_token';
     $output = $curl->get( $server, array(
                             'token' => $access_token,
                             '$client_id' => $access_token,
                             '$secret' => $access_token,
                             'redirect_uri' => $redirect_uri,
                         ));
-    
-    
+    */
+    $url = new moodle_url ('/local/smart_klass/view.php');
+    $PAGE->requires->js_init_call('M.local_smart_klass.refreshContent', [(string)$url], true );
+    echo $OUTPUT->footer();
 }

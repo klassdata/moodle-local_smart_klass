@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -27,29 +27,17 @@ defined('MOODLE_INTERNAL') || die();
 
 $string['pluginname'] = 'SmartKlass';
 
+$string['smartklass_manage'] = 'Gestionar SmartKlass';
 $string['controlpanel'] = 'Panel de Control';
 $string['fullharvester'] = 'Recolección completa de datos';
 $string['activate'] = 'Activar';
 $string['activatedescription'] = 'Activa el trazado de datos de Moodle al servidor SmartKlass';
-$string['endpoint'] = 'Servidor SmartKlass';
-$string['endpointdescription'] = 'Selecciona el servidor de SmartKlass al que deseas conectarte';
-$string['defaultserver'] = 'Servidor por defecto';
-$string['secureserver'] = 'Servidor seguro';
-$string['localserver'] = 'Servidor local';
-$string['authtype'] = 'Tipo de autenticación';
-$string['authtypedescription'] = 'Selecciona el tipo de autenticación con la plataforma SmartKlass';
-$string['basic'] = 'Básica';
-$string['oauth'] = 'oAUTH';
-$string['username'] = 'Usuario';
-$string['usernamedescription'] = 'Para autenticación básica, introduce el usuario a utilizar con la plataforma SmartKlass';
-$string['password'] = 'Contraseña';
-$string['passworddescription'] = 'Para autenticación básica, introduce la contraseña a utilizar con la plataforma SmartKlass';
 $string['save_log'] = 'Almacenar registro';
 $string['savelogdescription'] = 'Almacena registro de todas las ejecuciones de la tarea de recolección que se realicen en el sistema de ficheros de Moodle';
 $string['savelog_ok_statement'] = 'Almacena en el registro registro Declaraciones de Estado exitosas';
-$string['savelog_ok_statement_description'] = 'Si está activo almacena en el registro las declaraciones des estado exitosas y fallidas de lo contrario solo almacena en el registro las declaraciones fallidas';
+$string['savelog_ok_statement_description'] = 'Si está activo, almacena en el registro las declaraciones de estado exitosas y fallidas; de lo contrario solo almacena en el registro las declaraciones fallidas';
 $string['check_statement'] = 'Comprobar Sentencias';
-$string['checkstatementdescription'] = 'Comprueba la validez de las sentencias previo envio al servidor SmartKlass';
+$string['checkstatementdescription'] = 'Comprueba la validez de las sentencias previo envío al servidor SmartKlass';
 $string['max_block_cicles'] = 'Número máximo de ciclos de bloqueo';
 $string['max_block_ciclesdescription'] = 'Define el número máximo de ciclos de recolección hasta que se libere el bloqueo de recolección';
 $string['collector_status'] = 'Estado de los Recolectores';
@@ -80,7 +68,6 @@ $string['institution_dashboard_noactive'] = 'El panel de institución está inac
 $string['invalid_dataprovider'] = 'El tipo DataProvider proporcionado es incorrecto.';
 $string['harvester_service_unavailable'] = 'Servicio de recolección de datos inactivo';
 $string['harvester_service_instance_running'] = 'Instancia del servicio de recolección de datos en curso. Solamente puede existir una instancia activa';
-
 $string['user_no_complete_course'] = 'El usuario {$a->user} no ha completado en el curso {$a->course} por lo que no se enviará el registro';
 $string['user_no_enrol_course'] = 'El usuario {$a->user} no está matriculado en el curso {$a->course} por lo que no se enviará el registro';
 $string['user_no_init_course'] = 'El usuario {$a->user} no ha iniciado el curso {$a->course} por lo que no se enviará el registro';
@@ -93,3 +80,8 @@ $string['ko'] =  'KO';
 $tring['crontask'] = 'Tareas programadas de SmartKlass';
 $string['view'] = 'Ver';
 $string['edit'] = 'Editar';
+$string['no_role'] = 'No hay rol establecido';
+$string['no_oauth_comunication'] = 'No hay comunicación con el servidor de autenticación';
+$string['harvest'] = 'Recolectar';
+$string['no_dashboard_endpoint'] = 'La URL del dashboard es incorrecta. Intentalo de nuevo más tarde';
+$string['no_access_token_aviable'] = 'Las credenciales de acceso no están disponibles. Intentalo de nuevo más tarde';

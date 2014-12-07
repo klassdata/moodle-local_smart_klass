@@ -43,6 +43,8 @@ define('SMART_KLASS_MOODLE_27',   2014051200);
 define('SMART_KLASS_MOODLE_26',   2013111800);
 define('SMART_KLASS_MOODLE_25',   2013051300);
 
+define('SMART_KLASS_TRACKER_EMPTYVALUE',   'EMPTY/');
+
 
 /**
  * Get a valid access token from oAuth server
@@ -56,15 +58,15 @@ function local_smart_klass_get_oauth_accesstoken ($userid, $role){
     global $DB;
     
     $oauth_obj = $DB->get_record( 'local_smart_klass_dash_oauth', array('userid'=>$userid, 'dashboard_role'=>$role) );
-
-
     
-    if (local_smart_klass_oauth_validate($oauth_obj->access_token)){
+    if ($oauth_obj == false) return null;
+
+    if (isset($oauth_obj->access_token) && $oauth_obj = local_smart_klass_oauth_validate($oauth_obj)){
         $oauth_obj->modified = time();
         
     } else {
         //Try refresh token
-        $accesstoken = local_smart_klass_oauth_refreshtoken ($oauth_obj->refresh_token);
+        $accesstoken = local_smart_klass_oauth_refreshtoken ($oauth_obj);
         if ( empty($accesstoken) ) return null;
         $time = time();
         $oauth_obj->access_token = $accesstoken;
@@ -89,48 +91,45 @@ function local_smart_klass_get_oauth_accesstoken ($userid, $role){
 function local_smart_klass_save_access_token ($code, $refresh, $email, $rol, $user_id) {
     global $DB;
     
-    $t = time();
-    $obj = new stdClass();
-    $obj->access_token = $code;
-    $obj->refresh_token = $refresh;
-    $obj->userid = $user_id;
-    $obj->email = $email;
-    $obj->dashboard_role = $rol;
-    $obj->modified = $t;
-    $obj->created = $t;
+    $item = $DB->get_record('local_smart_klass_dash_oauth', array('userid' => $user_id, 'dashboard_role' => $rol) );
+    
+    if ($item == false) {
+        $t = time();
+        $obj = new stdClass();
+        $obj->access_token = $code;
+        $obj->refresh_token = $refresh;
+        $obj->userid = $user_id;
+        $obj->email = $email;
+        $obj->dashboard_role = $rol;
+        $obj->modified = $t;
+        $obj->created = $t;
 
-    return $DB->insert_record('local_smart_klass_dash_oauth', $obj);
+        return $DB->insert_record('local_smart_klass_dash_oauth', $obj);
+    }
+    
+    return $item->id;
 }
 
 
 /**
  * Validate access token in oauth servr
- * @param  string $accesstoken    accesstoken to validate with oauth server
- * @return bool true if oauth accesstoken is ok, false is oauth accesstoken is KO
+ * @param  stdClass $oauth_obj    accesstoken to validate with oauth server
+ * @return $oauth_obj if validate and error if no validate.
  */
-function local_smart_klass_oauth_validate ($access_token=null){
-		$fields = array('access_token' => $access_token);
-		$ch = curl_init(SMART_KLASS_OAUTHSERVER_URL);
-		
-		$url = SMART_KLASS_OAUTHSERVER_URL;
-		$qry_str = "?access_token=".$access_token;
+function local_smart_klass_oauth_validate ($oauth_obj=null){
+           
+    $server = get_config('local_smart_klass', 'oauth_server');
+    $server .= '/dashboard/check'; 
 
+    $curl = new SmartKlass\xAPI\Curl;
+    $output =  $curl->get( $server, array('access_token' => $oauth_obj->access_token));
 
-		// Set query data here with the URL
-		curl_setopt($ch, CURLOPT_URL,$url.$qry_str); 
-		
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-		curl_setopt($ch, CURLOPT_TIMEOUT, '3');		
-		
-		
-		$curl_response = curl_exec($ch);	// execute curl request
-	    $curl_response  = json_decode($curl_response);
-		curl_close($ch);
-
-		if(empty($curl_response) || $curl_response->error=='invalid_token')
-			return false;
-		else
-			return true;
+    if ( isset($output->error) && $output->error == 'access_denied' ) {
+        
+        $oauth_obj = local_smart_klass_oauth_refreshtoken($oauth_obj);
+    }
+    
+    return $oauth_obj;
 }
 
 
@@ -139,8 +138,35 @@ function local_smart_klass_oauth_validate ($access_token=null){
  * @param  string $refreshtoken    Valid oauth refresh token
  * @return string new access token if OK, null if KO
  */
-function local_smart_klass_oauth_refreshtoken ($refresh_token=null){
-    //TODO 2  Try to get the access_token throw refresh_token in oauth server
+function local_smart_klass_oauth_refreshtoken ($oauthobj=null){
+    global $DB;
+    if ( $oauthobj == false) return null;
+    $refresh_token = $oauthobj->refresh_token;
+    $server = get_config('local_smart_klass','oauth_server') . '/oauth/refresh_token';
+    require_once(dirname(__FILE__).'/classes/xAPI/Helpers/Curl.php');
+    $curl = new Curl;
+    $params = array ( 
+                        'client_id' => get_config('local_smart_klass','oauth_client_id'),
+                        'client_secret' => get_config('local_smart_klass','oauth_client_secret'),
+                        'refresh_token' => $refresh_token,
+                        'grant_type' => 'refresh_token',
+    );
+    $output = $curl->post( $server, $params);
+    $output = json_decode($output);
+    if ( isset($output->error) ) {
+        $DB->delete_records( 'local_smart_klass_dash_oauth', array('id' => $oauthobj->id) );
+        
+        print_error( get_string('no_access_token_aviable', 'local_smart_klass') );
+        return null;
+    }
+    
+    if ( isset($output->refresh_token) ) 
+        $oauthobj->refresh_token = $output->refresh_token;
+    if ( isset($output->access_token) )
+        $oauthobj->access_token = $output->access_token;
+    $oauth_obj->modified = time();
+    $oauth_obj = $DB->update_record( 'local_smart_klass_dash_oauth', $oauthobj );
+    return $oauthobj;
 }
 
 
@@ -173,9 +199,8 @@ function local_smart_klass_can_manage() {
 
 
 
-function local_smart_klass_dashboard_roles ($userid) {
-    global $PAGE;
-    $roles	= get_user_roles($PAGE->context, $userid, true);
+function local_smart_klass_dashboard_roles ($userid, $context) {
+    $roles	= get_user_roles($context, $userid, true);
 
     $dashboard	= new stdClass ();
     
@@ -195,6 +220,7 @@ function local_smart_klass_dashboard_roles ($userid) {
         if(in_array($role->roleid, $intitution_default_role))
             $dashboard->institution = true;
     }
+    if (is_siteadmin()) $dashboard->institution = true;
     return $dashboard;
 }
 
@@ -206,12 +232,12 @@ function local_smart_klass_extends_navigation(global_navigation $navigation) {
     //Creo menú en el Bloque de administración para el plugin
     $nodeSmartKlap = $navigation->add(get_string('pluginname', 'local_smart_klass') );
 	
-    if (get_config('local_smart_klass', 'username') == '' || get_config('local_smart_klass', 'password') == ''){
-	//if (get_config('local_smart_klass', 'oauth_clientid') == '' || get_config('local_smart_klass', 'oauth_secret') == ''){
+    
+    if (get_config('local_smart_klass', 'oauth_client_id') == false || get_config('local_smart_klass', 'oauth_client_secret') == false){
         if ( local_smart_klass_can_manage() )
             $nodeSmartKlap->add( get_string('configure_access', 'local_smart_klass'), new moodle_url($CFG->wwwroot.'/local/smart_klass/register.php' ));
     } else {
-        $dashboard_roles = local_smart_klass_dashboard_roles($USER->id);
+        $dashboard_roles = local_smart_klass_dashboard_roles($USER->id, $PAGE->context);
         if ( get_config('local_smart_klass', 'activate_student_dashboard') == '1' && $dashboard_roles->student ) {
             $nodeSmartKlap->add( get_string('studentdashboard', 'local_smart_klass'), new moodle_url($CFG->wwwroot.'/local/smart_klass/dashboard.php', array('cid' => $PAGE->context->id, 'dt'=>SMART_KLASS_DASHBOARD_STUDENT)));
         }
@@ -248,14 +274,19 @@ function local_smart_klass_harvest( $collector=array() ) {
         echo get_string('harvester_service_unavailable', 'local_smart_klass');
         return; 
     }
-
+    
+    if (get_config('local_smart_klass', 'croninprogress') == true){
+        echo get_string('harvester_service_instance_running', 'local_smart_klass');
+        return;
+    }
+    
     global $CFG, $USER, $DB;
     
-    $harvest_cicles = get_config('local_smart_klass', 'harvestcicles');
+    $harvest_cicles = get_config('harvestcicles', 'local_smart_klass');
     $harvest_cicles = ( empty($harvest_cicles) ) ? 0 : $harvest_cicles;
     $harvest_cicles++;
     
-    $max_cicles = get_config('local_smart_klass', 'max_block_cicles');
+    $max_cicles = get_config('max_block_cicles', 'local_smart_klass');
     
     if ($harvest_cicles >= $max_cicles) {
         set_config('croninprogress', false, 'local_smart_klass');
@@ -263,11 +294,6 @@ function local_smart_klass_harvest( $collector=array() ) {
     } else {
         set_config('croninprogress', true, 'local_smart_klass');
         set_config('max_block_cicles', $harvest_cicles, 'local_smart_klass');
-    }
-    
-    if (get_config('local_smart_klass', 'croninprogress') == true){
-        echo get_string('harvester_service_instance_running', 'local_smart_klass');
-        return;
     }
     
     
@@ -450,39 +476,62 @@ function local_smart_klass_get_harvesters () {
 
 
 function local_smart_klass_trackurl() {
-    global $DB, $PAGE, $COURSE, $SITE, $USER;
+    global $CFG, $DB, $PAGE, $COURSE, $SITE, $USER;
     $pageinfo = get_context_info_array($PAGE->context->id);
-    $trackurl = "'";
+    $trackurl = "'" . $CFG->wwwroot . "/";
+    $trackurl .= 'category_';
     if (isset($pageinfo[1]->category)) {
         if ($category = $DB->get_record('course_categories', array('id'=>$pageinfo[1]->category))) {
             $cats=explode("/",$category->path);
             foreach(array_filter($cats) as $cat) {
                 if ($categorydepth = $DB->get_record("course_categories", array("id" => $cat))) {;
-                    $trackurl .= $categorydepth->name.'/';
+                    $trackurl .= $categorydepth->id . '$' . $categorydepth->name.'#';
                 }
             }
+            $trackurl .= "/";
+        } else {
+            $trackurl .= SMART_KLASS_TRACKER_EMPTYVALUE;
         }
+    } else {
+        $trackurl .= SMART_KLASS_TRACKER_EMPTYVALUE;
     }
+    $trackurl .= 'course_';
     if (isset($pageinfo[1]->fullname)) {
+        $trackurl .= $pageinfo[1]->id . '$';
         if (isset($pageinfo[2]->name)) {
             $trackurl .= $pageinfo[1]->fullname.'/';
         } else if ($PAGE->user_is_editing()) {
-            $trackurl .= $pageinfo[1]->fullname.'/'.get_string('edit', 'local_smart_klass') . '/';
+            $trackurl .= $pageinfo[1]->fullname.'#'.get_string('edit', 'local_smart_klass') . '/';
         } else {
-            $trackurl .= $pageinfo[1]->fullname.'/'.get_string('view', 'local_smart_klass') . '/';
-        }
+            $trackurl .= $pageinfo[1]->fullname.'#'.get_string('view', 'local_smart_klass') . '/';
+        } 
+    } else {
+        $trackurl .= SMART_KLASS_TRACKER_EMPTYVALUE;
     }
+    
+    $trackurl .= 'activity_';
     if (isset($pageinfo[2]->name)) {
-        $trackurl .= $pageinfo[2]->modname.'/'.$pageinfo[2]->name . '/';
+        $trackurl .= $pageinfo[2]->id . '$';
+        $trackurl .= $pageinfo[2]->modname.'-'.$pageinfo[2]->name . '/';
+    } else {
+        $trackurl .= SMART_KLASS_TRACKER_EMPTYVALUE;
     }
+    
+    $trackurl .= 'user_';
     if (!empty($USER->id)) {
-        $trackurl .= $USER->email . '/';
-        
-        $roles	= get_user_roles($PAGE->context, $USER->id, true);
-        foreach($roles as $role){
-            $trackurl .= $role->name . '|';
+        $trackurl .= $USER->id . '/';
+        $trackurl .= 'role_';
+        if (is_siteadmin($USER->id)) $trackurl .= 'super#';
+        if ($roles	= get_user_roles($PAGE->context, $USER->id, true) ) {;
+            foreach($roles as $role){
+                $trackurl .= $role->name . '#';
+            }
+            $trackurl .= '/';
+        } elseif ( !is_siteadmin($USER->id) ) {
+           $trackurl .= SMART_KLASS_TRACKER_EMPTYVALUE; 
         }
-        $trackurl .= '/';
+    } else {
+        $trackurl .= SMART_KLASS_TRACKER_EMPTYVALUE;
     }
     $trackurl .= "'";
     return $trackurl;
@@ -494,31 +543,40 @@ function local_smart_klass_set_oauthserver ($endpoint) {
  
 function local_smart_klass_insert_analytics_tracking() {
     global $CFG, $USER;
-
-    $siteurl = get_config('local_smart_klass', 'tracker_url');
-    $siteid = get_config('local_smart_klass', 'tracker_id');
-    $userid = ( empty($USER->email) ) ? 'void@klassdata.com' : $USER->email;
     
-	if (!empty($siteurl) && !empty($siteid)) {
-			$CFG->additionalhtmlfooter .= "
-<script type='text/javascript'>
-    var _paq = _paq || [];
-    _paq.push(['setDocumentTitle', ".local_smart_klass_trackurl()."]);
-    _paq.push(['setUserId', '" . $userid . "']);
-    _paq.push(['trackPageView']);
-    _paq.push(['enableLinkTracking']);
-    (function() {
-      var u='//".$siteurl."/';
-      _paq.push(['setTrackerUrl', u+'piwik.php']);
-      _paq.push(['setSiteId', ".$siteid."]);
-      var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
-    g.type='text/javascript'; g.async=true; g.defer=true; g.src=u+'piwik.js'; s.parentNode.insertBefore(g,s);
-    })();
-</script>
-<noscript><p><img src=".$siteurl."/piwik.php?idsite=".$siteid." style='border:0;' alt='' /></p></noscript>";
+    require_once(dirname(__FILE__).'/classes/xAPI/Providers/Credentials.php');
+    $provider = SmartKlass\xAPI\Credentials::getProvider();
+    $credentials = $provider->getCredentials();
+    
+    
+    $siteurl = $credentials->tracker_endpoint;
+    $siteid = $credentials->tracker_id;
+    if (is_null($siteurl) || is_null($siteid)) return;
+    
+    $userid = $CFG->wwwroot . '/' . ( ( empty($USER->id) ) ? 0 : $USER->id );
+    
+
+	$CFG->additionalhtmlfooter .= "
+        <script type='text/javascript'>
+            var _paq = _paq || [];
+            _paq.push(['setDocumentTitle', ".local_smart_klass_trackurl()."]);
+            _paq.push(['setUserId', '" . $userid . "']);
+            _paq.push(['trackPageView']);
+            _paq.push(['enableLinkTracking']);
+            (function() {
+              var u='".$siteurl."/';
+              _paq.push(['setTrackerUrl', u+'piwik.php']);
+              _paq.push(['setSiteId', ".$siteid."]);
+              var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+            g.type='text/javascript'; g.async=true; g.defer=true; g.src=u+'piwik.js'; s.parentNode.insertBefore(g,s);
+            })();
+        </script>
+        <noscript><p><img src=".$siteurl."/piwik.php?idsite=".$siteid." style='border:0;' alt='' /></p></noscript>";
 		
-	}
+
 }
 
+//Autoload library class
+require_once (dirname(__FILE__) . '/classes/xAPI/Autoloader.php');
+SmartKlass\xAPI\Autoloader::register();
 local_smart_klass_insert_analytics_tracking();
-

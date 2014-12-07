@@ -24,17 +24,18 @@ class DataProvider {
     
     
     public function getAuth(){
+       $credentials = Credentials::getCredentials();
        $auth = new \stdClass();
-       $auth->endpoint = get_config('local_smart_klass', 'endpoint');
-       $auth->type = get_config('local_smart_klass', 'authtype');
+       $auth->endpoint = $credentials->lrs_endpoint;
+       $auth->type = 'basic';
        
        switch ($auth->type){
            case 'basic':
-               $auth->chain = get_config('local_smart_klass', 'username') . ':' . get_config('local_smart_klass', 'password');
+               $auth->chain = $credentials->lrs_username . ':' . $credentials->lrs_password;
                break;
            
            case 'oauth':
-                //TODO: Incluir autenticaciÃ³n oAUTH
+                //TODO: Incluir autenticacion oAUTH con LRS.
                break;   
        }
         return $auth;
@@ -586,6 +587,15 @@ class DataProvider {
     public function getLanguageString ($identifier, $component = '', $a = null, $lazyload = false) {
         return get_string ($identifier, $component, $a, $lazyload);
     }
+    
+    public function getConfig ($param) {
+        return get_config('local_smart_klass', $param);
+    }
+    
+    public function setConfig($param, $value) {
+        return set_config($param, $value, 'local_smart_klass');
+    }
+    
     
     
 }

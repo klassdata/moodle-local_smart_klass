@@ -29,7 +29,7 @@ require_once(dirname(__FILE__).'/lib.php');
 require_once(dirname(__FILE__).'/locallib.php');
 
 require_login();
-$context = get_context_instance(CONTEXT_SYSTEM);
+$context = context_system::instance();
 require_capability('local/smart_klass:manage', $context);
 
 $action  = optional_param('a', SMART_KLASS_ACTION_DEFAULT, PARAM_ALPHA );
@@ -37,15 +37,21 @@ $action  = optional_param('a', SMART_KLASS_ACTION_DEFAULT, PARAM_ALPHA );
 
 $strheading = get_string('controlpanel', 'local_smart_klass');
 
+
+$PAGE->set_context($context);
 switch ($action) {
    case  SMART_KLASS_ACTION_DEFAULT:
-       require_once (dirname(__FILE__) . '/classes/xAPI/Helpers/Logger.php');
-             
+       
+       $provider = SmartKlass\xAPI\Credentials::getProvider();
+       $credentials = $provider->updateCredentials();
+        
        $PAGE->set_pagelayout('standard');
        $PAGE->set_url(new moodle_url('/local/smart_klass/view.php'));
        $PAGE->set_title( $strheading );
        $PAGE->set_heading( $strheading );
        $PAGE->navbar->add($strheading);
+       
+    
 
        $content = $OUTPUT->heading($strheading);
   
@@ -94,9 +100,9 @@ switch ($action) {
                $t[] = '-';
            } else {
                 foreach($collectordata as $d) {
-                    $max_id = $d['max_id'];
-                    $v[] = $d['last_registry'] . ( ( empty($max_id) ) ? '' : '/' . $max_id);             
-                    $t[] = ($d['last_execution'] == 0) ? '-' : date('d/m/Y H:i:s', $d['last_execution']); 
+                    $max_id = (isset($d['max_id']) ) ? $d['max_id']: 0;
+                    $v[] = ((isset($d['last_registry']) ) ? $d['last_registry'] : '')  . ( ( empty($max_id) ) ? '' : '/' . $max_id);             
+                    $t[] = (!isset($d['last_execution']) || $d['last_execution'] == 0) ? '-' : date('d/m/Y H:i:s', $d['last_execution']); 
                 }
             }
            
@@ -110,7 +116,7 @@ switch ($action) {
            
            if ($harvester->active == 1) {
             $url = new moodle_url('/local/smart_klass/view.php', array('a' => 'h', 'cid'=>$harvester->id));
-            $img = html_writer::empty_tag('img',array('src'=>$OUTPUT->pix_url('i/import'), 'alt'=>get_string('harvest'), 'class'=>'icon'));
+            $img = html_writer::empty_tag('img',array('src'=>$OUTPUT->pix_url('i/import'), 'alt'=>get_string('harvest', 'local_smart_klass'), 'class'=>'icon'));
             $line[] = $OUTPUT->action_link($url, $img, new popup_action('click', $url));
            } else {
                $line[] = '';
@@ -127,7 +133,7 @@ switch ($action) {
        $url = new moodle_url('/local/smart_klass/view.php', array('a' => 'h'));
        
        $content .= $OUTPUT->box_start();
-       $content .= $OUTPUT->heading( get_string('collector_status', 'local_smart_klass') );
+       //$content .= $OUTPUT->heading( get_string('collector_status', 'local_smart_klass') );
        
        
        $content .= (get_config('local_smart_klass', 'croninprogress') == true) ? 'Proceso de recolección en curso' : 'Proceso de recolección detenido';
@@ -137,10 +143,10 @@ switch ($action) {
        $content .= $OUTPUT->box_end();
       
        //Logs
-       $content .= $OUTPUT->box_start();
+       /*$content .= $OUTPUT->box_start();
        $content .= $OUTPUT->heading( get_string('execution_log', 'local_smart_klass') );
        $content .= SmartKlass\xAPI\Logger::get_logs();
-       $content .= $OUTPUT->box_end();
+       $content .= $OUTPUT->box_end();*/
        
        echo $OUTPUT->header();
        echo $content;

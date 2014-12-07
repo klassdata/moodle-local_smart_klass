@@ -1,6 +1,6 @@
 <?php
 
-namespace Curl;
+namespace SmartKlass\xAPI;
 
 class Curl
 {
@@ -124,7 +124,7 @@ class Curl
         $this->setOpt(CURLOPT_URL, $this->url);
         $this->setOpt(CURLOPT_CUSTOMREQUEST, 'POST');
         $this->setOpt(CURLOPT_POST, true);
-        $this->setOpt(CURLOPT_POSTFIELDS, $this->postfields($data));
+        $this->setOpt(CURLOPT_POSTFIELDS,  $this->postfields($data));
         return $this->exec();
     }
 
@@ -409,7 +409,7 @@ class Curl
                 }
 
                 if (!$binary_data) {
-                    $data = http_build_query($data);
+                    $data = http_build_query($data, '' , '&');
                 }
             }
         }
