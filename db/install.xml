@@ -1,57 +1,57 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="local/klap/db" VERSION="20140619" COMMENT="XMLDB file for Moodle local/klap"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
->
-  <TABLES>
-    <TABLE NAME="local_klap" COMMENT="local_klap table retrofitted from MySQL" NEXT="local_klap_log">
-      <FIELDS>
-        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" NEXT="name"/>
-        <FIELD NAME="name" TYPE="char" LENGTH="100" NOTNULL="true" SEQUENCE="false" PREVIOUS="id" NEXT="data"/>
-        <FIELD NAME="data" TYPE="text" NOTNULL="false" SEQUENCE="false" PREVIOUS="name" NEXT="active"/>
-        <FIELD NAME="active" TYPE="int" LENGTH="1" NOTNULL="false" SEQUENCE="false" PREVIOUS="data" NEXT="deleted"/>
-        <FIELD NAME="deleted" TYPE="int" LENGTH="1" NOTNULL="false" SEQUENCE="false" PREVIOUS="active" NEXT="lastregistry"/>
-        <FIELD NAME="lastregistry" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" PREVIOUS="deleted" NEXT="lastexectime"/>
-        <FIELD NAME="lastexectime" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" PREVIOUS="lastregistry"/>
-      </FIELDS>
-      <KEYS>
-        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
-      </KEYS>
-    </TABLE>
-    <TABLE NAME="local_klap_log" COMMENT="local_klap_log table retrofitted from MySQL" PREVIOUS="local_klap" NEXT="local_klap_dashboard_oauth">
-      <FIELDS>
-        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" NEXT="init"/>
-        <FIELD NAME="init" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" PREVIOUS="id" NEXT="finish"/>
-        <FIELD NAME="finish" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" PREVIOUS="init" NEXT="result"/>
-        <FIELD NAME="result" TYPE="int" LENGTH="2" NOTNULL="false" SEQUENCE="false" PREVIOUS="finish" NEXT="collectors"/>
-        <FIELD NAME="collectors" TYPE="text" NOTNULL="false" SEQUENCE="false" PREVIOUS="result"/>
-      </FIELDS>
-      <KEYS>
-        <KEY NAME="id" TYPE="primary" FIELDS="id"/>
-      </KEYS>
-      <INDEXES>
-        <INDEX NAME="init" UNIQUE="false" FIELDS="init" NEXT="finish"/>
-        <INDEX NAME="finish" UNIQUE="false" FIELDS="finish" PREVIOUS="init"/>
-      </INDEXES>
-    </TABLE>
-    <TABLE NAME="local_klap_dashboard_oauth" COMMENT="Dashboard oauth moodle oauth register" PREVIOUS="local_klap_log">
-      <FIELDS>
-        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" NEXT="access_token"/>
-        <FIELD NAME="access_token" TYPE="char" LENGTH="100" NOTNULL="false" SEQUENCE="false" COMMENT="oAuth 2.0 access token" PREVIOUS="id" NEXT="refresh_token"/>
-        <FIELD NAME="refresh_token" TYPE="char" LENGTH="100" NOTNULL="false" SEQUENCE="false" COMMENT="oAuth 2.0 Refresh Token" PREVIOUS="access_token" NEXT="userid"/>
-        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Moodle user id" PREVIOUS="refresh_token" NEXT="email"/>
-        <FIELD NAME="email" TYPE="char" LENGTH="150" NOTNULL="false" SEQUENCE="false" COMMENT="User email associate to token (moodle user email)" PREVIOUS="userid" NEXT="dashboard_role"/>
-        <FIELD NAME="dashboard_role" TYPE="int" LENGTH="1" NOTNULL="false" SEQUENCE="false" COMMENT="Dashboard role for token of userid" PREVIOUS="email" NEXT="modified"/>
-        <FIELD NAME="modified" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="last used access_token timespam" PREVIOUS="dashboard_role" NEXT="created"/>
-        <FIELD NAME="created" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="last used access_token timespam" PREVIOUS="modified"/>
-      </FIELDS>
-      <KEYS>
-        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
-      </KEYS>
-      <INDEXES>
-        <INDEX NAME="userid" UNIQUE="false" FIELDS="userid" NEXT="email"/>
-        <INDEX NAME="email" UNIQUE="false" FIELDS="email" PREVIOUS="userid"/>
-      </INDEXES>
-    </TABLE>
-  </TABLES>
-</XMLDB>
+  <XMLDB PATH="local/smart_klass/db" VERSION="20141018" COMMENT="XMLDB file for Moodle local/smart_klass"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
+  >
+    <TABLES>
+      <TABLE NAME="local_smart_klass" COMMENT="local_smart_klass table retrofitted from MySQL" NEXT="local_smart_klass_log">
+        <FIELDS>
+          <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" NEXT="name"/>
+          <FIELD NAME="name" TYPE="char" LENGTH="100" NOTNULL="true" SEQUENCE="false" NEXT="data" PREVIOUS="id"/>
+          <FIELD NAME="data" TYPE="text" NOTNULL="false" SEQUENCE="false" NEXT="active" PREVIOUS="name"/>
+          <FIELD NAME="active" TYPE="int" LENGTH="1" NOTNULL="false" SEQUENCE="false" NEXT="deleted" PREVIOUS="data"/>
+          <FIELD NAME="deleted" TYPE="int" LENGTH="1" NOTNULL="false" SEQUENCE="false" PREVIOUS="active"/>
+        </FIELDS>
+        <KEYS>
+          <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        </KEYS>
+      </TABLE>
+      <TABLE NAME="local_smart_klass_log" COMMENT="local_smart_klass_log table retrofitted from MySQL" NEXT="local_smart_klass_dash_oauth" PREVIOUS="local_smart_klass">
+        <FIELDS>
+          <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" NEXT="init"/>
+          <FIELD NAME="init" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" NEXT="finish" PREVIOUS="id"/>
+          <FIELD NAME="finish" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" NEXT="result" PREVIOUS="init"/>
+          <FIELD NAME="result" TYPE="int" LENGTH="2" NOTNULL="false" SEQUENCE="false" NEXT="error" PREVIOUS="finish"/>
+          <FIELD NAME="error" TYPE="text" NOTNULL="false" SEQUENCE="false" NEXT="collectors" PREVIOUS="result"/>
+          <FIELD NAME="collectors" TYPE="text" NOTNULL="false" SEQUENCE="false" NEXT="logfile" PREVIOUS="error"/>
+          <FIELD NAME="logfile" TYPE="char" LENGTH="256" NOTNULL="false" SEQUENCE="false" PREVIOUS="collectors"/>
+        </FIELDS>
+        <KEYS>
+          <KEY NAME="id" TYPE="primary" FIELDS="id"/>
+        </KEYS>
+        <INDEXES>
+          <INDEX NAME="init" UNIQUE="false" FIELDS="init" NEXT="finish"/>
+          <INDEX NAME="finish" UNIQUE="false" FIELDS="finish" PREVIOUS="init"/>
+        </INDEXES>
+      </TABLE>
+      <TABLE NAME="local_smart_klass_dash_oauth" COMMENT="Dashboard oauth moodle oauth register" PREVIOUS="local_smart_klass_log">
+        <FIELDS>
+          <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" NEXT="access_token"/>
+          <FIELD NAME="access_token" TYPE="char" LENGTH="100" NOTNULL="false" SEQUENCE="false" COMMENT="oAuth 2.0 access token" PREVIOUS="id" NEXT="refresh_token"/>
+          <FIELD NAME="refresh_token" TYPE="char" LENGTH="100" NOTNULL="false" SEQUENCE="false" COMMENT="oAuth 2.0 Refresh Token" NEXT="userid" PREVIOUS="access_token"/>
+          <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Moodle user id" NEXT="email" PREVIOUS="refresh_token"/>
+          <FIELD NAME="email" TYPE="char" LENGTH="150" NOTNULL="false" SEQUENCE="false" COMMENT="User email associate to token (moodle user email)" NEXT="dashboard_role" PREVIOUS="userid"/>
+          <FIELD NAME="dashboard_role" TYPE="int" LENGTH="1" NOTNULL="false" SEQUENCE="false" COMMENT="Dashboard role for token of userid" NEXT="modified" PREVIOUS="email"/>
+          <FIELD NAME="modified" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="last used access_token timespam" NEXT="created" PREVIOUS="dashboard_role"/>
+          <FIELD NAME="created" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="last used access_token timespam" PREVIOUS="modified"/>
+        </FIELDS>
+        <KEYS>
+          <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        </KEYS>
+        <INDEXES>
+          <INDEX NAME="userid" UNIQUE="false" FIELDS="userid" NEXT="email" />
+          <INDEX NAME="email" UNIQUE="false" FIELDS="email" PREVIOUS="userid"/>
+        </INDEXES>
+      </TABLE>
+    </TABLES>
+  </XMLDB>

@@ -15,11 +15,11 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Klap xAPI Settings
+ * Smart Klass xAPI Settings
  *
- * @package    local_klap
- * @copyright  Klap <kttp://www.klaptek.com>
- * @author     Oscar <oscar@klaptek.com>
+ * @package    local_smart_klass
+ * @copyright  KlassData <kttp://www.klassdata.com>
+ * @author     Oscar Ruesga <oscar@klassdata.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -28,43 +28,33 @@ defined('MOODLE_INTERNAL') || die;
 if ($hassiteconfig) {
     
     //Creo menú en el Bloque de administración para el plugin
-    $ADMIN->add('root', new admin_category('klap', get_string('pluginname', 'local_klap')));
-    $ADMIN->add('klap', new admin_externalpage('klapsettings', get_string('settings'),
-            $CFG->wwwroot.'/admin/settings.php?section=local_klap', 'local/klap:manage'));
-    $ADMIN->add('klap', new admin_externalpage('klapcontrolpanel', get_string('controlpanel', 'local_klap'),
-            $CFG->wwwroot.'/local/klap/view.php', 'local/klap:manage'));
+    $ADMIN->add('root', new admin_category('smart_klass', get_string('pluginname', 'local_smart_klass')));
+    $ADMIN->add('smart_klass', new admin_externalpage('smart_klasssettings', get_string('settings'),
+            $CFG->wwwroot.'/admin/settings.php?section=local_smart_klass', 'local/smart_klass:manage'));
+    $ADMIN->add('smart_klass', new admin_externalpage('smart_klasscontrolpanel', get_string('controlpanel', 'local_smart_klass'),
+            $CFG->wwwroot.'/local/smart_klass/view.php', 'local/smart_klass:manage'));
     
    
     //Agrego página de configuración para acceder desde plugins locales
-    $settings = new admin_settingpage('local_klap', get_string('pluginname', 'local_klap'));
+    $settings = new admin_settingpage('local_smart_klass', get_string('pluginname', 'local_smart_klass'));
     $ADMIN->add('localplugins', $settings);
 	
 	
 	
     
     //Agrego campos de configuración del Plugin
-    $settings->add(new admin_setting_configcheckbox('local_klap/activate', get_string('activate', 'local_klap'), get_string('activatedescription', 'local_klap'), 0));
+    $settings->add(new admin_setting_configcheckbox('local_smart_klass/activate', get_string('activate', 'local_smart_klass'), get_string('activatedescription', 'local_smart_klass'), 1));
     
-    $settings->add(new admin_setting_configcheckbox('local_klap/save_log', get_string('save_log', 'local_klap'), get_string('savelogdescription', 'local_klap'), 0));
+    $settings->add(new admin_setting_configcheckbox('local_smart_klass/save_log', get_string('save_log', 'local_smart_klass'), get_string('savelogdescription', 'local_smart_klass'), 1));
     
-    $settings->add(new admin_setting_configcheckbox('local_klap/savelog_ok_statement', get_string('savelog_ok_statement', 'local_klap'), get_string('savelog_ok_statement_description', 'local_klap'), 0));
+    $settings->add(new admin_setting_configcheckbox('local_smart_klass/savelog_ok_statement', get_string('savelog_ok_statement', 'local_smart_klass'), get_string('savelog_ok_statement_description', 'local_smart_klass'), 0));
     
-    $options = array('http://l-miner.klaptek.com/data/xAPI/' => get_string('defaultserver', 'local_klap'),
-        'https://l-miner.klaptek.com/data/xAPI/' => get_string('secureserver', 'local_klap'), 'http://localhost/learninglocker/public/data/xAPI/'=>get_string('localserver', 'local_klap'));
-    $settings->add(new admin_setting_configselect('local_klap/endpoint', get_string('endpoint',
-        'local_klap'), get_string('endpointdescription', 'local_klap'), 'http://l-miner.klaptek.com/data/xAPI/', $options));
+    $settings->add(new admin_setting_configtext('local_smart_klass/max_block_cicles', get_string('max_block_cicles', 'local_smart_klass'),
+                       get_string('max_block_ciclesdescription', 'local_smart_klass'), 5, PARAM_INT));
+   
+    $settings->add(new admin_setting_configcheckbox('local_smart_klass/check_statement', get_string('check_statement', 'local_smart_klass'), get_string('checkstatementdescription', 'local_smart_klass'), 0));
     
-    $options = array('basic' => get_string('basic', 'local_klap')/*, 'oauth' => get_string('oauth', 'local_klap')*/);
-    $settings->add(new admin_setting_configselect('local_klap/authtype', get_string('authtype',
-        'local_klap'), get_string('authtypedescription', 'local_klap'), 'basic', $options));
-    
-    $settings->add(new admin_setting_configtext('local_klap/username', get_string('username', 'local_klap'),
-                       get_string('usernamedescription', 'local_klap'), '', PARAM_RAW));
-    
-    $settings->add(new admin_setting_configtext('local_klap/password', get_string('password', 'local_klap'),
-                       get_string('passworddescription', 'local_klap'), '', PARAM_RAW));
-    
-    
-    $settings->add(new admin_setting_configcheckbox('local_klap/check_statement', get_string('check_statement', 'local_klap'), get_string('checkstatementdescription', 'local_klap'), 0));
-
+    $settings->add(new admin_setting_configcheckbox('local_smart_klass/activate_student_dashboard', get_string('activate_student_dashboard', 'local_smart_klass'), get_string('activate_student_dashboard_description', 'local_smart_klass'), 1));
+    $settings->add(new admin_setting_configcheckbox('local_smart_klass/activate_teacher_dashboard', get_string('activate_teacher_dashboard', 'local_smart_klass'), get_string('activate_teacher_dashboard_description', 'local_smart_klass'), 1));
+    $settings->add(new admin_setting_configcheckbox('local_smart_klass/activate_institution_dashboard', get_string('activate_institution_dashboard', 'local_smart_klass'), get_string('activate_institution_dashboard_description', 'local_smart_klass'), 1));
 }

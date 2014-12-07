@@ -15,11 +15,11 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Klap Dashboard
+ * Smart Klass Dashboard
  *
- * @package    local_klap
- * @copyright  Klap <kttp://www.klaptek.com>
- * @author     Oscar <oscar@klaptek.com>
+ * @package    local_smart_klass
+ * @copyright  KlassData <kttp://www.klassdata.com>
+ * @author     Oscar Ruesga <oscar@klassdata.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -27,137 +27,212 @@ require_once (dirname(dirname(dirname(__FILE__))).'/config.php');
 require_once(dirname(__FILE__).'/lib.php');
 require_once(dirname(__FILE__).'/locallib.php');
 
+$auth_code      = optional_param('code', null, PARAM_RAW);
+$auth_error     = optional_param('error', null, PARAM_RAW);
+$dashboard_role = optional_param('dt', null, PARAM_INT);
+$token     = optional_param('token', null, PARAM_RAW);
+$refresh_token     = optional_param('refresh_token', null, PARAM_RAW);
+$payload = optional_param('p', null, PARAM_RAW);
 
+if ( !is_null($dashboard_role) ) {
+    $SESSION->dt = $dashboard_role;
+}
+$redirect_uri = implode('', array(
+                            isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http',
+                            '://',
+                            $_SERVER['SERVER_NAME'],
+                            isset($_SERVER['SERVER_PORT']) ? ':' . $_SERVER['SERVER_PORT'] : '',
+                            $_SERVER['SCRIPT_NAME'],
+                        ));
+
+if ( !is_null($auth_error) ) print_error($auth_error, 'local_smart_klass');  
+
+//Register LMS payload
+if (!is_null($payload)){
+    $payload = base64_decode($payload);
+    $payload = json_decode($payload);
+    set_config('oauth_access_token', $payload->access_token, 'local_smart_klass');
+    set_config('oauth_refresh_token', $payload->refresh_token, 'local_smart_klass');
+    set_config('oauth_client_id', $payload->client_id, 'local_smart_klass');
+    set_config('oauth_client_secret', $payload->client_secret, 'local_smart_klass');
+    $url = new moodle_url ('/local/smart_klass/view.php');
+    echo $OUTPUT->header();
+    $PAGE->requires->js_init_call('M.local_smart_klass.refreshContent', [(string)$url], true );
+    echo $OUTPUT->footer();
+}
+
+if ( !is_null($auth_code) ){
+       
+    $client_id = get_config('local_smart_klass', 'oauth_client_id');
+    $client_secret = get_config('local_smart_klass', 'oauth_client_secret');
+
+    $server = get_config('local_smart_klass', 'oauth_server');
+    $server .= '/dashboard/access_token';
+    
+    $curl = new SmartKlass\xAPI\Curl;
+    $output = $curl->post( $server, array(
+                            'code' => $auth_code,
+                            'client_id' => $client_id,
+                            'client_secret' => $client_secret,
+                            'redirect_uri' => $redirect_uri,
+                            'grant_type' => 'authorization_code',
+                            'user_id' => $CFG->wwwroot . '/' . $USER->id,
+                            'user_name' => $USER->firstname,
+                            'user_lastname' => $USER->lastname,
+                            'user_email' => $USER->email
+                        ));
+
+    
+    $strheading = 'SmartKlass';
+    $PAGE->set_pagelayout('popup');
+    $PAGE->set_url(new moodle_url('/local/smart_klass/dashboard.php'));
+    $PAGE->set_title( $strheading );
+    $PAGE->requires->js('/local/smart_klass/javascript/iframeResizer.min.js', true);
+    $PAGE->navbar->add($strheading);
+    echo $OUTPUT->header();
+    
+    
+    $output_json = json_decode($output);
+    if ( is_object ($output_json) == true ) {
+        $errors = $output_json->error_description;
+        print_error($errors);
+        echo $OUTPUT->footer();
+        die;
+    }    
+
+    echo $OUTPUT->box('', 'generalbox', 'smartklass');
+    $PAGE->requires->js_init_call('M.local_smart_klass.createContent', array( $output, 'smartklass'), true );
+    echo $OUTPUT->footer();
+    die();
+}
+
+if ( !is_null($token) && !is_null($refresh_token) ){
+    if ( is_null($SESSION->dt) ) {
+        print_error( get_string('no_role', 'local_smart_klass') );
+    }
+    
+    if ( is_null($SESSION->cid) ) {
+        print_error( get_string('no_context', 'local_smart_klass') );
+    }
+
+    $item = local_smart_klass_save_access_token ($token, $refresh_token, $USER->email, $SESSION->dt, $USER->id);
+    
+    $url = new moodle_url ('/local/smart_klass/dashboard.php', array('cid' => $SESSION->cid, 'dt'=> $SESSION->dt) );
+    echo $OUTPUT->header();
+    $PAGE->set_pagelayout('popup');
+    echo $OUTPUT->box_start();
+    $PAGE->requires->js_init_call('M.local_smart_klass.refreshContent', [$url->out(false)], true );
+    echo $OUTPUT->footer();
+}
 
 $contextid      = required_param('cid', PARAM_INT);
-$contextid		= $COURSE->id;
-$dashboard_role = required_param('dt', PARAM_INT);
 
+if ( !is_null($dashboard_role) ) {
+    $SESSION->cid = $contextid;
+}
 
 list($context, $course, $cm) = get_context_info_array($contextid);
 
 
-$dashboard_roles = local_klap_dashboard_roles ($USER->id);
+$dashboard_roles = local_smart_klass_dashboard_roles ($USER->id, $context);
 
 if($dashboard_roles->institution){
 	require_login();
-}else{
+} else {
     require_login($course, true);
 }
 
-
 switch ($dashboard_role) {
-    case KLAP_DASHBOARD_STUDENT:
-        $strheading = get_string('studentdashboard', 'local_klap');
-        if ($dashboard_roles->student) print_error('nostudentrole', 'local_klap');
+    case SMART_KLASS_DASHBOARD_STUDENT:
+        $strheading = get_string('studentdashboard', 'local_smart_klass');
+        if (!$dashboard_roles->student) print_error('nostudentrole', 'local_smart_klass');
+        if (get_config('local_smart_klass', 'activate_student_dashboard') != '1') print_error('student_dashboard_noactive', 'local_smart_klass');
+        $role = 'student';
         break;
     
-    case KLAP_DASHBOARD_TEACHER:
-        $strheading = get_string('teacherdashboard', 'local_klap');
-        if ($dashboard_roles->teacher) print_error('noteacherrole', 'local_klap');
+    case SMART_KLASS_DASHBOARD_TEACHER:
+        $strheading = get_string('teacherdashboard', 'local_smart_klass');
+        if (!$dashboard_roles->teacher) print_error('noteacherrole', 'local_smart_klass');
+        if (get_config('local_smart_klass', 'activate_teacher_dashboard') != '1') print_error('teacher_dashboard_noactive', 'local_smart_klass');
+        $role = 'teacher';
         break;
     
-    case KLAP_DASHBOARD_INSTITUTION:
-        $strheading = get_string('institutiondashboard', 'local_klap');
-        if ($dashboard_roles->institution) print_error('noinstitutionrole', 'local_klap');
+    case SMART_KLASS_DASHBOARD_INSTITUTION:
+        $strheading = get_string('institutiondashboard', 'local_smart_klass');
+        if (!$dashboard_roles->institution) print_error('noinstitutionrole', 'local_smart_klass');
+        if (get_config('local_smart_klass', 'activate_institution_dashboard') != '1') print_error('institution_dashboard_noactive', 'local_smart_klass');        
+        $role = 'institution';
         break;
 }
 
 
 $PAGE->set_pagelayout('standard');
-$PAGE->set_url(new moodle_url('/local/klap/dashboard.php'));
+$PAGE->set_url(new moodle_url('/local/smart_klass/dashboard.php'));
 $PAGE->set_title( $strheading );
+$PAGE->requires->js('/local/smart_klass/javascript/iframeResizer.min.js', true);
 $PAGE->navbar->add($strheading);
+$PAGE->set_context($context);
+
 echo $OUTPUT->header();
 echo $OUTPUT->box_start();
 
-/*
-//VARIABLES DE GESTIÓN DEL DASHBOARD
-echo 'USER_ID: ' . $USER->id . '<br>';
-echo 'USER_EMAIL: ' . $USER->email . '<br>';
-echo 'ROLE_SOLICITADO: ' . $dashboard_role . '<br>';
-echo 'DASHBOARD A PRESENTAR: ' . $strheading . '<br>';
-echo 'ROLES SOPORTADOS POR EL USUARIO EN EL CURSO: ';
-if($dashboard_roles->student)  echo 'id: ' . KLAP_DASHBOARD_STUDENT . 'STUDENT, ';
-if($dashboard_roles->teacher)  echo 'id: ' . KLAP_DASHBOARD_TEACHER . 'TEACHER, ';
-if($dashboard_roles->institution)  echo 'id: ' . KLAP_DASHBOARD_INSTITUTION . 'INSTITUTION';
-*/
-$oauth_obj = local_klap_get_oauth_accesstoken ($USER->id, $dashboard_role);
-
-$u_course = $COURSE->id;
-$ident_course =  $CFG->wwwroot . '/course/' . $u_course;
+$oauth_obj = local_smart_klass_get_oauth_accesstoken ($USER->id, $dashboard_role);
 
 if ( !empty($oauth_obj) ){
 	
-    $options = array(); 
-    $options['src'] = KLAP_OAUTHSERVER_URL . '/conexion_oauth/check_user/'.urlencode($USER->email).'/'.$oauth_obj->access_token;
-    $options['width'] = '100%';
-    $options['height'] = '608px';
-    $options['style'] = 'border:none';
+    require_once(dirname(__FILE__).'/classes/xAPI/Providers/Credentials.php');
+    $provider = SmartKlass\xAPI\Credentials::getProvider();
+    $credentials = $provider->getCredentials();
     
-	
-
-//	echo html_writer::empty_tag('iframe', $options);
-	echo "<iframe src='".KLAP_DASHBOARD_URL."conexion_oauth/check_user/".urlencode($USER->email)."/".$oauth_obj->access_token."'   width='100%' height='608px' style='border:none' /></iframe>";	
-
-
-
-/*    //ACCESS_TOKEN OK, SEND  ACCESS TOKEN TO DASHBOARD
-    if ( $dashboard = local_klap_get_dashboard($oauth_obj->access_token) ){
-		echo 'sdff';
-		print_r($USER);
-		   //
-    } else {
-        //TODO 5 Posiziona: Throw Klap Dashboard Creation Error Exception
+    if ( is_null($credentials->dashboard_endpoint) ) {
+        set_config('credential_cicle', 0, 'local_smart_klass');
+        print_error( get_string('no_dashboard_endpoint', 'local_smart_klass') );
+        echo $OUTPUT->footer();
+        die;
     }
-	*/
-} else {
-
-
-    //ACCESS_TOKEN KO,MANAGE OAUTH LOGIN/REGISTER
-
-    //TODO 6 Posiziona: Manage oauth_login with user/password with oauth server
-    //1. Show login form / register url
-    //2. Validate login form with oauth server
-    //2.1. If OK create 
-    //2.2 If KO show oauth server error message, redirect (1)
-    //3. call $dashboard = local_klap_get_dashboard($accesstoken)
-    //4. create $dashboard
-
-    if (empty($_GET['error']) && empty($_GET['ok'])) {    
-
-	  
-
-
-       // $PAGE->requires->js_init_call('M.local_klap.save_access_token', array( $code, $refresh, $email, $rol, $user_id), true );
-		
-        $options = array(); 
-        $options['src'] = KLAP_DASHBOARD_URL . 'register/reg/'.urlencode($USER->email).'/'.$dashboard_role.'/'.$USER->id.'/'.$USER->sesskey.'/'.($ident_course);
-        $options['width'] = '100%';
-        $options['height'] = '608px';
-        $options['style'] = 'border:none';
-      //  echo html_writer::tag('iframe', $options);
-		
-		//codificamos la url para poder pasarla por el iframe
-		$ident_course  = (str_replace('http://','55hp5',$ident_course));
-		$ident_course  = (str_replace('/','8br8',$ident_course));		
-
-
-	    echo "<iframe src='".KLAP_DASHBOARD_URL."register/reg/".urlencode($USER->email)."/".$dashboard_role."/".$USER->id."/".$USER->sesskey."/".$ident_course."'   width='100%' height='608px' style='border:none' /></iframe>";
-		
-    }else if(($_GET['error']) ){
-         echo html_writer::empty_tag('br');
-         echo html_writer::empty_tag('br');
-         echo html_writer::tag('label', get_string('noaccess','local_klap'));
     
-    }
+    
+        
+    $url = $credentials->dashboard_endpoint . '/oauth/authorize/' . $COURSE->id . '/' . $oauth_obj->access_token;
   
-   
-   
-   
+    echo $OUTPUT->box('', 'generalbox', 'smartklass');
+    $PAGE->requires->js_init_call('M.local_smart_klass.loadContent', array( $url, 'smartklass'), true );
+    
+} else {
+    $server = get_config('local_smart_klass', 'oauth_server');
+    $access_token = get_config('local_smart_klass', 'oauth_access_token');
+    $client_id = get_config('local_smart_klass', 'oauth_client_id');
+
+    if ( $access_token == false || $client_id == false || $server == false) {
+        $url = new moodle_url ('/local/smart_klass/register.php');
+        $PAGE->set_pagelayout('popup');
+        $PAGE->requires->js_init_call('M.local_smart_klass.refreshContent', [(string)$url], true );
+        echo $OUTPUT->footer();
+        
+    }
+    
+    $server .= '/dashboard/authorize'; 
+
+    require_once(dirname(__FILE__) . '/classes/xAPI/Helpers/Curl.php');
+    $curl = new Curl;
+    $output = $curl->get( $server, array(   'client_id' => $client_id,
+                                            'redirect_uri' => $redirect_uri, 
+                                            'grant_type'=>'auth_code', 
+                                            'response_type'=>'code', 
+                                            'id'=> $CFG->wwwroot . '/' . $USER->id,
+                                            'scope' => $role
+                                             ));
+
+    $output_json = json_decode($output);
+    if ( is_object ($output_json) == true ) {
+        $errors = $output_json->error_description;
+        print_error($errors);
+        echo $OUTPUT->footer();
+        die;
+    }    
+
+    echo $OUTPUT->box('', 'generalbox', 'smartklass');
+    $PAGE->requires->js_init_call('M.local_smart_klass.createContent', array( $output, 'smartklass'), true );   
 }
-
-//TODO by POSIZIONA: Draw dashboard
-
 echo $OUTPUT->box_end();
 echo $OUTPUT->footer();
