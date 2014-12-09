@@ -24,7 +24,8 @@ class DataProvider {
     
     
     public function getAuth(){
-       $credentials = Credentials::getCredentials();
+       $provider = Credentials::getProvider();
+       $credentials = $provider->getCredentials();
        $auth = new \stdClass();
        $auth->endpoint = $credentials->lrs_endpoint;
        $auth->type = 'basic';

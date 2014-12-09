@@ -37,13 +37,9 @@ $payload = optional_param('p', null, PARAM_RAW);
 if ( !is_null($dashboard_role) ) {
     $SESSION->dt = $dashboard_role;
 }
-$redirect_uri = implode('', array(
-                            isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http',
-                            '://',
-                            $_SERVER['SERVER_NAME'],
-                            isset($_SERVER['SERVER_PORT']) ? ':' . $_SERVER['SERVER_PORT'] : '',
-                            $_SERVER['SCRIPT_NAME'],
-                        ));
+$redirect_uri = implode('', array( $CFG->wwwroot,
+                                   '/local/smart_klass/dashboard.php',
+                            ));
 
 if ( !is_null($auth_error) ) print_error($auth_error, 'local_smart_klass');  
 

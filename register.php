@@ -48,13 +48,8 @@ $client_id = get_config('local_smart_klass', 'oauth_client_id');
 $client_secret = get_config('local_smart_klass', 'oauth_client_secret');
 
 $server = get_config('local_smart_klass', 'oauth_server');
-$redirect_uri = implode('', array(
-                                isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http',
-                                '://',
-                                $_SERVER['SERVER_NAME'],
-                                isset($_SERVER['SERVER_PORT']) ? ':' . $_SERVER['SERVER_PORT'] : '',
-                                /*$_SERVER['SCRIPT_NAME'],*/
-                                '/local/smart_klass/dashboard.php',
+$redirect_uri = implode('', array( $CFG->wwwroot,
+                                   '/local/smart_klass/dashboard.php',
                             ));
 echo $OUTPUT->header();
 
