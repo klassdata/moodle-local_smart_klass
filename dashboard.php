@@ -75,7 +75,8 @@ if ( !is_null($auth_code) ){
                             'user_id' => $CFG->wwwroot . '/' . $USER->id,
                             'user_name' => $USER->firstname,
                             'user_lastname' => $USER->lastname,
-                            'user_email' => $USER->email
+                            'user_email' => $USER->email,
+                            'lang' => $USER->lang
                         ));
 
     
@@ -220,8 +221,8 @@ if ( !empty($oauth_obj) ){
                                              ));
 
     $output_json = json_decode($output);
-    if ( is_object ($output_json) == true ) {
-        $errors = $output_json->error_description;
+    if ( empty($output) || is_object ($output_json) == true ) {
+        $errors = (empty($output)) ? get_string('no_oauth_comunication', 'local_smart_klass') : $output_json->error_description;
         print_error($errors);
         echo $OUTPUT->footer();
         die;

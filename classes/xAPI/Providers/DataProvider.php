@@ -82,7 +82,11 @@ class DataProvider {
     
     public function get_platform_version () {
         global $CFG;
-        return "Moodle {$CFG->release} v. {$CFG->version}";
+        $pluginman = \core_plugin_manager::instance();
+        $plugin_info = $pluginman->get_plugin_info('local_smart_klass');
+        $platform_version = "Moodle {$CFG->release} v. {$CFG->version}";
+        $plugin_version = "SmartKlass {$plugin_info->release} v. {$plugin_info->versiondisk}";
+        return $platform_version . ' - ' . $plugin_version;
     }
     
     public function getCollector($name=null) {
@@ -597,6 +601,18 @@ class DataProvider {
         return set_config($param, $value, 'local_smart_klass');
     }
     
-    
+    public function getProxy () {
+        global $CFG;
+        
+        $proxy = array();
+        
+        $proxy['proxyhost'] = $CFG->proxyhost;
+        $proxy['proxyport'] = $CFG->proxyport;
+        $proxy['proxyuser'] = $CFG->proxyuser;
+        $proxy['proxypassword'] = $CFG->proxypassword;
+        $proxy['proxytype'] = $CFG->proxytype;
+        
+        return $proxy;
+    }
     
 }

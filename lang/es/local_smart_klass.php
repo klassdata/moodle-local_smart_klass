@@ -85,3 +85,4 @@ $string['no_oauth_comunication'] = 'No hay comunicación con el servidor de aute
 $string['harvest'] = 'Recolectar';
 $string['no_dashboard_endpoint'] = 'La URL del dashboard es incorrecta. Intentalo de nuevo más tarde';
 $string['no_access_token_aviable'] = 'Las credenciales de acceso no están disponibles. Intentalo de nuevo más tarde';
+$string['lrs_error'] = 'Error intentando conectar con el LRS';

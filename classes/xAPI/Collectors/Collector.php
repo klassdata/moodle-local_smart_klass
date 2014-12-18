@@ -84,6 +84,15 @@ abstract class Collector  {
             Logger::add_to_log('total_records', count($collection));
         }
         
+        $xApi = $this->getXapi();
+        $lrs_version = $xApi->getLRSversion();
+        if ($lrs_version->errorcode != 200) {
+            Logger::add_to_log('msg', $this->dataprovider->getLanguageString('lrs_error', 'local_smart_klass'));
+            Logger::add_to_log('errorcode', $this->msg);
+            Logger::add_to_log('error', $this->errorcode);
+            Logger::add_to_log('end', $this->name);
+            return;
+        }
         
         foreach ($collection as $element){
             $xApi = $this->getXapi();
@@ -98,7 +107,7 @@ abstract class Collector  {
             if ( empty($xApi) ){
                 $this->dataprovider->updateCollector ($this->name, $this->data);
                 
-                $log_obj->result = $this->dataprovider->getLanguageString('ko', 'local_smart_klass');;
+                $log_obj->result = $this->dataprovider->getLanguageString('ko', 'local_smart_klass');
                 $log_obj->msg = $this->getLastError();
                 $log_obj->moodleid = $regid->uri;
                 Logger::add_to_log('registry', $log_obj);
@@ -134,7 +143,7 @@ abstract class Collector  {
                    $this->removeReproccessId($regid->table, $regid->id);
                    $this->setData($regid->table, 'max_id', $this->getMaxId($regid->table));
             } else {
-                $msg = json_decode($result->msg);
+                $msg = $result->msg;
                 if ( isset($msg->message) ) {
                    $msg = $msg->message;
                 } else if (isset($msg->error->message)) {
@@ -164,7 +173,9 @@ abstract class Collector  {
     private function getXapi() {
        $auth = $this->dataprovider->getAuth();
        $validate_statements = $this->dataprovider->validateStatements();
-       return new StatementRequest($auth->endpoint, $auth->type, $auth->chain, $validate_statements);
+       $proxy = $this->dataprovider->getProxy();
+       
+       return new StatementRequest($auth->endpoint, $auth->type, $auth->chain, $validate_statements, $proxy);
     }
     
     public function getReproccessIds ($table){

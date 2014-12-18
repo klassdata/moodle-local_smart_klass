@@ -51,7 +51,14 @@ switch ($action) {
        $PAGE->set_heading( $strheading );
        $PAGE->navbar->add($strheading);
        
-    
+       if ( get_config('local_smart_klass', 'oauth_access_token')  == false || 
+            get_config('local_smart_klass', 'oauth_refresh_token') == false || 
+            get_config('local_smart_klass', 'oauth_client_id') == false || 
+            get_config('local_smart_klass', 'oauth_client_secret') == false ) 
+       {
+           $url = new moodle_url ('/local/smart_klass/register.php');
+           redirect($url);
+       } 
 
        $content = $OUTPUT->heading($strheading);
   

@@ -75,14 +75,6 @@ if ( $access_token == false || $client_id == false || $client_secret == false) {
     echo $OUTPUT->footer();
     
 } else {
-    /*$server .= '/oauth/access_token';
-    $output = $curl->get( $server, array(
-                            'token' => $access_token,
-                            '$client_id' => $access_token,
-                            '$secret' => $access_token,
-                            'redirect_uri' => $redirect_uri,
-                        ));
-    */
     $url = new moodle_url ('/local/smart_klass/view.php');
     $PAGE->requires->js_init_call('M.local_smart_klass.refreshContent', [(string)$url], true );
     echo $OUTPUT->footer();

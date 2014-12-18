@@ -14,6 +14,7 @@ class Credentials {
     
      
     const MAX_TIME = 86400;
+    //const MAX_TIME = 0;
     
     private $dataprovider;
     private static $credentials;
