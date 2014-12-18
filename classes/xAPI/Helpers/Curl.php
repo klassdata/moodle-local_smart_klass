@@ -203,7 +203,7 @@ class Curl
 
     public function setDefaultUserAgent()
     {
-        $user_agent = 'PHP-Curl-Class/' . self::VERSION . ' (+https://github.com/php-curl-class/php-curl-class)';
+        $user_agent = 'KlassData/SmartKlass/' . self::VERSION . ' (+https://github.com/klassdata/smartklass)';
         $user_agent .= ' PHP/' . PHP_VERSION;
         $curl_version = curl_version();
         $user_agent .= ' curl/' . $curl_version['version'];
@@ -242,7 +242,7 @@ class Curl
 
         $required_options = array(
             CURLINFO_HEADER_OUT    => 'CURLINFO_HEADER_OUT',
-            CURLOPT_HEADER         => 'CURLOPT_HEADER',
+            /*CURLOPT_HEADER         => 'CURLOPT_HEADER',*/
             CURLOPT_RETURNTRANSFER => 'CURLOPT_RETURNTRANSFER',
         );
 
@@ -506,6 +506,39 @@ class Curl
         }
 
         return implode('&', $query);
+    }
+    
+    public function setProxy ($proxy) {
+        if (!empty($proxy['proxyhost'])) {
+            
+            // SOCKS supported in PHP5 only
+            if (!empty($proxy['proxytype']) && ($proxy['proxytype'] == 'SOCKS5')) {
+                if (defined('CURLPROXY_SOCKS5')) {
+                 $this->setOpt(CURLOPT_PROXYTYPE, CURLPROXY_SOCKS5);
+                } else {
+                    $this->close();
+                    throw new ErrorException(999, "SOCKS5 proxy is not supported in PHP4.");
+                }
+            }
+            
+            $this->setOpt(CURLOPT_HTTPPROXYTUNNEL, false);
+
+            if ( empty($proxy['proxyport']) ) {
+                $this->setOpt(CURLOPT_PROXY, $proxy['proxyhost']);
+            } else {
+                $this->setOpt(CURLOPT_PROXY, $proxy['proxyhost'].':'.$proxy['proxyport']);
+            }
+            
+            
+            if (!empty($proxy['proxyuser']) and !empty($proxy['proxypassword'])) {
+                $this->setOpt(CURLOPT_PROXYUSERPWD, $proxy['proxyuser'].':'.$proxy['proxypassword']);
+                $this->setOpt(CURLOPT_PROXY, $proxy['proxyhost'].':'.$proxy['port']);
+            }
+            
+            if (defined('CURLOPT_PROXYAUTH')) {
+                $this->setOpt(CURLOPT_PROXYAUTH, CURLAUTH_BASIC | CURLAUTH_NTLM);
+            }
+        } 
     }
 }
 

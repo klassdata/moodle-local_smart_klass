@@ -52,9 +52,9 @@ class StatementRequest {
         $this->auth = $auth;
         
         $this->validate_statements = (true === $validatestatements);
+         
+       $this->proxyserver = ( empty($proxyserver['proxyhost']) ) ? null : $proxyserver;
         
-        $this->proxyserver['url'] = ( !empty($proxyserver['url']) ) ? $proxyserver['url'] : null;
-        $this->proxyserver['port'] = ( !empty($proxyserver['url']) ) ? ( (!empty($proxyserver['port'])) ? $proxyserver['port'] : 80 ) : null;
         
     }
     
@@ -128,47 +128,68 @@ class StatementRequest {
 
             }
         }
-        
-        $curl = curl_init();
-
-        curl_setopt($curl, CURLOPT_HEADER, false);
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($curl, CURLOPT_NOBODY, false);
-        
-        curl_setopt($curl, CURLOPT_FAILONERROR, false);
-	    curl_setopt($curl, CURLOPT_HTTP200ALIASES, (array)400); 
-
-        curl_setopt($curl, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
-        curl_setopt($curl, CURLOPT_USERPWD, $this->auth);
-
-        if  ( !empty($this->proxyserver['url']) ){
-            curl_setopt($curl, CURLOPT_PROXYPORT, $this->proxyserver['port']);
-            curl_setopt($curl, CURLOPT_PROXY, $this->proxyserver['url']);
-        }
-
-        curl_setopt($curl, CURLOPT_HTTPHEADER, array(
-            'Content-Type: application/json; charset=UTF-8',
-            'Accept: application/json',
-            'X-Experience-API-Version: 1.0'
-        ));
-
-        curl_setopt($curl, CURLOPT_CUSTOMREQUEST, "POST");  
-        curl_setopt($curl, CURLOPT_POST, 1);
-        curl_setopt($curl, CURLOPT_POSTFIELDS, $statement);
-        curl_setopt($curl, CURLOPT_FOLLOWLOCATION, 1); 
-
-
-        curl_setopt($curl, CURLOPT_URL, $url);
-
-        $result = new \stdClass();
-        $result->msg = curl_exec($curl);
-        $result->errorcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-		
-        curl_close($curl);
-		return $result;
+        return $this->processRequest($url, $statement);
     }
     
-    
+    public function getLRSversion () {
+        $url = $this->endpoint . 'about';
+        return $this->processRequest($url, null, 'GET');
+    }
+      
+    private function processRequest ($url, $params=null, $method='POST') {
+        
+        $curl = new Curl ();
+        
+        $curl->setHeader('Content-Type', 'application/json; charset=UTF-8');
+        $curl->setHeader('Accept', 'application/json');
+        $curl->setHeader('X-Experience-API-Version', '1.0.');
+        
+        $curl->setOpt(CURLOPT_FOLLOWLOCATION, 1);
+        
+        $curl->setOpt(CURLOPT_HEADER, false);
+        $curl->setOpt(CURLOPT_NOBODY, false);
+        
+        $curl->setOpt(CURLOPT_FAILONERROR, false);
+	$curl->setOpt(CURLOPT_HTTP200ALIASES, (array)400); 
+
+        $curl->setOpt(CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
+        $curl->setOpt(CURLOPT_USERPWD, $this->auth);
+        
+        if (!is_null($this->proxyserver)) $curl->setProxy ($this->proxyserver);
+        
+        $curl->setOpt(CURLOPT_HTTPHEADER, array(
+            'Content-Type: application/json; charset=UTF-8',
+            'Accept: application/json',
+            'X-Experience-API-Version: 1.0.0'
+        ));
+        
+        $result = new \stdClass();
+        switch ($method) {
+            case 'POST':
+                $result->msg = $curl->post($url, $params);
+                $result->errorcode = $curl->http_status_code;
+                break;
+            
+            case 'GET':
+                $result->msg = $curl->get($url, $params);
+                $result->errorcode = $curl->http_status_code;
+                break;
+            
+            case 'PUT':
+                $result->msg = $curl->put($url, $params);
+                $result->errorcode = $curl->http_status_code;
+                break;
+            
+            case 'DELETE':
+                $result->msg = $curl->delete($url, $params);
+                $result->errorcode = $curl->http_status_code;
+                break;
+        }
+		
+        $curl->close();
+	return $result;
+        
+    }
     
 }
 

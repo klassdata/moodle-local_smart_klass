@@ -275,26 +275,37 @@ function local_smart_klass_harvest( $collector=array() ) {
         return; 
     }
     
+    $harvest_cicles = get_config('local_smart_klass', 'harvestcicles');
+    $harvest_cicles = ( empty($harvest_cicles) ) ? 0 : $harvest_cicles;
+    $harvest_cicles++;
+    
+    $max_cicles = get_config('local_smart_klass', 'max_block_cicles');
+    
+    if ($harvest_cicles >= $max_cicles) {
+        set_config('croninprogress', false, 'local_smart_klass');
+        set_config('harvestcicles', 0, 'local_smart_klass');
+    } else {
+        set_config('croninprogress', true, 'local_smart_klass');
+        set_config('harvestcicles', $harvest_cicles, 'local_smart_klass');
+    }
+    
     if (get_config('local_smart_klass', 'croninprogress') == true){
         echo get_string('harvester_service_instance_running', 'local_smart_klass');
         return;
     }
     
+    if ( get_config('local_smart_klass', 'oauth_access_token')  == false || 
+            get_config('local_smart_klass', 'oauth_refresh_token') == false || 
+            get_config('local_smart_klass', 'oauth_client_id') == false || 
+            get_config('local_smart_klass', 'oauth_client_secret') == false ) 
+    {
+        echo get_string('harvester_service_not_register', 'local_smart_klass');
+        return;
+    }
+    
     global $CFG, $USER, $DB;
     
-    $harvest_cicles = get_config('harvestcicles', 'local_smart_klass');
-    $harvest_cicles = ( empty($harvest_cicles) ) ? 0 : $harvest_cicles;
-    $harvest_cicles++;
     
-    $max_cicles = get_config('max_block_cicles', 'local_smart_klass');
-    
-    if ($harvest_cicles >= $max_cicles) {
-        set_config('croninprogress', false, 'local_smart_klass');
-        set_config('max_block_cicles', 0, 'local_smart_klass');
-    } else {
-        set_config('croninprogress', true, 'local_smart_klass');
-        set_config('max_block_cicles', $harvest_cicles, 'local_smart_klass');
-    }
     
     
     
@@ -339,6 +350,7 @@ function local_smart_klass_harvest( $collector=array() ) {
         $out[] = html_writer::link($url, $objlog->logfile);
         
         set_config('croninprogress', false, 'local_smart_klass');
+        set_config('harvestcicles', 0, 'local_smart_klass');
         set_config('lastcron', $objlog->finish, 'local_smart_klass');
         
     } catch (Exception $e){

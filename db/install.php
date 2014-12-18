@@ -31,7 +31,7 @@ function xmldb_local_smart_klass_install() {
 
     require_once (dirname(dirname(__FILE__)) . '/lib.php');
     local_smart_klass_get_harvesters();
-    local_smart_klass_set_oauthserver('http://smartklass.klassdata.com');
+    local_smart_klass_set_oauthserver('https://smartklass.klassdata.com');
     return true;
 }
 

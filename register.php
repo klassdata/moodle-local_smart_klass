@@ -48,13 +48,8 @@ $client_id = get_config('local_smart_klass', 'oauth_client_id');
 $client_secret = get_config('local_smart_klass', 'oauth_client_secret');
 
 $server = get_config('local_smart_klass', 'oauth_server');
-$redirect_uri = implode('', array(
-                                isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http',
-                                '://',
-                                $_SERVER['SERVER_NAME'],
-                                isset($_SERVER['SERVER_PORT']) ? ':' . $_SERVER['SERVER_PORT'] : '',
-                                /*$_SERVER['SCRIPT_NAME'],*/
-                                '/local/smart_klass/dashboard.php',
+$redirect_uri = implode('', array( $CFG->wwwroot,
+                                   '/local/smart_klass/dashboard.php',
                             ));
 echo $OUTPUT->header();
 
@@ -80,14 +75,6 @@ if ( $access_token == false || $client_id == false || $client_secret == false) {
     echo $OUTPUT->footer();
     
 } else {
-    /*$server .= '/oauth/access_token';
-    $output = $curl->get( $server, array(
-                            'token' => $access_token,
-                            '$client_id' => $access_token,
-                            '$secret' => $access_token,
-                            'redirect_uri' => $redirect_uri,
-                        ));
-    */
     $url = new moodle_url ('/local/smart_klass/view.php');
     $PAGE->requires->js_init_call('M.local_smart_klass.refreshContent', [(string)$url], true );
     echo $OUTPUT->footer();

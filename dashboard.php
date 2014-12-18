@@ -37,13 +37,9 @@ $payload = optional_param('p', null, PARAM_RAW);
 if ( !is_null($dashboard_role) ) {
     $SESSION->dt = $dashboard_role;
 }
-$redirect_uri = implode('', array(
-                            isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http',
-                            '://',
-                            $_SERVER['SERVER_NAME'],
-                            isset($_SERVER['SERVER_PORT']) ? ':' . $_SERVER['SERVER_PORT'] : '',
-                            $_SERVER['SCRIPT_NAME'],
-                        ));
+$redirect_uri = implode('', array( $CFG->wwwroot,
+                                   '/local/smart_klass/dashboard.php',
+                            ));
 
 if ( !is_null($auth_error) ) print_error($auth_error, 'local_smart_klass');  
 
@@ -79,7 +75,8 @@ if ( !is_null($auth_code) ){
                             'user_id' => $CFG->wwwroot . '/' . $USER->id,
                             'user_name' => $USER->firstname,
                             'user_lastname' => $USER->lastname,
-                            'user_email' => $USER->email
+                            'user_email' => $USER->email,
+                            'lang' => $USER->lang
                         ));
 
     
@@ -224,8 +221,8 @@ if ( !empty($oauth_obj) ){
                                              ));
 
     $output_json = json_decode($output);
-    if ( is_object ($output_json) == true ) {
-        $errors = $output_json->error_description;
+    if ( empty($output) || is_object ($output_json) == true ) {
+        $errors = (empty($output)) ? get_string('no_oauth_comunication', 'local_smart_klass') : $output_json->error_description;
         print_error($errors);
         echo $OUTPUT->footer();
         die;

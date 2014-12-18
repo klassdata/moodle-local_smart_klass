@@ -14,6 +14,7 @@ class Credentials {
     
      
     const MAX_TIME = 86400;
+    //const MAX_TIME = 0;
     
     private $dataprovider;
     private static $credentials;
@@ -73,8 +74,8 @@ class Credentials {
     }
     
     
-    public function getCredentials () {       
-        $cicle = (integer) $this->dataprovider->getConfig('credential_cicle');
+    public function getCredentials () {     
+        $cicle = $this->dataprovider->getConfig('credential_cicle');
         if ($cicle == 0 ||  $cicle <= time()) {
             $this->dataprovider->setConfig('credential_cicle', time() + self::MAX_TIME);
             $this->updateCredentials();      
