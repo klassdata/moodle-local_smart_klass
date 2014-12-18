@@ -125,23 +125,25 @@ abstract class Collector  {
            $result = $xApi->sendStatement();
 
             if ($result->errorcode == '200') {
-                   if ( get_config('local_smart_klass', 'save_log') ) {
-                       $log_obj->result = $this->dataprovider->getLanguageString('ok', 'local_smart_klass');;
-                       $log_obj->msg = $this->dataprovider->getLanguageString('statement_send_ok', 'local_smart_klass');
-                       $log_obj->errorcode = $result->errorcode;
-                       $id = json_decode($result->msg);
-                       $log_obj->lrsid = current($id);
-                       if ( get_config('local_smart_klass', 'save_log') && get_config('local_smart_klass', 'savelog_ok_statement') ) 
-                           $log_obj->statement = json_decode( (string) $xApi->getStatement() );
+                if ( get_config('local_smart_klass', 'save_log') ) {
+                    $log_obj->result = $this->dataprovider->getLanguageString('ok', 'local_smart_klass');;
+                    $log_obj->msg = $this->dataprovider->getLanguageString('statement_send_ok', 'local_smart_klass');
+                    $log_obj->errorcode = $result->errorcode;
+                    $id = json_decode($result->msg);
+                    $log_obj->lrsid = current($id);
+                    if ( get_config('local_smart_klass', 'save_log') && get_config('local_smart_klass', 'savelog_ok_statement') ) 
+                        $log_obj->statement = json_decode( (string) $xApi->getStatement() );
 
-                   }
-                   $tt = strtotime ($xApi->getStatement()->getTimestamp());
-                   if ($this->getLastExecution($regid->table) < $tt) 
-                       $this->setLastExecution($regid->table, $tt);
-                   if ($this->getLastRegistry($regid->table) < $regid->id) 
-                        $this->setLastRegistry($regid->table, $regid->id);
-                   $this->removeReproccessId($regid->table, $regid->id);
-                   $this->setData($regid->table, 'max_id', $this->getMaxId($regid->table));
+                }
+                $tt = strtotime ($xApi->getStatement()->getTimestamp());
+                if ($this->getLastExecution($regid->table) < $tt) 
+                    $this->setLastExecution($regid->table, $tt);
+                if ($this->getLastRegistry($regid->table) < $regid->id) 
+                     $this->setLastRegistry($regid->table, $regid->id);
+                $this->removeReproccessId($regid->table, $regid->id);
+                $this->setData($regid->table, 'max_id', $this->getMaxId($regid->table));
+                //reset number of cicles of harvester
+                set_config('harvestcicles', 0, 'local_smart_klass');
             } else {
                 $msg = $result->msg;
                 if ( isset($msg->message) ) {
@@ -164,8 +166,7 @@ abstract class Collector  {
 
             $this->dataprovider->updateCollector ($this->name, $this->data);
             
-            //reset number of cicles of harvester
-            set_config('harvestcicles', 0, 'local_smart_klass');
+            
         } 
         Logger::add_to_log('end', $this->name);
     }
