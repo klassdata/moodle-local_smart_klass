@@ -82,10 +82,18 @@ class DataProvider {
     
     public function get_platform_version () {
         global $CFG;
-        $pluginman = \core_plugin_manager::instance();
-        $plugin_info = $pluginman->get_plugin_info('local_smart_klass');
         $platform_version = "Moodle {$CFG->release} v. {$CFG->version}";
-        $plugin_version = "SmartKlass {$plugin_info->release} v. {$plugin_info->versiondisk}";
+        if ($CFG->version >= SMART_KLASS_MOODLE_26) {
+            $pluginman = \core_plugin_manager::instance();
+        } else {
+            require_once($CFG->libdir . '/pluginlib.php');
+            $pluginman = \plugin_manager::instance();
+        } 
+        $plugin_info = $pluginman->get_plugin_info('local_smart_klass');
+        $plugin_release = ($CFG->version >= SMART_KLASS_MOODLE_26) ? $plugin_info->release : '';
+        $plugin_version = $plugin_info->versiondisk;
+        $plugin_version = "SmartKlass {$release} v. {$plugin_version}";
+
         return $platform_version . ' - ' . $plugin_version;
     }
     

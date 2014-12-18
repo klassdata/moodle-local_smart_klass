@@ -275,20 +275,20 @@ function local_smart_klass_harvest( $collector=array() ) {
         return; 
     }
     
+    print_r(get_config('local_smart_klass', 'harvestcicles'));
+    $max_cicles = get_config('local_smart_klass', 'max_block_cicles');
     $harvest_cicles = get_config('local_smart_klass', 'harvestcicles');
     $harvest_cicles = ( empty($harvest_cicles) ) ? 0 : $harvest_cicles;
     $harvest_cicles++;
-    
-    $max_cicles = get_config('local_smart_klass', 'max_block_cicles');
-    
+    set_config('harvestcicles', $harvest_cicles, 'local_smart_klass');
+
+    print_r(get_config('local_smart_klass', 'harvestcicles'));
+
     if ($harvest_cicles >= $max_cicles) {
         set_config('croninprogress', false, 'local_smart_klass');
         set_config('harvestcicles', 0, 'local_smart_klass');
-    } else {
-        set_config('croninprogress', true, 'local_smart_klass');
-        set_config('harvestcicles', $harvest_cicles, 'local_smart_klass');
-    }
-    
+    } 
+
     if (get_config('local_smart_klass', 'croninprogress') == true){
         echo get_string('harvester_service_instance_running', 'local_smart_klass');
         return;
@@ -306,7 +306,7 @@ function local_smart_klass_harvest( $collector=array() ) {
     global $CFG, $USER, $DB;
     
     
-    
+    set_config('croninprogress', true, 'local_smart_klass');
     
     
     $out = array();
@@ -568,7 +568,7 @@ function local_smart_klass_insert_analytics_tracking() {
     $userid = $CFG->wwwroot . '/' . ( ( empty($USER->id) ) ? 0 : $USER->id );
     
 
-	$CFG->additionalhtmlfooter .= "
+	 $trackercode =  "
         <script type='text/javascript'>
             var _paq = _paq || [];
             _paq.push(['setDocumentTitle', ".local_smart_klass_trackurl()."]);
@@ -584,6 +584,12 @@ function local_smart_klass_insert_analytics_tracking() {
             })();
         </script>
         <noscript><p><img src=".$siteurl."/piwik.php?idsite=".$siteid." style='border:0;' alt='' /></p></noscript>";
+         
+         if ($CFG->version < SMART_KLASS_MOODLE_25) {
+            $CFG->additionalhtmlhead = $trackercode;
+         } else {
+             $CFG->additionalhtmlfooter = $trackercode;
+         }
 		
 
 }

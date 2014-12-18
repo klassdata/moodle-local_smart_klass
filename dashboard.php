@@ -53,7 +53,7 @@ if (!is_null($payload)){
     set_config('oauth_client_secret', $payload->client_secret, 'local_smart_klass');
     $url = new moodle_url ('/local/smart_klass/view.php');
     echo $OUTPUT->header();
-    $PAGE->requires->js_init_call('M.local_smart_klass.refreshContent', [(string)$url], true );
+    $PAGE->requires->js_init_call('M.local_smart_klass.refreshContent', array((string)$url), true );
     echo $OUTPUT->footer();
 }
 
@@ -118,7 +118,7 @@ if ( !is_null($token) && !is_null($refresh_token) ){
     echo $OUTPUT->header();
     $PAGE->set_pagelayout('popup');
     echo $OUTPUT->box_start();
-    $PAGE->requires->js_init_call('M.local_smart_klass.refreshContent', [$url->out(false)], true );
+    $PAGE->requires->js_init_call('M.local_smart_klass.refreshContent', array($url->out(false)), true );
     echo $OUTPUT->footer();
 }
 
@@ -203,7 +203,7 @@ if ( !empty($oauth_obj) ){
     if ( $access_token == false || $client_id == false || $server == false) {
         $url = new moodle_url ('/local/smart_klass/register.php');
         $PAGE->set_pagelayout('popup');
-        $PAGE->requires->js_init_call('M.local_smart_klass.refreshContent', [(string)$url], true );
+        $PAGE->requires->js_init_call('M.local_smart_klass.refreshContent', array((string)$url), true );
         echo $OUTPUT->footer();
         
     }

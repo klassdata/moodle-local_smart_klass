@@ -23,7 +23,6 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-
 require_once (dirname(dirname(dirname(__FILE__))).'/config.php');
 require_once(dirname(__FILE__).'/lib.php');
 require_once(dirname(__FILE__).'/locallib.php');
@@ -67,7 +66,7 @@ if ( $access_token == false || $client_id == false || $client_secret == false) {
         $errors = implode('<br>', $errors);
         print_error($errors);
         echo $OUTPUT->footer();
-        die;
+        die();
     }    
 
     echo $OUTPUT->box('', 'generalbox', 'smartklass');
@@ -76,6 +75,6 @@ if ( $access_token == false || $client_id == false || $client_secret == false) {
     
 } else {
     $url = new moodle_url ('/local/smart_klass/view.php');
-    $PAGE->requires->js_init_call('M.local_smart_klass.refreshContent', [(string)$url], true );
+    $PAGE->requires->js_init_call('M.local_smart_klass.refreshContent', array((string)$url), true );
     echo $OUTPUT->footer();
 }
