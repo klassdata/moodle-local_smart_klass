@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link href='https://fonts.googleapis.com/css?family=Architects+Daughter' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print">
+
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <title>Moodle-local smart klass by klassdata</title>
+  </head>
+
+  <body>
+    <header>
+      <div class="inner">
+        <h1>Moodle-local smart klass</h1>
+        <h2>Moodle Plugin for SmartKlass Learning Analytics Tool</h2>
+        <a href="https://github.com/klassdata/moodle-local_smart_klass" class="button"><small>View project on</small> GitHub</a>
+      </div>
+    </header>
+
+    <div id="content-wrapper">
+      <div class="inner clearfix">
+        <section id="main-content">
+          <h1>
+<a id="smartklass-at-a-glance" class="anchor" href="#smartklass-at-a-glance" aria-hidden="true"><span class="octicon octicon-link"></span></a>SmartKlass at a glance</h1>
+
+<p><img src="http://www.klassdata.com/wp-content/uploads/2014/10/klass-learning-analytics.png" alt="The Learning Revolution has started"></p>
+
+<p>SmartKlass is a dashboard that should be included as a part of the
+<em>Moodle</em> virtual learning platform to empower teachers to manage the
+learning journey of their students.</p>
+
+<p>By analyzing student’s behavioral data we create a rich picture of the
+evolution of the students in an online course:</p>
+
+<ul>
+<li><p>We help teachers to identify the students lagging behind.</p></li>
+<li><p>We help teachers to identify the students that content is not
+challenging enough for them.</p></li>
+<li><p>We help teachers to compare participation and results to other
+courses.</p></li>
+<li><p>We provide this information so the teacher can take action like
+contact directly with the students, assign special content,
+encourage participation or provide special tutoring.</p></li>
+<li><p>We also help teachers by helping students: Students could learn
+about their performance, individually and compared with the group.</p></li>
+</ul>
+
+<p>The SmartKlass local extension could be used with <em>Moodle</em> 2.4 version
+and above.</p>
+
+<p>This guide covers the installation and the steps that should be done
+after the installation extension has completed.</p>
+
+<h1>
+<a id="installing" class="anchor" href="#installing" aria-hidden="true"><span class="octicon octicon-link"></span></a>Installing</h1>
+
+<p>You have the following options to install SmartKlass plugin:</p>
+
+<h2>
+<a id="moodle-versions-25-and-above" class="anchor" href="#moodle-versions-25-and-above" aria-hidden="true"><span class="octicon octicon-link"></span></a>Moodle versions 2.5+ and above</h2>
+
+<h3>
+<a id="installing-directly-from-the-moodle-plugins-directory" class="anchor" href="#installing-directly-from-the-moodle-plugins-directory" aria-hidden="true"><span class="octicon octicon-link"></span></a>Installing directly from the Moodle plugins directory</h3>
+
+<ol>
+<li><p>Login as an admin and go to *Administration &gt; Site administration &gt; Plugins &gt; Install plugins.</p></li>
+<li><p>Click the button 'Install plugins from Moodle plugins directory'.</p></li>
+<li><p>Search in moodle.org for the SmartKlass extension with the “Install”
+button (so you can be sure that it will be compatible with your
+<em>Moodle</em> version). Click the Install button then click Continue.</p></li>
+<li><p>Check that you obtain a 'Validation passed!' message, then click the
+button 'Install plugin'.</p></li>
+<li><p>Follow the instructions on your screen.</p></li>
+</ol>
+
+<h3>
+<a id="installing-via-uploaded-zip-file" class="anchor" href="#installing-via-uploaded-zip-file" aria-hidden="true"><span class="octicon octicon-link"></span></a>Installing via uploaded ZIP file</h3>
+
+<ol>
+<li> Go to the <a href="https://moodle.org/plugins/edit.php?plugin=local_smart_klass"><em>Moodle SmartKlass plugin</em></a>
+</li>
+<li> Select your current Moodle version (2.5+ or above), then choose the
+SmartKlass plugin, click Download and download the ZIP file</li>
+<li> Login to your Moodle site as an admin and go to Administration &gt; Site administration &gt; Plugins &gt; Install plugins.</li>
+<li> Upload the ZIP file and select the appropriate plugin type (local),</li>
+<li> Tick the acknowledgement checkbox, then click the button 'Install
+plugin from the ZIP file'.</li>
+<li> Check that you obtain a 'Validation passed!' message, then click the
+button 'Install plugin'.</li>
+<li> Follow the instructions on your screen.</li>
+</ol>
+
+<h2>
+<a id="moodle-versions-before-25" class="anchor" href="#moodle-versions-before-25" aria-hidden="true"><span class="octicon octicon-link"></span></a>Moodle versions before 2.5+</h2>
+
+<p>If you can't deploy the plugin code via the administration web interface
+as explained above, you have to copy the plugin to the server file
+system manually (e.g. if the web server process does not have write
+access to the Moodle installation tree to do this for you or if your
+<em>Moodle</em> version is older than 2.5+).</p>
+
+<ol>
+<li> Go to the <a href="https://moodle.org/plugins/edit.php?plugin=local_smart_klass"><em>Moodle SmartKlass plugin</em></a>
+</li>
+<li> Select your current Moodle version (2.4 or above), then choose the
+SmartKlass plugin, click Download and download the ZIP file.</li>
+<li> Upload or copy it to your Moodle server.</li>
+<li> Unzip it in the right place for the plugin:</li>
+</ol>
+
+<blockquote>
+<p><em>/path/to/moodle/</em><em>local</em><em>/</em>
+A new location will appear: /path/to/moodle/<strong>local/SmartKlass</strong></p>
+</blockquote>
+
+<ol>
+<li> In your Moodle site (as admin) go to <em>Settings &gt; Site administration &gt; Notifications</em>
+</li>
+</ol>
+
+<p>You should get a message saying the plugin is installed.</p>
+
+<p>When installing manually:</p>
+
+<ul>
+<li><p>Check the file permissions. The web server needs to be able to read
+the plugin files. If the the rest of Moodle works then try to make
+the plugin permissions and ownership match. 
+Configure the permissions for all the files and installed code trees
+with your preferred FTP client or your web host dashboard. (e.g. change
+<em>/moodle/local/SmartKlass</em> to 755 and check if it works).</p></li>
+<li><p>Did you definitely unzip or install the plugin in the correct place?
+SmartKlass plugin should be unzipped in: <em>/path/to/moodle/local/SmartKlass</em>
+Where <em>/path/to/moodle/</em> is the root code tree in your server.</p></li>
+<li><p>Because Moodle scans plugin folders for new plugins you cannot have
+any other files or folders there. Make sure you deleted the zip file
+and don't try to rename (for example) an old version of the plugin
+to some other name - it will break.</p></li>
+<li><p>Make sure the directory name for the plugin is correct. All the
+names have to match. If you change the name then it won't work.
+The name for the plugin directory should be called <strong>SmartKlass</strong> and
+should be included in <em>local</em>.</p></li>
+</ul>
+
+<h1>
+<a id="configuring" class="anchor" href="#configuring" aria-hidden="true"><span class="octicon octicon-link"></span></a>Configuring</h1>
+
+<p>SmartKlass plugin uses the Cron process in <em>Moodle.</em> You should follow
+the setting up instructions from Cron at
+<a href="https://docs.moodle.org/28/en/Cron"><em>https://docs.moodle.org/28/en/Cron</em></a></p>
+
+<p>Note: Do not skip setting up the cron process on your server for your
+Moodle. SmartKlass plugin will not work properly without it.</p>
+
+<h1>
+<a id="updating" class="anchor" href="#updating" aria-hidden="true"><span class="octicon octicon-link"></span></a>Updating</h1>
+
+<p>In <em>Moodle</em> 2.4 onwards, you can enable the automatic updates
+notification in:</p>
+
+<p><em>Administration&gt; Site Administration &gt; Server &gt; Update notifications</em></p>
+
+<p>If the automatic check for available updates is enabled and there is a
+new update available for SmartKlass, a notification will be sent to all
+site admins via email and/or popup message (according to the admin's
+messaging preferences in their profile settings).</p>
+
+<p><em>Install this update</em> button will be shown on the <a href="https://docs.moodle.org/28/en/Plugins_overview">Plugins
+overview</a> page:</p>
+
+<p><em>Settings &gt; Site Administration &gt; Plugins &gt;</em> <a href="https://docs.moodle.org/28/en/Installing_plugins"><em>Plugins
+overview</em></a>*. *</p>
+
+<p>An admin can also check for available updates using the 'Check for
+available updates' button in this same <a href="https://docs.moodle.org/28/en/Plugins_overview">Plugins
+overview</a> page.</p>
+
+<p>Any updates available are highlighted, with further information and a
+download link in the notes column opposite the plugin.</p>
+
+<h1>
+<a id="uninstalling" class="anchor" href="#uninstalling" aria-hidden="true"><span class="octicon octicon-link"></span></a>Uninstalling</h1>
+
+<p>To uninstall the plugin:</p>
+
+<ol>
+<li><p>Go to <em>Administration&gt; Site Administration &gt; Plugins &gt; Plugins</em> <em>overview</em>
+and click the Uninstall link opposite the plugin you wish to remove.</p></li>
+<li><p>Use a file manager to remove/delete the actual plugin directory
+(/path/to/moodle/<strong>local/SmartKlass</strong>) as instructed, otherwise
+Moodle will reinstall it next time you access the site
+administration.</p></li>
+</ol>
+        </section>
+
+        <aside id="sidebar">
+          <a href="https://github.com/klassdata/moodle-local_smart_klass/zipball/master" class="button">
+            <small>Download</small>
+            .zip file
+          </a>
+          <a href="https://github.com/klassdata/moodle-local_smart_klass/tarball/master" class="button">
+            <small>Download</small>
+            .tar.gz file
+          </a>
+
+          <p class="repo-owner"><a href="https://github.com/klassdata/moodle-local_smart_klass"></a> is maintained by <a href="https://github.com/klassdata">klassdata</a>.</p>
+
+          <p>This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the Architect theme by <a href="https://twitter.com/jasonlong">Jason Long</a>.</p>
+        </aside>
+      </div>
+    </div>
+
+  
+  </body>
+</html>
