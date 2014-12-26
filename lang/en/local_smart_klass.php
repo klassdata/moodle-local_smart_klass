@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -85,6 +85,5 @@ $string['no_oauth_comunication'] = 'No communication with authentication server'
 $string['harvest'] = 'Harvest';
 $string['no_dashboard_endpoint'] = 'Incorrect dashboard URL. Please try again later.';
 $string['no_access_token_aviable'] = 'The access credentials are not available. Please try again later';
-$string['harvester_service_not_register'] = 'SmartKlass service is not register. Please review your register';
 $string['harvester_service_not_register'] = 'SmartKlass service is not register. Please review your register';
 $string['lrs_error'] = 'Error trying to connect with LRS';

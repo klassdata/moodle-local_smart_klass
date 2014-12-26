@@ -27,7 +27,6 @@ defined('MOODLE_INTERNAL') || die;
 
 if ($hassiteconfig) {
     
-    //Creo menú en el Bloque de administración para el plugin
     $ADMIN->add('root', new admin_category('smart_klass', get_string('pluginname', 'local_smart_klass')));
     $ADMIN->add('smart_klass', new admin_externalpage('smart_klasssettings', get_string('settings'),
             $CFG->wwwroot.'/admin/settings.php?section=local_smart_klass', 'local/smart_klass:manage'));
@@ -35,14 +34,9 @@ if ($hassiteconfig) {
             $CFG->wwwroot.'/local/smart_klass/view.php', 'local/smart_klass:manage'));
     
    
-    //Agrego página de configuración para acceder desde plugins locales
     $settings = new admin_settingpage('local_smart_klass', get_string('pluginname', 'local_smart_klass'));
     $ADMIN->add('localplugins', $settings);
-	
-	
-	
-    
-    //Agrego campos de configuración del Plugin
+
     $settings->add(new admin_setting_configcheckbox('local_smart_klass/activate', get_string('activate', 'local_smart_klass'), get_string('activatedescription', 'local_smart_klass'), 1));
     
     $settings->add(new admin_setting_configcheckbox('local_smart_klass/save_log', get_string('save_log', 'local_smart_klass'), get_string('savelogdescription', 'local_smart_klass'), 1));
