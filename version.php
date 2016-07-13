@@ -25,8 +25,8 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2014122600; // The current plugin version (Date: YYYYMMDDXX)
+$plugin->version   = 2016032401; // The current plugin version (Date: YYYYMMDDXX)
 $plugin->requires  = 2012110900; // Requires this Moodle version
 $plugin->component = 'local_smart_klass'; // Full name of the plugin (used for diagnostics)
-$plugin->release   = '0.9.1 (Build: 20141226)'; // Human-friendly version name
+$plugin->release   = '0.9.4 (Build: 20160324)'; // Human-friendly version name
 $plugin->maturity  = MATURITY_RC; // This version's maturity level.

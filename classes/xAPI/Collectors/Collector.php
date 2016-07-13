@@ -85,6 +85,8 @@ abstract class Collector  {
         }
         
         $xApi = $this->getXapi();
+        
+			
         $lrs_version = $xApi->getLRSversion();
         if ($lrs_version->errorcode != 200) {
             Logger::add_to_log('msg', $this->dataprovider->getLanguageString('lrs_error', 'local_smart_klass'));
@@ -93,6 +95,8 @@ abstract class Collector  {
             Logger::add_to_log('end', $this->name);
             return;
         }
+        
+        
         
         foreach ($collection as $element){
             $xApi = $this->getXapi();
@@ -121,7 +125,9 @@ abstract class Collector  {
                                             'http://xapi.klassdata.com/extensions/regid',
                                             $regid->uri
                                             );
-           $xApi->setContext('extension',  $regid_extension );
+           $xApi->setContext('extension',  $regid_extension );       
+           
+			
            $result = $xApi->sendStatement();
 
             if ($result->errorcode == '200') {
@@ -166,6 +172,7 @@ abstract class Collector  {
 
             $this->dataprovider->updateCollector ($this->name, $this->data);
             
+        
             
         } 
         Logger::add_to_log('end', $this->name);

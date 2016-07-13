@@ -162,11 +162,11 @@ class DataProvider_Moodle27 extends DataProvider {
             $joins = array();
             $params = array();
             if ( $reader instanceof \logstore_legacy\log\store ) {
-                $joins[] = "id > " . $collector->getLastRegistry('log');
+                $joins[] = "id > " . $collector->getLastRegistry('logstore_standard_log');
                 $joins[] = "cmid <> 0";
                 $joins[] = 'module IN ("assign", "chat", "course", "feedback", "folder", "forum", "page", "quiz", "resource", "scorm", "url")';             
             } else {
-                $joins[] = "id > " . $collector->getLastRegistry('log');
+                $joins[] = "id > " . $collector->getLastRegistry('logstore_standard_log');
                 // Filter out anonymous actions, this is N/A for legacy log because it never stores them.
                 $joins[] = "anonymous = 0";
                 $joins[] = "component LIKE 'mod_%'";

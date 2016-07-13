@@ -24,7 +24,7 @@
  */
 
 
-require_once (dirname(dirname(dirname(__FILE__))).'/config.php');
+require_once(dirname(dirname(dirname(__FILE__))).'/config.php');
 require_once(dirname(__FILE__).'/lib.php');
 require_once(dirname(__FILE__).'/locallib.php');
 
@@ -51,15 +51,6 @@ switch ($action) {
        $PAGE->set_heading( $strheading );
        $PAGE->navbar->add($strheading);
        
-       if ( get_config('local_smart_klass', 'oauth_access_token')  == false || 
-            get_config('local_smart_klass', 'oauth_refresh_token') == false || 
-            get_config('local_smart_klass', 'oauth_client_id') == false || 
-            get_config('local_smart_klass', 'oauth_client_secret') == false ) 
-       {
-           $url = new moodle_url ('/local/smart_klass/register.php');
-           redirect($url);
-       } 
-
        $content = $OUTPUT->heading($strheading);
   
        //Collectors
@@ -70,8 +61,8 @@ switch ($action) {
            $line = array();
            
            $img = ($harvester->active == 1) ? 
-                                                html_writer::empty_tag('img',array('src'=>$OUTPUT->pix_url('i/completion-auto-pass'), 'alt'=>get_string('yes'), 'class'=>'icon')) :
-                                                html_writer::empty_tag('img',array('src'=>$OUTPUT->pix_url('i/completion-auto-enabled'), 'alt'=>get_string('no'), 'class'=>'icon'));
+                  html_writer::empty_tag('img',array('src'=>$OUTPUT->pix_url('i/completion-auto-pass'), 'alt'=>get_string('yes'), 'class'=>'icon')) :
+                  html_writer::empty_tag('img',array('src'=>$OUTPUT->pix_url('i/completion-auto-enabled'), 'alt'=>get_string('no'), 'class'=>'icon'));
            
            $activate_image = array();
            if ($harvester->active == 1) {
@@ -84,19 +75,17 @@ switch ($action) {
               $activate_image['class'] = 'icon'; 
            }
            $img = html_writer::link(
-                                            new moodle_url(
-                                                            '/local/smart_klass/view.php', 
-                                                            array(
-                                                                    'cid'=>$context->id, 
-                                                                    'a'=>SMART_KLASS_ACTION_ACTIVATE, 
-                                                                    'cid'=>$harvester->id
-                                                            )
-                                            ),
-                                            html_writer::empty_tag('img', $activate_image)
-                                        );
+                    new moodle_url(
+                                    '/local/smart_klass/view.php', 
+                                    array(
+                                            'cid'=>$context->id, 
+                                            'a'=>SMART_KLASS_ACTION_ACTIVATE, 
+                                            'cid'=>$harvester->id
+                                    )
+                    ),
+                    html_writer::empty_tag('img', $activate_image)
+                );
    
-           
-           
            $line[] = $img;
            $line[] = html_writer::link(new moodle_url('/local/smart_klass/view.php', array('action'=>SMART_KLASS_ACTION_EDIT, 'cid'=>$harvester->id)), $harvester->name);
            

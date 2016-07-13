@@ -36,8 +36,8 @@ define('SMART_KLASS_DASHBOARD_TEACHER',          2);
 define('SMART_KLASS_DASHBOARD_INSTITUTION',      3);
 
 
-define('SMART_KLASS_OAUTHSERVER_URL', 'http://develop2.klaptek.com/oauth/resource.php');
-define('SMART_KLASS_DASHBOARD_URL',   'http://demo.klassdata.com/');
+// define('SMART_KLASS_OAUTHSERVER_URL', 'http://develop2.klaptek.com/oauth/resource.php');
+// define('SMART_KLASS_DASHBOARD_URL',   'http://demo.klassdata.com/');
 
 define('SMART_KLASS_MOODLE_27',   2014051200);
 define('SMART_KLASS_MOODLE_26',   2013111800);
@@ -51,131 +51,16 @@ define('SMART_KLASS_TRACKER_EMPTYVALUE',   'EMPTY/');
  *
  * @param  integer $userid    The moodle user id
  * @param  integer $role the dashboard role. Values: 1/Student; 2/Teacher; 3/Institution
- * 
+ *
  * @return stdClass Object with a valid oauth credentials. null if invalid oauth credentials
  */
-function local_smart_klass_get_oauth_accesstoken ($userid, $role){
-    global $DB;
-    
-    $oauth_obj = $DB->get_record( 'local_smart_klass_dash_oauth', array('userid'=>$userid, 'dashboard_role'=>$role) );
-    
-    if ($oauth_obj == false) return null;
-
-    if (isset($oauth_obj->access_token) && $oauth_obj = local_smart_klass_oauth_validate($oauth_obj)){
-        $oauth_obj->modified = time();
-        
-    } else {
-        //Try refresh token
-        $accesstoken = local_smart_klass_oauth_refreshtoken ($oauth_obj);
-        if ( empty($accesstoken) ) return null;
-        $time = time();
-        $oauth_obj->access_token = $accesstoken;
-        $oauth_obj->modified = $time;
-        $oauth_obj->created = $time;
-    }
-
-    $DB->update_record('local_smart_klass_dash_oauth', $oauth_obj);
-
-    return $oauth_obj;
-}
-
-/**
- * Insert a new access_token registry
- * @param  string $code    accesstoken to validate with oauth server
- * @param  string $refresh    refreshtoken to validate with oauth server
- * @param  string $email    user email use with access_token (oautn uid)
- * @param  string $rol    rol allow by access token
- * @param  string $user_id    moodle user_id associate with accesstoken
- * @return mixed record id if OK or false if KO
- */
-function local_smart_klass_save_access_token ($code, $refresh, $email, $rol, $user_id) {
-    global $DB;
-    
-    $item = $DB->get_record('local_smart_klass_dash_oauth', array('userid' => $user_id, 'dashboard_role' => $rol) );
-    
-    if ($item == false) {
-        $t = time();
-        $obj = new stdClass();
-        $obj->access_token = $code;
-        $obj->refresh_token = $refresh;
-        $obj->userid = $user_id;
-        $obj->email = $email;
-        $obj->dashboard_role = $rol;
-        $obj->modified = $t;
-        $obj->created = $t;
-
-        return $DB->insert_record('local_smart_klass_dash_oauth', $obj);
-    }
-    
-    return $item->id;
-}
-
-
-/**
- * Validate access token in oauth servr
- * @param  stdClass $oauth_obj    accesstoken to validate with oauth server
- * @return $oauth_obj if validate and error if no validate.
- */
-function local_smart_klass_oauth_validate ($oauth_obj=null){
-           
-    $server = get_config('local_smart_klass', 'oauth_server');
-    $server .= '/dashboard/check'; 
-
-    $curl = new SmartKlass\xAPI\Curl;
-    $output =  $curl->get( $server, array('access_token' => $oauth_obj->access_token));
-
-    if ( isset($output->error) && $output->error == 'access_denied' ) {
-        
-        $oauth_obj = local_smart_klass_oauth_refreshtoken($oauth_obj);
-    }
-    
-    return $oauth_obj;
-}
-
-
-/**
- * Get a valid token throw refresh token in oauth servr
- * @param  string $refreshtoken    Valid oauth refresh token
- * @return string new access token if OK, null if KO
- */
-function local_smart_klass_oauth_refreshtoken ($oauthobj=null){
-    global $DB;
-    if ( $oauthobj == false) return null;
-    $refresh_token = $oauthobj->refresh_token;
-    $server = get_config('local_smart_klass','oauth_server') . '/oauth/refresh_token';
-    require_once(dirname(__FILE__).'/classes/xAPI/Helpers/Curl.php');
-    $curl = new Curl;
-    $params = array ( 
-                        'client_id' => get_config('local_smart_klass','oauth_client_id'),
-                        'client_secret' => get_config('local_smart_klass','oauth_client_secret'),
-                        'refresh_token' => $refresh_token,
-                        'grant_type' => 'refresh_token',
-    );
-    $output = $curl->post( $server, $params);
-    $output = json_decode($output);
-    if ( isset($output->error) ) {
-        $DB->delete_records( 'local_smart_klass_dash_oauth', array('id' => $oauthobj->id) );
-        
-        print_error( get_string('no_access_token_aviable', 'local_smart_klass') );
-        return null;
-    }
-    
-    if ( isset($output->refresh_token) ) 
-        $oauthobj->refresh_token = $output->refresh_token;
-    if ( isset($output->access_token) )
-        $oauthobj->access_token = $output->access_token;
-    $oauth_obj->modified = time();
-    $oauth_obj = $DB->update_record( 'local_smart_klass_dash_oauth', $oauthobj );
-    return $oauthobj;
-}
-
 
 
 
 /**
  * Validate access token in oauth servr
  * @param  string $accesstoken    accesstoken to validate with Smart Klass Dashboard
- * @return 
+ * @return
  */
 function local_smart_klass_get_dashboard ($access_token=null){
     //TODO 3 Get the correct dashboard from Smart Klass Dashboard
@@ -203,15 +88,15 @@ function local_smart_klass_dashboard_roles ($userid, $context) {
     $roles	= get_user_roles($context, $userid, true);
 
     $dashboard	= new stdClass ();
-    
+
     $dashboard->student		= false;
     $dashboard->teacher		= false;
     $dashboard->institution	= false;
-    
+
     $student_default_role		= array(5);
     $teacher_default_role		= array(3,4);
     $intitution_default_role	= array(1);
-    
+
     foreach($roles as $role){
         if(in_array($role->roleid, $student_default_role))
             $dashboard->student = true;
@@ -228,32 +113,54 @@ function local_smart_klass_dashboard_roles ($userid, $context) {
 
 function local_smart_klass_extends_navigation(global_navigation $navigation) {
     global $CFG, $PAGE, $USER;
-    
+
     //Creo menú en el Bloque de administración para el plugin
     $nodeSmartKlap = $navigation->add(get_string('pluginname', 'local_smart_klass') );
-	
-    
-    if (get_config('local_smart_klass', 'oauth_client_id') == false || get_config('local_smart_klass', 'oauth_client_secret') == false){
-        if ( local_smart_klass_can_manage() )
-            $nodeSmartKlap->add( get_string('configure_access', 'local_smart_klass'), new moodle_url($CFG->wwwroot.'/local/smart_klass/register.php' ));
+
+    $serialNumber = get_config('local_smart_klass', 'smartklass_serialnumber');
+    if (empty($serialNumber) ){
+        if ( local_smart_klass_can_manage() ) {
+            $nodeSmartKlap->add(
+                get_string('configure_access', 'local_smart_klass'),
+                new moodle_url($CFG->wwwroot.'/local/smart_klass/register.php' )
+            );
+        }
     } else {
         $dashboard_roles = local_smart_klass_dashboard_roles($USER->id, $PAGE->context);
         if ( get_config('local_smart_klass', 'activate_student_dashboard') == '1' && $dashboard_roles->student ) {
-            $nodeSmartKlap->add( get_string('studentdashboard', 'local_smart_klass'), new moodle_url($CFG->wwwroot.'/local/smart_klass/dashboard.php', array('cid' => $PAGE->context->id, 'dt'=>SMART_KLASS_DASHBOARD_STUDENT)));
+            $nodeSmartKlap->add(
+                get_string('studentdashboard', 'local_smart_klass'),
+                new moodle_url(
+                    $CFG->wwwroot.'/local/smart_klass/dashboard.php',
+                    array('cid' => $PAGE->context->id, 'dt'=>SMART_KLASS_DASHBOARD_STUDENT)
+                )
+            );
         }
         if ( get_config('local_smart_klass', 'activate_teacher_dashboard') == '1' && $dashboard_roles->teacher ) {
-            $nodeSmartKlap->add( get_string('teacherdashboard', 'local_smart_klass'), new moodle_url($CFG->wwwroot.'/local/smart_klass/dashboard.php', array('cid' => $PAGE->context->id, 'dt'=>SMART_KLASS_DASHBOARD_TEACHER)));
+            $nodeSmartKlap->add(
+                get_string('teacherdashboard', 'local_smart_klass'),
+                new moodle_url(
+                    $CFG->wwwroot.'/local/smart_klass/dashboard.php',
+                    array('cid' => $PAGE->context->id, 'dt'=>3)
+                )
+            );
         }
 
         if ( get_config('local_smart_klass', 'activate_institution_dashboard') == '1' &&  ($dashboard_roles->institution || local_smart_klass_can_manage()) ) {
-            $nodeSmartKlap->add( get_string('institutiondashboard', 'local_smart_klass'), new moodle_url($CFG->wwwroot.'/local/smart_klass/dashboard.php', array('cid' => $PAGE->context->id, 'dt'=>SMART_KLASS_DASHBOARD_INSTITUTION)));
-        }  
+            $nodeSmartKlap->add(
+                get_string('institutiondashboard', 'local_smart_klass'),
+                new moodle_url(
+                    $CFG->wwwroot.'/local/smart_klass/dashboard.php',
+                    array('cid' => $PAGE->context->id, 'dt'=>SMART_KLASS_DASHBOARD_INSTITUTION)
+                )
+            );
+        }
     }
-    
+
     //Remove Smart Klass root node it empty
-    if ( !$nodeSmartKlap->has_children()) 
+    if ( !$nodeSmartKlap->has_children()) {
         $nodeSmartKlap->remove();
-       
+    }
  }
 
 /**
@@ -263,7 +170,7 @@ function local_smart_klass_extends_navigation(global_navigation $navigation) {
  * @return void
  */
 
-function local_smart_klass_cron() {  
+function local_smart_klass_cron() {
     global $CFG;
     if ($CFG->version < SMART_KLASS_MOODLE_27) local_smart_klass_harvest();
 }
@@ -272,9 +179,9 @@ function local_smart_klass_cron() {
 function local_smart_klass_harvest( $collector=array() ) {
     if ( get_config('local_smart_klass', 'activate') != 1){
         echo get_string('harvester_service_unavailable', 'local_smart_klass');
-        return; 
+        return;
     }
-    
+
     print_r(get_config('local_smart_klass', 'harvestcicles'));
     $max_cicles = get_config('local_smart_klass', 'max_block_cicles');
     $harvest_cicles = get_config('local_smart_klass', 'harvestcicles');
@@ -287,36 +194,23 @@ function local_smart_klass_harvest( $collector=array() ) {
     if ($harvest_cicles >= $max_cicles) {
         set_config('croninprogress', false, 'local_smart_klass');
         set_config('harvestcicles', 0, 'local_smart_klass');
-    } 
+    }
 
     if (get_config('local_smart_klass', 'croninprogress') == true){
         echo get_string('harvester_service_instance_running', 'local_smart_klass');
         return;
     }
-    
-    if ( get_config('local_smart_klass', 'oauth_access_token')  == false || 
-            get_config('local_smart_klass', 'oauth_refresh_token') == false || 
-            get_config('local_smart_klass', 'oauth_client_id') == false || 
-            get_config('local_smart_klass', 'oauth_client_secret') == false ) 
-    {
-        echo get_string('harvester_service_not_register', 'local_smart_klass');
-        return;
-    }
-    
+
     global $CFG, $USER, $DB;
-    
-    
+
     set_config('croninprogress', true, 'local_smart_klass');
-    
-    
+
     $out = array();
-    
+
     //Autoload library class
     require_once (dirname(__FILE__) . '/classes/xAPI/Autoloader.php');
     SmartKlass\xAPI\Autoloader::register();
-    
-    
-    
+
     $objlog = new stdClass();
     $objlog->init = 0;
     $objlog->finish = 0;
@@ -324,7 +218,7 @@ function local_smart_klass_harvest( $collector=array() ) {
     $objlog->collectors = '';
     $objlog->logfile = '';
     $objlog->error = '';
-    
+
     try {
         $objlog->init = time();
         $out[] = 'Enviando xAPI statements............... -- ' . date('r', $objlog->init);
@@ -335,11 +229,11 @@ function local_smart_klass_harvest( $collector=array() ) {
         $collectors = $DB->get_records_select('local_smart_klass', 'active=?' . $custom_collector, array(1));
 
         foreach ($collectors as $item){
-            $trace =  '...... Recolectando ' . $item->name . ' -- Inicio: ' . date('r')  . ' / ';      
+            $trace =  '...... Recolectando ' . $item->name . ' -- Inicio: ' . date('r')  . ' / ';
             $collector_class = 'SmartKlass\\xAPI\\' . $item->name . 'Collector';
             $collector = new $collector_class;
-            $trace .= 'Fin: ' . date('r');   
-            $out[] = $trace;     
+            $trace .= 'Fin: ' . date('r');
+            $out[] = $trace;
         }
         $objlog->logfile = SmartKlass\xAPI\Logger::save_log();
         $objlog->finish = time();
@@ -348,11 +242,11 @@ function local_smart_klass_harvest( $collector=array() ) {
         $out[] = 'Enviados xAPI statements............... -- ' . date('r', $objlog->finish);
         $url = SmartKlass\xAPI\Logger::get_url($objlog->logfile);
         $out[] = html_writer::link($url, $objlog->logfile);
-        
+
         set_config('croninprogress', false, 'local_smart_klass');
         set_config('harvestcicles', 0, 'local_smart_klass');
         set_config('lastcron', $objlog->finish, 'local_smart_klass');
-        
+
     } catch (Exception $e){
         set_config('croninprogress', false, 'local_smart_klass');
         $objlog->error = json_encode($e);
@@ -362,43 +256,43 @@ function local_smart_klass_harvest( $collector=array() ) {
         $out[] = 'Error............... -- ' . date('r', $objlog->finish);
         $url = SmartKlass\xAPI\Logger::get_url($objlog->logfile);
         $out[] = html_writer::link($url, $objlog->logfile);
-    } 
-    
+    }
+
     $collectors = $DB->get_records_select('local_smart_klass', 'active=?' . $custom_collector, array(1));
     $objlog->collectors = json_encode($collectors);
     $DB->insert_record('local_smart_klass_log', $objlog);
     $br = html_writer::empty_tag('br');
     echo implode($br, $out);
-    
+
 }
 
 function local_smart_klass_pluginfile($course, $cm, $context, $filearea, $args, $forcedownload, array $options=array()) {
     // Check the contextlevel is as expected - if your plugin is a block, this becomes CONTEXT_BLOCK, etc.
     if ($context->contextlevel != CONTEXT_SYSTEM) {
-        return false; 
+        return false;
     }
- 
+
     // Make sure the filearea is one of those used by the plugin.
     if ($filearea !== 'local_smart_klass' ) {
         return false;
     }
- 
+
     // Make sure the user is logged in and has access to the module (plugins that are not course modules should leave out the 'cm' part).
     require_login();
- 
+
     // Check the relevant capabilities - these may vary depending on the filearea being accessed.
     if (!has_capability('local/smart_klass:manage', $context)) {
         return false;
     }
-    
+
     $forcedownload = true;
-    
+
     // Leave this line out if you set the itemid to null in make_pluginfile_url (set $itemid to 0 instead).
     $itemid = array_shift($args); // The first item in the $args array.
- 
+
     // Use the itemid to retrieve any relevant data records and perform any security checks to see if the
     // user really does have access to the file in question.
- 
+
     // Extract the filename / filepath from the $args array.
     $filename = array_pop($args); // The last item in the $args array.
     if (!$args) {
@@ -406,9 +300,9 @@ function local_smart_klass_pluginfile($course, $cm, $context, $filearea, $args, 
     } else {
         $filepath = '/'.implode('/', $args).'/'; // $args contains elements of the filepath
     }
-    
+
     set_config('croninprogress', false, 'local_smart_klass');
-    
+
     // Retrieve the file from the Files API.
     $fs = get_file_storage();
     $file = $fs->get_file($context->id, 'local_smart_klass', $filearea, $itemid, $filepath, $filename);
@@ -428,29 +322,29 @@ function local_smart_klass_activate_harvester( $collectorid ) {
 
 function local_smart_klass_get_harvesters () {
     global $CFG, $DB;
-    
+
     $harvesters = $DB->get_records('local_smart_klass', null, null, 'name');
-    
+
     $collectors_class = scandir(dirname(__FILE__).'/classes/xAPI/Collectors');
-   
+
     $key = array_search ( 'Collector.php', $collectors_class );
     unset($collectors_class[$key]);
     $key = array_search ( '.', $collectors_class );
     unset($collectors_class[$key]);
     $key = array_search ( '..', $collectors_class );
     unset($collectors_class[$key]);
-    
-    foreach ($collectors_class as &$item) {     
+
+    foreach ($collectors_class as &$item) {
         $item = str_replace('Collector.php', '', $item);
-        
+
         if ( !array_key_exists ($item, $harvesters) ) {
-            
+
             try {
                 //Autoload library class
                 require_once (dirname(__FILE__) . '/classes/xAPI/Autoloader.php');
                 SmartKlass\xAPI\Autoloader::register();
 
-                $class_file = dirname(__FILE__) . "/classes/xAPI/Collectors/{$item}Collector.php";               
+                $class_file = dirname(__FILE__) . "/classes/xAPI/Collectors/{$item}Collector.php";
                 if ( !file_exists($class_file) ) continue;
                // if (!class_exists("SmartKlass\\xAPI\\$item") ) continue;
                 $class = new \ReflectionClass("SmartKlass\\xAPI\\{$item}Collector");
@@ -468,10 +362,10 @@ function local_smart_klass_get_harvesters () {
                 $o->lastregistry = 0;
                 $o->lastexectime = 0;
                 $id = $DB->insert_record ('local_smart_klass', $o);
-            } catch (Exception $ex) {} 
-         } 
+            } catch (Exception $ex) {}
+         }
         unset($harvesters[$item]);
-        
+
     }
     if (count($harvesters) > 0) {
         foreach ($harvesters as $key=>$value) {
@@ -482,119 +376,11 @@ function local_smart_klass_get_harvesters () {
     }
     $harvesters = $DB->get_records('local_smart_klass', array('deleted'=>'0'));
     return $harvesters;
-    
-}
-
-
-
-function local_smart_klass_trackurl() {
-    global $CFG, $DB, $PAGE, $COURSE, $SITE, $USER;
-    $pageinfo = get_context_info_array($PAGE->context->id);
-    $trackurl = "'" . $CFG->wwwroot . "/";
-    $trackurl .= 'category_';
-    if (isset($pageinfo[1]->category)) {
-        if ($category = $DB->get_record('course_categories', array('id'=>$pageinfo[1]->category))) {
-            $cats=explode("/",$category->path);
-            foreach(array_filter($cats) as $cat) {
-                if ($categorydepth = $DB->get_record("course_categories", array("id" => $cat))) {;
-                    $trackurl .= $categorydepth->id . '$' . $categorydepth->name.'#';
-                }
-            }
-            $trackurl .= "/";
-        } else {
-            $trackurl .= SMART_KLASS_TRACKER_EMPTYVALUE;
-        }
-    } else {
-        $trackurl .= SMART_KLASS_TRACKER_EMPTYVALUE;
-    }
-    $trackurl .= 'course_';
-    if (isset($pageinfo[1]->fullname)) {
-        $trackurl .= $pageinfo[1]->id . '$';
-        if (isset($pageinfo[2]->name)) {
-            $trackurl .= $pageinfo[1]->fullname.'/';
-        } else if ($PAGE->user_is_editing()) {
-            $trackurl .= $pageinfo[1]->fullname.'#'.get_string('edit', 'local_smart_klass') . '/';
-        } else {
-            $trackurl .= $pageinfo[1]->fullname.'#'.get_string('view', 'local_smart_klass') . '/';
-        } 
-    } else {
-        $trackurl .= SMART_KLASS_TRACKER_EMPTYVALUE;
-    }
-    
-    $trackurl .= 'activity_';
-    if (isset($pageinfo[2]->name)) {
-        $trackurl .= $pageinfo[2]->id . '$';
-        $trackurl .= $pageinfo[2]->modname.'-'.$pageinfo[2]->name . '/';
-    } else {
-        $trackurl .= SMART_KLASS_TRACKER_EMPTYVALUE;
-    }
-    
-    $trackurl .= 'user_';
-    if (!empty($USER->id)) {
-        $trackurl .= $USER->id . '/';
-        $trackurl .= 'role_';
-        if (is_siteadmin($USER->id)) $trackurl .= 'super#';
-        if ($roles	= get_user_roles($PAGE->context, $USER->id, true) ) {;
-            foreach($roles as $role){
-                $trackurl .= $role->name . '#';
-            }
-            $trackurl .= '/';
-        } elseif ( !is_siteadmin($USER->id) ) {
-           $trackurl .= SMART_KLASS_TRACKER_EMPTYVALUE; 
-        }
-    } else {
-        $trackurl .= SMART_KLASS_TRACKER_EMPTYVALUE;
-    }
-    $trackurl .= "'";
-    return $trackurl;
-}
-
-function local_smart_klass_set_oauthserver ($endpoint) {
-    set_config('oauth_server', $endpoint, 'local_smart_klass');
-}
- 
-function local_smart_klass_insert_analytics_tracking() {
-    global $CFG, $USER;
-    
-    require_once(dirname(__FILE__).'/classes/xAPI/Providers/Credentials.php');
-    $provider = SmartKlass\xAPI\Credentials::getProvider();
-    $credentials = $provider->getCredentials();
-    
-    
-    $siteurl = $credentials->tracker_endpoint;
-    $siteid = $credentials->tracker_id;
-    if (is_null($siteurl) || is_null($siteid)) return;
-    
-    $userid = $CFG->wwwroot . '/' . ( ( empty($USER->id) ) ? 0 : $USER->id );
-    
-
-	 $trackercode =  "
-        <script type='text/javascript'>
-            var _paq = _paq || [];
-            _paq.push(['setDocumentTitle', ".local_smart_klass_trackurl()."]);
-            _paq.push(['setUserId', '" . $userid . "']);
-            _paq.push(['trackPageView']);
-            _paq.push(['enableLinkTracking']);
-            (function() {
-              var u='".$siteurl."/';
-              _paq.push(['setTrackerUrl', u+'piwik.php']);
-              _paq.push(['setSiteId', ".$siteid."]);
-              var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
-            g.type='text/javascript'; g.async=true; g.defer=true; g.src=u+'piwik.js'; s.parentNode.insertBefore(g,s);
-            })();
-        </script>
-        <noscript><p><img src=".$siteurl."/piwik.php?idsite=".$siteid." style='border:0;' alt='' /></p></noscript>";
-         
-         if ($CFG->version < SMART_KLASS_MOODLE_25) {
-            $CFG->additionalhtmlhead = $trackercode;
-         } else {
-             $CFG->additionalhtmlfooter = $trackercode;
-         }
-		
 
 }
+
 
 //Autoload library class
 require_once (dirname(__FILE__) . '/classes/xAPI/Autoloader.php');
 SmartKlass\xAPI\Autoloader::register();
-local_smart_klass_insert_analytics_tracking();
+

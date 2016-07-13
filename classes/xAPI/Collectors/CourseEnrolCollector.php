@@ -17,7 +17,7 @@ class CourseEnrolCollector extends Collector {
     public function collectData(){
         global $DB;
         
-        $data = $this->dataprovider->getEnrolments($this); 
+        $data = $this->dataprovider->getAllEnrolments($this); 
         
         return (empty($data)) ? null : $data;
         
@@ -43,7 +43,7 @@ class CourseEnrolCollector extends Collector {
             //SetResult
 
             //SetContext
-          $role_extension = new Extension(
+			$role_extension = new Extension(
                                             'http://xapi.klassdata.com/extensions/role',
                                             $this->dataprovider->getRole($object->userid, $object->course)
                                             );

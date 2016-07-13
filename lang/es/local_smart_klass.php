@@ -87,3 +87,21 @@ $string['no_dashboard_endpoint'] = 'La URL del dashboard es incorrecta. Intental
 $string['no_access_token_aviable'] = 'Las credenciales de acceso no están disponibles. Intentalo de nuevo más tarde';
 $string['harvester_service_not_register'] = 'El servicio SmartKlass no esta registrado. Por faver revisa el registro en la aplicación';
 $string['lrs_error'] = 'Error intentando conectar con el LRS';
+
+$string['register_institution'] = 'SmartKlass - Registro';
+$string['institution'] = 'INSTITUCIÓN';
+$string['manager_name'] = 'NOMBRE';
+$string['manager_lastname'] = 'APELLIDOS';
+$string['manager_email'] = 'EMAIL';
+$string['password'] = 'CONTRASEÑA';
+$string['confirm_password'] = 'CONFIRMAR CONTRASEÑA';
+$string['captcha'] = 'CAPTCHA';
+$string['accept'] = 'Acepto';
+$string['terms'] = 'Términos y condiciones';
+$string['register_submit'] = 'Registrar';
+$string['password_no_match'] = 'Las contraseñas no coinciden';
+$string['captcha_no_match'] = 'El Captcha no coincide';
+$string['password_no_length'] = 'La contraseña debe tener, al menos, 8 caracteres';
+$string['email_wrong'] = 'Email incorrecto';
+
+$string['warning_activity_completion'] = 'IMPORTANTE: Por favor, asegúrate que tienes activada el Control de Finalización de Actividad en la configuración de Moodle!!';
